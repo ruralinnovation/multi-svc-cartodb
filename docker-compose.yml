@@ -5,6 +5,15 @@ volumes:
   postgis_data:
 
 services:
+  sqlapi:
+    container_name: sqlapi
+    build:
+      context: docker/sqlapi
+    ports: 
+      - "8080:8080"
+    depends_on:
+      - redis
+      - postgis
   redis:
     container_name: redis
     build:
@@ -44,5 +53,5 @@ services:
     # Note that if you *also* need the port exposed for postgres, you have to
     # use the --service-ports flag to `docker-compose run`. 
     #
-    stdin_open: true
-    tty: true
+    #stdin_open: true
+    #tty: true

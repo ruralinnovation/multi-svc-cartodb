@@ -1,3 +1,6 @@
 [submodule "docker/postgis/cartodb-postgresql"]
 	path = docker/postgis/cartodb-postgresql
 	url = https://github.com/CartoDB/cartodb-postgresql
+[submodule "docker/sqlapi/CartoDB-SQL-API"]
+	path = docker/sqlapi/CartoDB-SQL-API
+	url = https://github.com/CartoDB/CartoDB-SQL-API
