@@ -18,6 +18,7 @@ Relevant links:
 * [Dockerfile for the `postgres:10` image](https://github.com/docker-library/postgres/blob/85aadc08c347cd20f199902c4b8b4f736341c3b8/10/Dockerfile)
 * [`docker-entrypoint.sh` from the same repository](https://github.com/docker-library/postgres/blob/85aadc08c347cd20f199902c4b8b4f736341c3b8/10/docker-entrypoint.sh)
 * [Dockerfile for the `docker-postgis:10-2.5` image](https://github.com/appropriate/docker-postgis/blob/master/10-2.5/Dockerfile), which is not directly invoked here, but which the Dockerfile and init script used here are loosely based on.
+* [Instructions for interacting with/extending the postgres image](https://hub.docker.com/_/postgres) (starts at 'How to extend this image')
 
 ## Assets
 
