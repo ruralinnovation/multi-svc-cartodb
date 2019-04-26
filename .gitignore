@@ -1,0 +1,8 @@
+./redis_data
+./postgis_data
+
+# Ignore vim tempfiles
+*.swp
+
+# No node_modules in the repos!
+node_modules

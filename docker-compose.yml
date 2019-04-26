@@ -1,0 +1,48 @@
+version: '3.7'
+
+volumes:
+  redis_data:
+  postgis_data:
+
+services:
+  redis:
+    container_name: redis
+    build:
+      context: docker/redis
+    volumes:
+      # Note that this uses a docker volume in preference to mounting a
+      # directory of the host. It's unlikely that you would want to examine
+      # the contents of the data directory directly, and if you do want to
+      # you will be able to attach the redis_data volume to either this
+      # or another container (either running redis or not).
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+  postgis:
+    container_name: postgis
+    build:
+      context: docker/postgis
+    volumes:
+      # As with the Redis persistence, this is a docker volume rather than
+      # a direct mount of a host directory. If in either case you would like
+      # to change to using a host mount point, create a directory in the root
+      # of the repo called 'postgis_data' and uncomment the following line,
+      # then comment out the line that uses the named volume.
+      #
+      # - ./postgis_data:/var/lib/postgresql/data
+      - postgis_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    # If you need to get a shell on the postgis container, and you want the
+    # data volume for postgis to be attached (which it won't be using plain
+    # `docker run`), you should run `docker-compose stop` to stop the cluster,
+    # then uncomment the following two lines. Once that's done, you can start
+    # the container with `docker-compose run postgis`, and you will be dropped
+    # into a bash shell, on a container that has the postgis_data volume 
+    # attached in the correct location. 
+    #
+    # Note that if you *also* need the port exposed for postgres, you have to
+    # use the --service-ports flag to `docker-compose run`. 
+    #
+    stdin_open: true
+    tty: true
