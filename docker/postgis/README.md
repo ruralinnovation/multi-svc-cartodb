@@ -35,3 +35,7 @@ The db init scripts are:
 * `10_create_carto_users.sh` - Creates the `publicuser` and `tileuser` postgres users
 * `11_install_carto_pg_extension.sh` - Installs the `cartodb-postgresql` extension (though it does not add it to any database or schema)
 * `99_blank_file.sh` and `99_blank_file.sql` - Files with no content other than a descriptive comment. Present to ensure the Dockerfile does not fail on `COPY` if no other `.sh` or `.sql` files are present in the `initdb.d` directory.
+
+### pgBouncer
+
+Some parts of the CartoDB ecosystem appear to want pgBouncer to be installed on the Postgres host. In particular, the test runner for SQL API wants it to exist. At the moment I'm trying to figure out whether it can run without it.

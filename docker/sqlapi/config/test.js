@@ -6,7 +6,7 @@
 //      - process.env.NODE_ENV is unset
 //   - In app/server.js, prevents batch jobs from being started in test env
 //   - In app/middlewares/error.js, changes how errors are handled, by env
-module.exports.environment  = 'development';
+module.exports.environment  = 'test';
 
 // Time in ms to force garbage collection cycle. Disable by setting to -1.
 module.exports.gc_interval = 10000;
@@ -34,7 +34,7 @@ module.exports.ratelimits = {
 // See app/controllers/health_check_controller.js.
 module.exports.health = {
     enabled: true,
-    username: 'development',
+    username: 'vizzuality',
     query: 'select 1'
 };
 
@@ -44,8 +44,9 @@ module.exports.log_format   = '[:date] :remote-addr :method '+
                               ':req[Host]:url :status :response-time ms '+
                               '-> :res[Content-Type] (:res[X-SQLAPI-Profiler])'+
                               '(:res[X-SQLAPI-Errors])';
-// If log_filename is not defined, defaults to STDOUT. Log file reopens on HUP.
-module.exports.log_filename = 'logs/cartodb-sql-api.log';
+// Since we want logging to go to STDOUT for test runs, we are going to leave
+// log_filename undefined.
+///module.exports.log_filename = 'logs/cartodb-sql-api.log';
 module.exports.batch_log_filename = 'logs/batch-queries.log';
 module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
 
@@ -54,27 +55,24 @@ module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
 // If the :user param is in the base_url, that is used. Otherwise falls back
 // to whatever is in the host header, using the user_from_host regex.
 module.exports.base_url     = '(?:/api/:version|/user/:user/api/:version)';
-module.exports.user_from_host = '^(.*)\\.localhost';
+module.exports.user_from_host = '^([^.]*)\\.';
 module.exports.node_port    = 8080;
 module.exports.node_host    = '127.0.0.1';
 
 //// PG DATABASE SETTINGS ////////////////////////////////////////////////////
 //
-// Label for this may be 'user_id' (read from Redis)
-module.exports.db_user      = 'development_cartodb_user_<%= user_id %>';
-
-// Label for this may be 'user_id' or 'user_password' (read from Redis)
-module.exports.db_user_pass = '<%= user_password %>'
 
 // Name and password for the anonymous PostgreSQL user
-module.exports.db_pubuser   = 'publicuser';
-module.exports.db_pubuser_pass   = 'public';
+module.exports.db_pubuser       = 'testpublicuser';
+module.exports.db_pubuser_pass  = 'public';
 
 // DB connection params
-module.exports.db_base_name = 'cartodb_dev_user_<%= user_id %>_db';
-module.exports.db_host      = 'postgis';
-module.exports.db_port      = '5432';
-module.exports.db_batch_port      = '5432';
+module.exports.db_base_name     = 'cartodb_test_user_<%= user_id %>_db';
+module.exports.db_user          = 'test_cartodb_user_<%= user_id %>';
+module.exports.db_user_pass     = 'test_cartodb_user_<%= user_id %>_pass';
+module.exports.db_host          = 'postgis';
+module.exports.db_port          = '5432';
+module.exports.db_batch_port    = '5432';
 
 // DB thread pool control (for the app, not the database server)
 // Max db connections in the pool, subsequent connections wait for space.
@@ -92,12 +90,12 @@ module.exports.validatePGEntitiesAccess = false;
 module.exports.redis_host   = 'redis';
 module.exports.redis_port   = 6379;
 module.exports.redisPool    = 50;
-module.exports.redisIdleTimeoutMillis   = 100;
+module.exports.redisIdleTimeoutMillis   = 1000;
 module.exports.redisReapIntervalMillis  = 10;
 module.exports.redisLog     = false;
 
 // tableCache settings
-module.exports.tableCacheEnabled = false; // false by default
+module.exports.tableCacheEnabled = true; // false by default
 module.exports.tableCacheMax = 8192; // max entries in query tables cache
 module.exports.tableCacheMaxAge = 1000*60*10; // max age of cache items, in ms
 
@@ -112,7 +110,7 @@ module.exports.disabled_file = 'pids/disabled';
 //// JOB CONTROL SETTINGS ////////////////////////////////////////////////////
 //
 module.exports.finished_jobs_ttl_in_seconds = 2 * 3600; // 2 hours
-module.exports.batch_query_timeout = 12 * 3600 * 1000;  // 12 hours
+module.exports.batch_query_timeout = 5 * 1000;  // 5 seconds
 module.exports.copy_timeout = "'5h'";
 module.exports.copy_from_max_post_size = 2 * 1024 * 1024 * 1024; // 2 GB
 module.exports.copy_from_max_post_size_pretty = '2 GB';

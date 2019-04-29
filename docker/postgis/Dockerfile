@@ -46,6 +46,20 @@ RUN rm /carto/cartodb-postgresql/.git \
  && mkdir -p /carto/cartodb-postgresql/.git \
  && echo "fake index file to satisfy Makefile rule carto_version.sql" > /carto/cartodb-postgresql/.git/index
 
+# TODO: Figure out whether it's worth it to use pgbouncer.
+# Installing pgbouncer because some parts of the CartoDB ecosystem expect
+# it to be there.
+#RUN apt-get update \
+# && apt-get install -y \
+#    pgbouncer \
+# && mkdir -p /var/log/pgbouncer \
+# && mkdir -p /var/run/pgbouncer \
+# && chown -R postgres:postgres /var/log/pgbouncer \
+# && chown -R postgres:postgres /var/run/pgbouncer 
+#
+#COPY ./pgbouncer/pgbouncer.ini /etc/pgbouncer/
+#COPY ./pgbouncer/userlist.txt /etc/pgbouncer/
+
 # The following parts of this are concerned with installing scripts to init
 # the database on container run. The mechanism for doing so (by copying .sh
 # and .sql files into /docker-entrypoint-initdb.d) comes from the base image,
