@@ -7,3 +7,6 @@
 [submodule "docker/windshaft/Windshaft-cartodb"]
 	path = docker/windshaft/Windshaft-cartodb
 	url = https://github.com/CartoDB/Windshaft-cartodb.git
+[submodule "docker/cartodb/cartodb"]
+	path = docker/cartodb/cartodb
+	url = https://github.com/CartoDB/cartodb.git
