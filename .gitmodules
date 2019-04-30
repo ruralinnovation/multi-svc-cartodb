@@ -4,3 +4,6 @@
 [submodule "docker/sqlapi/CartoDB-SQL-API"]
 	path = docker/sqlapi/CartoDB-SQL-API
 	url = https://github.com/CartoDB/CartoDB-SQL-API
+[submodule "docker/windshaft/Windshaft-cartodb"]
+	path = docker/windshaft/Windshaft-cartodb
+	url = https://github.com/CartoDB/Windshaft-cartodb.git
