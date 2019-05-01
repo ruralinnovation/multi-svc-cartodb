@@ -76,9 +76,10 @@ if test x"$PREPARE_PGSQL" = xyes; then
     export PGOPTIONS='--client-min-messages=warning'
     psql $PGCONN -q -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' ${TEST_DB}
     psql $PGCONN -q -c 'CREATE EXTENSION IF NOT EXISTS "plpythonu";' ${TEST_DB}
+    psql $PGCONN -q -c 'CREATE EXTENSION IF NOT EXISTS "cartodb";' ${TEST_DB}
 
     LOCAL_SQL_SCRIPTS='test populated_places_simple_reduced py_sleep quota_mock'
-    REMOTE_SQL_SCRIPTS='CDB_QueryStatements CDB_QueryTables CDB_CartodbfyTable CDB_TableMetadata CDB_ForeignTable CDB_UserTables CDB_ColumnNames CDB_ZoomFromScale CDB_OverviewsSupport CDB_Overviews'
+    REMOTE_SQL_SCRIPTS='CDB_SearchPath CDB_QueryStatements CDB_QueryTables CDB_CartodbfyTable CDB_TableMetadata CDB_ForeignTable CDB_UserTables CDB_ColumnNames CDB_ZoomFromScale CDB_OverviewsSupport CDB_Overviews'
     ALL_SQL_SCRIPTS="${REMOTE_SQL_SCRIPTS} ${LOCAL_SQL_SCRIPTS}"
 
     BASE_PGEXT_URL="https://raw.githubusercontent.com/CartoDB/cartodb-postgresql/$CARTO_PGEXT_VERSION/"

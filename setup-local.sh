@@ -27,6 +27,7 @@ SET_CHECKOUTS=yes
 QUIET=no
 GITQUIET=""
 
+# TODO: Add help text for the script.
 while test $# -gt 0; do
     case "$1" in
         -h|--help)

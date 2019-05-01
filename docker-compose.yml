@@ -1,10 +1,20 @@
 version: '3.7'
 
 volumes:
-  redis_data:
-  postgis_data:
+  redis-data:
+  postgis-data:
 
 services:
+  windshaft:
+    container_name: windshaft
+    build:
+      context: docker/windshaft
+    ports:
+      - "8181:8181"
+    depends_on:
+      - redis
+      - postgis
+      - sqlapi
   sqlapi:
     container_name: sqlapi
     build:
@@ -22,9 +32,9 @@ services:
       # Note that this uses a docker volume in preference to mounting a
       # directory of the host. It's unlikely that you would want to examine
       # the contents of the data directory directly, and if you do want to
-      # you will be able to attach the redis_data volume to either this
+      # you will be able to attach the redis-data volume to either this
       # or another container (either running redis or not).
-      - redis_data:/data
+      - redis-data:/data
     ports:
       - "6379:6379"
   postgis:
@@ -35,11 +45,11 @@ services:
       # As with the Redis persistence, this is a docker volume rather than
       # a direct mount of a host directory. If in either case you would like
       # to change to using a host mount point, create a directory in the root
-      # of the repo called 'postgis_data' and uncomment the following line,
+      # of the repo called 'postgis-data' and uncomment the following line,
       # then comment out the line that uses the named volume.
       #
-      # - ./postgis_data:/var/lib/postgresql/data
-      - postgis_data:/var/lib/postgresql/data
+      # - ./postgis-data:/var/lib/postgresql/data
+      - postgis-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
       - "6432:6432"     # pgbouncer runs on this port, which sqlapi's tests need
@@ -48,7 +58,7 @@ services:
     # `docker run`), you should run `docker-compose stop` to stop the cluster,
     # then uncomment the following two lines. Once that's done, you can start
     # the container with `docker-compose run postgis`, and you will be dropped
-    # into a bash shell, on a container that has the postgis_data volume 
+    # into a bash shell, on a container that has the postgis-data volume 
     # attached in the correct location. 
     #
     # Note that if you *also* need the port exposed for postgres, you have to
