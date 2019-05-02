@@ -5,6 +5,13 @@ volumes:
   postgis-data:
 
 services:
+  cartodb:
+    container_name: cartodb
+    build:
+      context: docker/cartodb
+    ports:
+      - "3000:3000"    # http_port from app_config.yml
+      - "443:443"      # default https_port from app_config.yml
   windshaft:
     container_name: windshaft
     build:
