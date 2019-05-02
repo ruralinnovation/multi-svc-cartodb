@@ -1,0 +1,1173 @@
+defaults: &defaults
+  #### IMPORTER SETTINGS #####################################################
+
+  # Setting: 'overviews'
+  # Used in: CartoDB::Importer2
+  # Purpose: Part of init process for importer object
+  # File: services/importer/lib/importer/overviews.rb
+  overviews:
+    min_rows: 2000000
+    statement_timeout: 1800000
+    tolerance_px: 1.0
+
+  # Setting: 'importer'
+  #
+  # Used in: CartoDB::DataSources::DataImport.new_importer
+  # Purpose: Instantiation arg to CartoDB::Importer2::Unp.new
+  # File: app/models/data_import.rb
+  #
+  # Used in: CartoDB::DataSources::DataImport.new_importer_with_runner
+  # Purpose: 'importer_config' arg to CartoDB::Importer2::Runner.new
+  # File: app/models/data_import.rb
+  #
+  # Used in: CartoDB::DataSources::DataImport.get_downloader
+  # Purpose: 'importer_config' arg to CartoDB::Importer2::Downloader.new, and
+  #          'options.importer_config' arg to 
+  #          CartoDB::Importer2::DatasourceDownloader.new
+  # File: app/models/data_import.rb
+  #
+  # Used in: CartoDB::Synchronization::Member.get_runner
+  # Purpose: Instantiation arg to both CartoDB::Importer2::Unp.new and
+  #          CartoDB::Importer2::Runner.new
+  #          Also in code duplicated from data_import.
+  # File: app/models/synchronization/member.rb
+  importer:
+    # Setting: 'importer.blacklisted_ip_addr'
+    # Used in: Carto::UrlValidator.blacklisted_ip_ranges
+    # Purpose: give ranges of blacklisted ips. Not sure on format.
+    # File: lib/carto/url_validator.rb
+    blacklisted_ip_addr: []
+    # Setting: 'importer.content_guessing'
+    # Used in: CartoDB::DataSources::DataImport.content_guessing_options
+    # Purpose: Toggles 'guessing' in content_guessing_options
+    # File: app/models/data_import.rb
+    content_guessing:
+      enabled: false
+      threshold: 0.9
+      minimum_entropy: 0.9
+      sample_size: 400
+    # Setting: 'importer.s3'
+    # Used in: Api::Json::ImportsController.create
+    # Purpose: Argument to file_upload_helper.upload_file_to_storage
+    # File: app/controllers/api/json/imports_controller.rb
+    s3:
+      access_key_id:
+      secret_access_key:
+      bucket_name:
+      url_ttl:
+      async_long_uploads: false
+      proxy_uri:
+      s3_endpoint: ''
+      region: ''
+    # Setting: 'importer.unp_temporal_folder'
+    # Used in: CartoDB::Importer2::Downloader.tmp_file_directory
+    # Purpose: Give path to temp dir for imports
+    # File: services/importer/lib/importer/downloader.rb
+    unp_temporal_folder: '/tmp/imports'
+    # Setting: 'importer.uploads_path'
+    #
+    # Used in: CartoDB::DataSources::DataImport.remove_uploaded_resources
+    # Purpose: Arg to CartoDB::FileUpload.new
+    # File: app/models/data_import.rb
+    #
+    # Used in: Api::Json::ImportsController.create
+    # Purpose: Instantiation arg to CartoDB::FileUpload.new
+    # File: app/controllers/api/json/imports_controller.rb
+    #
+    # Used in: Api::Json::UploadsController.create
+    # Purpose: Instantiation arg to CartoDB::FileUpload.new
+    # File: app/controllers/api/json/uploads_controller.rb
+    #
+    # Used in: import rake task
+    # Purpose: Instantiation arg to CartoDB::FileUpload.new
+    # File: lib/tasks/import.rake
+    #
+    # Used in: Carto::Configuration.public_uploads_path and
+    #          Carto::Configuration.uploaded_file_path
+    # Purpose: Give path to uploads in both cases
+    # File: lib/carto/configuration.rb
+    uploads_path: 'public/uploads'
+    # Setting: 'importer.python_path' and 'importer.python_bin_path'
+    #
+    # Used in: CartoDB.python_path and CartoDB.python_bin_path
+    # Purpose: Set the path to a python executable and bin folder? I guess?
+    # File: config/initializers/carto_db.rb
+    # Note: These appear to be used for excel to csv conversion, can't tell if
+    #       that's genuinely implemented or not. Also maybe some shapefile stuff?
+    python_path:
+    python_bin_path:
+
+  #### DATABASE SETTINGS #####################################################
+
+  # Setting: 'connectors'
+  #
+  # Used in: Carto::ConnectorConfiguration
+  # Purpose: Part of init process for data connector objects
+  # File: app/models/carto/connector_configuration.rb
+  #
+  # Used in: `connectors_api` rake task
+  # Purpose: Determine which connectors to enable
+  # File: lib/tasks/connectors_api.rake 
+  connectors:
+    odbc:
+      enabled: false
+      max_rows: nil
+    mysql:
+      enabled: true
+      max_rows: 500000
+    postgresql:
+      enabled: true
+      max_rows: 500000
+    hive:
+      enabled: false
+      max_rows: 500000
+    sqlserver:
+      enabled: false
+      max_rows: 500000
+
+
+  #### UNKNOWN ###############################################################
+  
+  # Setting: 'mandatory_keys'
+  # Used in: Cartodb.config
+  # Purpose: Raises an error if at least the listed keys are not present in the
+  #          config file being parsed.
+  # File: config/initializers/01_app_config.rb
+  mandatory_keys: [layer_opts, sql_api, varnish_management, redis, session_domain]
+
+  # 'dataservices' is all over the place. Not sure yet what all it controls.
+  dataservices:
+    enabled:
+      geocoder_internal: false
+      hires_geocoder: false
+      isolines: false
+      routing: false
+      data_observatory: false
+
+  #### LOGGING SETTINGS ######################################################
+
+  # Setting: 'http_client_logs' 
+  # Used in: Carto::Http::ResponseLogger.enabled?
+  # Purpose: Define return value of the function
+  # File: lib/carto/http/response_logger.rb
+  http_client_logs: true
+
+  #### DEBUGGING SETTINGS ####################################################
+
+  # Setting: 'debug_assets'
+  # Used in: ApplicationController.set_asset_debugging
+  # Purpose: Sets value of CartoDB::Application.config.assets.debug
+  # File: app/controllers/application_controller.rb
+  debug_assets: true
+
+  #### ASSETS SETTINGS #######################################################
+
+  # Setting: 'assets'
+  #
+  # Used in: Asset.max_size, Asset.use_s3?, Asset.s3_bucket
+  # Purpose: Provide global values for assets
+  # File: app/models/asset.rb 
+  #
+  # Used in: FrontendConfigHelper.frontend_config_hash
+  # Purpose: Sets the 'max_asset_file_size' key value of the hash
+  # File: app/helpers/frontend_config_helper.rb
+  #
+  # Used in: ApplicationHelper.frontend_config_public
+  # Purpose: Sets the 'max_file_size' value of the hash returned by the method
+  # File: app/helpers/application_helper.rb
+  #
+  # Used in: Carto::OrganizationAssetsService, multiple methods
+  # Purpose: Provides location and max file size params for assets
+  # File: lib/carto/organization_assets_service.rb
+  assets:
+    max_file_size: 5242880 # 5mb
+    #s3_bucket_name: "tests"
+    #region: ''
+
+  # Setting: 'app_assets'
+  #
+  # Used in: AppAssetsHelper.app_assets_base_url
+  # Purpose: Provides the base URL value for what I assume is the CDN
+  # File: app/helpers/app_assets_helper.rb 
+  #
+  # Used in: ApplicationHelper.frontend_config_public
+  # Purpose: Gives max file size to front end conf object
+  # File: app/helpers/application_helper.rb
+  #
+  # Used in: Cartodb.asset_path
+  # Purpose: If the config key is present, sets the @asset_path var
+  # File: config/initializers/01_app_config.rb
+  #app_assets:
+  #  asset_host: "//cartodb-libs.global.ssl.fastly.net/cartodbui"
+
+  # Setting: 'avatars'
+  # Used in: User.cartodb_avatar
+  # Purpose: Defines possible values for assigning avatar images to users
+  # File: app/models/user.rb
+  avatars:
+    gravatar_enabled: true
+    base_url: '/assets/unversioned/images/avatars'
+    kinds: ['ghost', 'heart', 'marker', 'mountain', 'pacman', 'planet', 'star']
+    colors: ['green', 'orange', 'red', 'yellow']
+
+  # Setting: 'datasources'
+  # Used in: FrontendConfigHelper.frontend_config_hash
+  # Purpose: Sets values of 'arcgis_enabled' and 'salesforce_enabled' in
+  #          the FrontendConfigHelper object.
+  # File: app/helpers/frontend_config_helper.rb
+  datasources:
+    arcgis_enabled: false
+    salesforce_enabled: false
+
+  # Setting: 'datasource_search'
+  #
+  # Used in: Admin::OrganizationUsersController.extra_tweets_enabled?
+  # Purpose: Returns a boolean for whether 
+  #          datasource_search.twitter_search.standard.username is blank
+  # File: app/controllers/admin/organization_users_controller.rb 
+  #
+  # Used in: FrontendConfigHelper
+  # Purpose: Sets the value of 'datasource_search_twitter' in the front end
+  #          config object, if 
+  #          datasource_search.twitter_search.standard.search_url is set.
+  # File: app/helpers/frontend_config_helper.rb
+  #
+  # Used in: CartoDB::Datasources::DatasourcesFactory.get_config
+  # Purpose: Sources datasource config info for Search::Twitter object
+  # File: services/datasources/lib/datasources/datasources_factory.rb 
+  datasource_search:
+    # Must be the same as CartoDB::Datasources::xxxx DATASOURCE_NAME constants
+    twitter_search:
+      standard:
+        auth_required: false
+        username: ''
+        password: ''
+        search_url: ''
+        ratelimit_active: true
+        ratelimit_concurrency: 8
+        ratelimit_ttl: 4
+        ratelimit_wait_secs: 0.5
+      customized_user_list: []
+      customized_orgs_list: []
+      entity_to_config_map: []
+      customized:
+        custom1:
+          auth_required: false
+          username: ''
+          password: ''
+          search_url: ''
+          ratelimit_active: false
+          ratelimit_concurrency: 3
+          ratelimit_ttl: 4
+          ratelimit_wait_secs: 0.1
+
+  #### FIRST PARTY DEPENDENCY SETTINGS #######################################
+  
+  # Setting: 'redis'
+  #
+  # Used in: Redis initializer
+  # Purpose: Checks to make sure redis info is in the config, presumably so
+  #          that RedisFactory.new_connection() can succeed.
+  # File: config/initializers/redis.rb
+  #
+  # Used in: RedisFactory.conf
+  # Purpose: Defines connection params for a new Redis object
+  # File: lib/redis_factory.rb
+  redis:
+    host: 'redis'
+    port: 6379
+    connect_timeout: 2
+    read_timeout: 3
+    write_timeout: 5
+    databases:
+      tables_metadata: 0
+      api_credentials: 3
+      users_metadata: 5
+      redis_migrator_logs: 6
+      limits_metadata: 8
+
+  # Setting: 'org_metadata_api'
+  # 
+  # Used in: CartoDB::UserModule::DBService.configure_extension_org_metadata_api_endpoint
+  # Purpose: If host, port, username, and password are set here, returns the
+  #          result of running those things through the CDB_Conf_SetConf
+  #          postgres function, with the first arg being 'groups_api'.
+  # File: app/models/user/db_service.rb
+  #
+  # Used in: Carto::Api::DatabaseGroupsController.authenticate_extension
+  # Purpose: Authentication for calls coming from the Postgres extension
+  # File: app/controllers/carto/api/database_groups_controller.rb
+  #
+  # Used in: Spec for CartoDB::DataMover::ExportJob
+  # Purpose: Sets up a test for the ExportJob
+  # File: services/user-mover/spec/user_mover_spec.rb
+  org_metadata_api:
+    host: 'localhost.lan'
+    port: '3000'
+    username: 'extension'
+    password: 'elephant'
+    timeout: 10
+
+  # Setting: 'ogr2ogr'
+  #
+  # Used in: DataImport.ogr2ogr_options
+  # Purpose: Sets options related to the ogr2ogr executable, which is used by
+  #          CartoDB::Importer2::Runner objects.
+  # File: app/models/data_import.rb
+  #
+  # Used in: CartoDB::Synchronization::Member.get_runner
+  # Purpose: Helps instantiate a CartoDB::Importer2::Unp object
+  # File: app/models/synchronization/member.rb
+  #
+  # Used in: Not used directly, but related to CartoDB::Importer2::Ogr2ogr
+  # Purpose: Defines settings that (I think) get used to instantiate Ogr2ogr
+  #          objects, though they have to be passed those params, they don't
+  #          get them from the global config object.
+  # File: services/importer/lib/importer/ogr2ogr.rb
+  #
+  # Used in: Again, not directly, but CartoDB::Importer2::Loader
+  # Purpose: Defines settings for ogr2ogr executable
+  # File: services/importer/lib/importer/loader.rb
+  ogr2ogr:
+    binary: 'which ogr2ogr'
+    csv_guessing: true
+    memory_limit:
+
+  # Setting: 'vizjson_cache_domains'
+  # Used in: CartoDB::Visualization::RedisVizjsonCache.purge_ids
+  # Purpose: Defines domain strings to use as partial keys when purging data
+  #          from the redis cache.
+  # File: lib/cartodb/redis_vizjson_cache.rb
+  vizjson_cache_domains: ['.localhost.lan']
+
+  # Setting: 'watcher'
+  #
+  # Used in: Carto::Visualization::Watcher.initialize
+  # Purpose: Sets the default_ttl for the Watcher object
+  # File: app/models/carto/visualization.rb
+  #
+  # Used in: FrontendConfigHelper.frontend_config_hash
+  # Purpose: Sets the 'watcher_ttl' value of the helper object config
+  # File: app/helpers/frontend_config_helper.rb
+  watcher:
+    ttl: 60
+
+  # Setting: 'tiler'
+  #
+  # Used in: CartoDB::NamedMapsWrapper::Presenter.to_poro
+  # Purpose: Sets the tiler_protocol, tiler_domain, tiler_port, and filter
+  #          options of the named map ruby hash (PORO = 'plain old ruby object')
+  # File: app/models/named_map/presenter.rb
+  #
+  # Used in: CartoDB::LayerModule::Presenter.as_torque
+  # Purpose: Sets the tiler_protocol, tiler_domain, and tiler_port options of
+  #          the object returned by `as_torque`
+  # File: app/models/layer/presenter.rb
+  #
+  # Used in: Carto::Api::LayerPresenter.as_torque
+  # Purpose: Sets the tiler_protocol, tiler_domain, and tiler_port options of
+  #          the object returned by `as_torque`. Almost seems to be a direct
+  #          duplication of the code in app/models/layer/presenter.rb. Odd.
+  # File: app/controllers/carto/api/layer_presenter.rb
+  #
+  # Used in: HomeController.windshaft_diagnosis
+  # Purpose: Defines a config hash that is passed to `api_service_diagnosis`
+  # File: app/controllers/home_controller.rb
+  #
+  # Used in: MapsApiHelper.maps_api_url
+  # Purpose: Helps build the url returned by maps_api_url
+  # File: app/helpers/maps_api_helper.rb
+  #
+  # Used in: Carto::NamedMaps::Api, multiple URL related methods
+  # Purpose: Supports methods that pull url parts (domain, port, etc) for the
+  #          Named maps api.
+  # File: lib/carto/named_maps/api.rb
+  tiler:
+    filter: 'mapnik'
+    internal:
+      protocol: 'http'
+      domain: 'localhost.lan'
+      port: '8181'
+      host: 'windshaft'
+      verifycert: false
+    private:
+      protocol: 'http'
+      domain: 'localhost.lan'
+      port: '8181'
+      verifycert: false
+    public:
+      protocol: 'http'
+      domain: 'localhost.lan'
+      port: '8181'
+      verifycert: false
+
+  # Setting: 'sql_api'
+  #
+  # Used in: CartoDB::LayerModule::Presenter.as_torque
+  # Purpose: Sets various URL options related to the sql api endpoint in the
+  #          hash object returned by `as_torque`.
+  # File: app/models/layer/presenter.rb
+  #
+  # Used in: CartoDB::LayerGroup::Presenter.to_poro
+  # Purpose: Sets various URL options related to the sql api endpoint in the
+  #          hash object returned by `to_poro`.
+  # File: app/models/layer_group/presenter.rb
+  #
+  # Used in: Admin::VisualizationsController.sql_api_url
+  # Purpose: Provides URL components for rendering the sql api URL.
+  # File: app/controllers/admin/visualizations_controller.rb
+  #
+  # Used in: Carto::Api::LayerPresenter.as_torque
+  # Purpose: Sets various URL options related to the sql api endpoint in the
+  #          hash object returned by `as_torque`.
+  # File: app/controllers/carto/api/layer_presenter.rb
+  #
+  # Used in: HomeController.sql_api_diagnosis
+  # Purpose: Gets config to use as an argument to api_service_diagnosis call.
+  # File: app/controllers/home_controller.rb
+  #
+  # Used in: CartoDB::SQLApi.build_base_url
+  # Purpose: Supplies URL parts to build the base url of the SQL API
+  # File: services/sql-api/sql_api.rb
+  sql_api:
+    private:
+      protocol: 'http'
+      domain: 'localhost.lan'
+      endpoint: '/api/v1/sql'
+      port: '8080'
+    public:
+      protocol: 'http'
+      domain: 'localhost.lan'
+      endpoint: '/api/v2/sql'
+
+  # Setting: 'common_data'
+  #
+  # Used in: DataImport.before_create and DataImport.from_common_data?
+  # Purpose: Provides a location to retrieve common data from.
+  # File: app/models/data_import.rb
+  #
+  # Used in: CommonData.config
+  # Purpose: Provides a source for these config keys via CommonData.config(key)
+  # File: app/models/common_data.rb
+  #
+  # Used in: CommonDataSingleton.cache_ttl
+  # Purpose: Defines custom ttl value, if common_data.cache_ttl is set
+  # File: app/models/common_data/singleton.rb
+  #
+  # Used in: ApplicationHelper.frontend_config_public
+  # Purpose: Sets the value of the 'common_data_user' key in front end config obj
+  # File: app/helpers/application_helper.rb
+  #
+  # Used in: CartoDB::Visualization::CommonDataService.configured?, and
+  #          CartoDB::Visualization::CommonDataService.build_url, and
+  #          CartoDB::Visualization::CommonDataService.load_common_data_for_user
+  # Purpose: Provides common data config to those methods
+  # File: app/services/visualization/common_data_service.rb
+  #
+  # Used in: remote_tables_maintenance rake task
+  # Purpose: Related to invalidating common data and getting a url for the
+  #          visualizations API.
+  # File: lib/tasks/remote_tables_maintenance.rake
+  common_data:
+    protocol: 'https'
+    username: 'common-data'
+    # base_url: 'https://common-data.carto.com'
+    format: 'shp'
+    generate_every: 86400
+
+  # Setting: 'explore_api'
+  #
+  # Used in: ApplicationHelper.frontend_config_public
+  # Purpose: Sets the 'explore_user' key value in the config object returned
+  #          by frontend_config_public.
+  # File: app/helpers/application_helper.rb
+  #
+  # Used in: explore_api rake task, common_data_user method
+  # Purpose: Helps retrieve the User object for the common data user
+  # File: lib/tasks/explore_api.rake
+  explore_api:
+    username: ''
+
+  # Setting: 'aggregation_tables'
+  #
+  # Used in: CartoDB::UserModule::DBService.connect_to_aggregation_tables
+  # Purpose: Supplies connection params for connection to the dataservices_db db
+  # File: app/models/user/db_service.rb
+  #
+  # Used in: User.setup_aggregation_tables
+  # Purpose: If present, causes db_service.connect_to_aggregation_tables to run
+  # File: app/models/user.rb 
+  #
+  # Used in: db_maintenance rake task
+  # Purpose: Provides connection info to run the 
+  #          'connect_aggregation_fdw_tables_to_builder_users' task
+  # File: lib/tasks/db_maintenance.rake
+  aggregation_tables:
+    host: 'postgis'
+    port: '5432'
+    dbname: 'dataservices_db'
+    username: 'geocoder_api'
+    password: ''
+    tables:
+      admin0: 'ne_admin0_v3'
+      admin1: 'global_province_polygons'
+
+  reports:
+    mail_to: ''
+
+  mailer:
+    from: 'Nick <nballeng@gmail.com>'
+    address: ''
+    port: ''
+    user_name: ''
+    password: ''
+    authentication: ''
+    enable_starttls_auto: ''
+    template:
+      app_name: 'CARTO'
+      app_link: ''
+      header_logo_url: ''
+      footer_text: ''
+      support_link: ''
+      include_carto_links: false
+
+  # Setting: 'varnish_management'
+  #
+  # Used in: CartoDB::UserModule::DBService.create_function_invalidate_varnish
+  #          CartoDB::UserModule::DBService.create_function_invalidate_varnish_telnet
+  #          CartoDB::UserModule::DBService.create_function_invalidate_varnish_http
+  # Purpose: Provide connection params for the varnish host
+  # File: app/models/user/db_service.rb
+  #
+  # Used in: CartoDB::Varnish, multiple methods
+  # Purpose: Provide connection/conf params for the varnish host
+  # File: lib/varnish/lib/cartodb-varnish.rb
+  varnish_management:
+    critical: false
+    host: '127.0.0.1'
+    port: 6082
+    purge_command: 'purge'
+    retries: 5
+    timeout: 5
+    trigger_verbose: true
+
+  # Setting: 'invalidation_service'
+  #
+  # Used in: CartoDB::UserModule::DBService.create_function_invalidate_varnish
+  # Purpose: Switches between different modes of invalidating varnish
+  # File: /app/models/user/db_service.rb
+  #
+  # Used in: CartoDB::UserModule::DBService.configure_ghost_table_event_trigger
+  # Purpose: If configured, runs a postgres function to set the invalidation
+  #          service config on the database side.
+  # File: /app/models/user/db_service.rb
+  #
+  # Used in: CartoDB::UserModule::DBService.create_function_invalidate_varnish_invalidation_service
+  # Purpose: Set connection parameters for invalidation service
+  # File: /app/models/user/db_service.rb
+  invalidation_service:
+    enabled: false
+    host: '127.0.0.1'
+    port: 3142
+    retries: 5
+    critical: false
+    timeout: 5
+    trigger_verbose: true
+
+  # Setting: 'geocoder'
+  #
+  # Used in: DataImport.content_guessing_options
+  # Purpose: If content guessing is enabled and geocoder is defined, return an
+  #          object with guessing and geocoder config params
+  # File: app/models/data_import.rb
+  #
+  # Used in: CartoDB::Synchronization::Member.content_guessing_options
+  # Purpose: Same as in DataImport
+  # File: app/models/synchronization/member.rb
+  #
+  # Used in: CartoDB::UserModule::DBService.install_and_configure_geocoder_api_extension
+  # Purpose: Supply configuration parameters for the geocoder extension. 
+  #          It appears to alter the user on the postgres side to change their
+  #          search_path.
+  # File: app/models/user/db_service.rb
+  #
+  # Used in: Admin::OrganizationUsersController.extra_geocodings_enabled?
+  # Purpose: If 'geocoder.app_id' is not blank, returns true
+  # File: app/controllers/admin/organization_users_controller.rb
+  #
+  # Used in: Carto::Configuration.geocoder_config
+  # Purpose: Returns provider, mapbox, and tomtom values from here
+  # File: lib/carto/configuration.rb
+  #
+  # Used in: CartoDB::GeocoderConfig.GeocoderConfig.get
+  # Purpose: Supplies config params
+  # File: services/geocoder/lib/geocoder_config.rb
+  geocoder:
+    # force_batch: true
+    # disable_cache: true
+    app_id: ''
+    token: ''
+    mailto: ''
+    base_url: ''
+    non_batch_base_url: ''
+    internal:
+      username: ''
+      api_key: ''
+    cache:
+      base_url: ''
+      api_key: ''
+      table_name: ''
+    search_bar_provider: ''
+    mapbox:
+      search_bar_api_key: ''
+    tomtom:
+      search_bar_api_key: ''
+    api:
+      host: 'localhost'
+      port: '5432'
+      dbname: 'dataservices_db'
+      user: 'geocoder_api'
+
+  # Setting: 'user_migrator'
+  #
+  # Used in: Carto::UserMigrationPackage.for_export and .for_import
+  # Purpose: Provides base directory paths for user exports / imports
+  # File: app/models/carto/user_migration_package.rb
+  #
+  # Used in: CartoDB::DataMover::Utils.get_pg_dump_bin_path and
+  #          CartoDB::DataMover::Utils.get_pg_restore_bin_path
+  # Purpose: Supplies path to pg_dump and pg_restore executables
+  # File: services/user-mover/utils.rb
+  user_migrator:
+    user_exports_folder: '/tmp/user_exports'
+    user_imports_folder: '/tmp/user_imports'
+    s3:
+      access_key_id: ''
+      secret_access_key: ''
+      bucket_name: ''
+      url_ttl: 7200
+      async_long_uploads: false
+      region: ''
+    uploads_path: 'public/uploads'
+    pg_dump_bin_path:
+      '10': 'pg_dump'
+    pg_restore_bin_path:
+      '10': 'pg_restore'
+
+  exporter:
+    exporter_temporal_folder: '/tmp/exporter'
+    s3:
+      access_key_id: ''
+      secret_access_key: ''
+      bucket_name: ''
+      url_ttl: 7200
+      async_long_uploads: false
+      region: ''
+    uploads_path: 'public/uploads'
+
+  error_track:
+    url: 'https://viz2.carto.com/api/v1/sql'
+    percent_users: 10
+
+  graphite_public:
+    host: ''
+    port:
+
+  users_dumps:
+    service:
+      port: 00000
+
+  #### THIRD PARTY DEPENDENCY SETTINGS #######################################
+#  aws:
+#    s3:
+#      access_key_id: 'test'
+#      secret_access_key: 'test'
+#      region: ''
+#
+#  google_analytics:
+#    primary: ''
+#    embeds: ''
+#    domain: ''
+#
+#  google_tag_manager:
+#    primary: ''
+#    embeds: ''
+#
+#  rollbar_api_key: ''
+#
+#  tumblr:
+#    api_key: ''
+#
+#  trackjs:
+#    enabled: false
+#    customer: ''
+#    app_keys:
+#      editor: ''
+#      embeds: ''
+#
+#  facebook:
+#    app_id: ''
+#    admins: ''
+#
+#  hubspot: ''
+#
+#  segment:
+#    api_key: ''
+#
+#  dropbox_api_key: ''
+#
+#  gdrive:
+#    api_key: ''
+#    app_id: ''
+#
+#  olark:
+#    app_id: ''
+
+  #### NETWORK SETTINGS ######################################################
+
+  # Setting: 'http_port'
+  # Used in: CartoDB.get_http_port
+  # Purpose: Sets the http port, returns as string
+  # File: config/initializers/carto_db.rb
+  http_port: 3000
+
+  # Setting: 'https_port'
+  # Used in: CartoDB.get_https_port
+  # Purpose: Sets the https port, returns as string
+  # File: config/initializers/carto_db.rb
+  https_port:
+
+  # Setting: 'account_host'
+  #
+  # Used in: ApplicationController.check_cors_headers_for_whitelisted_origin
+  # Purpose: Adds the account host to allowed hosts
+  # File: app/controllers/application_controller.rb
+  #
+  # Used in: CartoDB.get_account_host
+  # Purpose: getter for this value
+  # File: config/initializers/carto_db.rb
+  account_host: 'localhost.lan:3000'
+  session_domain: '.localhost.lan'
+  developers_host: 'http://developers.localhost.lan:3000'
+  cartodb_com_hosted: false
+
+  #### URL SETTINGS ##########################################################
+  subdomainless_urls: false
+  account_path: '/account'
+  api_requests_service_url: ''
+  cartodb_central_domain_name: 'carto.com'
+
+  #### SECURITY SETTINGS #####################################################
+  superadmin:
+    username: 'superadmin'
+    password: 'monkey'
+
+  secret_token: 'somerandomstring'
+
+  passwords:
+    expiration_in_d:
+    rate_limit:
+      max_burst:
+      count:
+      period:
+
+  http_header_authentication:
+    header:
+    field:
+    autocreation:
+
+  oauth:
+    gdrive:
+      application_name: ''
+      client_id: ''
+      client_secret: ''
+      callback_url: 'https://carto.com'
+    github:
+      client_id: ''
+      client_secret: ''
+    dropbox:
+      app_key: ''
+      app_secret: ''
+      callback_url: ''
+    box:
+      application_name: ''
+      client_id: ''
+      client_secret: ''
+      box_host: 'app.box.com'
+    instagram:
+      app_key: ''
+      app_secret: ''
+      callback_url: ''
+    mailchimp:
+      app_key: ''
+      app_secret: ''
+      callback_url: ''
+
+  #### PATH AND FILE SETTINGS ################################################
+  data_library:
+    username: 'common-data'
+    path: '/data-library'
+
+  disable_file: '~/disable'
+
+  #### LAYER OPTIONS ########################################################
+  enforce_non_empty_layer_css: false
+
+  layer_opts:
+    public_opts: ["type", "active", "query", "opacity", "auto_bound",
+                  "interactivity", "debug", "visible", "tiler_domain",
+                  "tiler_port", "tiler_protocol", "sql_domain", "sql_port",
+                  "sql_protocol", "extra_params", "table_name",
+                  "user_name", "style_version", "tile_style", "query_wrapper"]
+    default_tile_styles:
+      point: "{\n  marker-fill: #FF6600;\n  marker-opacity: 0.9;\n  marker-width: 12;\n  marker-line-color: white;\n  marker-line-width: 3;\n  marker-line-opacity: 0.9;\n  marker-placement: point;\n  marker-type: ellipse;\n  marker-allow-overlap: true;\n}"
+      geometry: "{\n // points\n [mapnik-geometry-type=point] {\n    marker-fill: #FF6600;\n    marker-opacity: 1;\n    marker-width: 12;\n    marker-line-color: white;\n    marker-line-width: 3;\n    marker-line-opacity: 0.9;\n    marker-placement: point;\n    marker-type: ellipse;marker-allow-overlap: true;\n  }\n\n //lines\n [mapnik-geometry-type=linestring] {\n    line-color: #FF6600; \n    line-width: 2; \n    line-opacity: 0.7;\n  }\n\n //polygons\n [mapnik-geometry-type=polygon] {\n    polygon-fill:#FF6600;\n    polygon-opacity: 0.7;\n    line-opacity:1;\n    line-color: #FFFFFF;\n   }\n }"
+      polygon: "{\n  polygon-fill:#FF6600;\n  polygon-opacity: 0.7;\n  line-opacity:1;\n  line-color: #FFFFFF;\n}"
+      multipolygon: "{\n  polygon-fill:#FF6600;\n  polygon-opacity: 0.7;\n  line-opacity:1;\n  line-color: #FFFFFF;\n}"
+      multilinestring: "{\n  line-color:#FF6600;\n  line-width:1;\n  line-opacity: 0.7;\n}"
+    data:
+      kind: "carto"
+      options:
+        # attribution:        'CARTO attribution'
+        query:              ""
+        opacity:            0.99
+        auto_bound:         false
+        interactivity:      "cartodb_id"
+        debug:              false
+        visible:            true
+        tiler_domain:       "localhost.lan"
+        tiler_port:         "80"
+        tiler_protocol:     "http"
+        sql_domain:         "localhost.lan"
+        sql_port:           "80"
+        sql_protocol:       "http"
+        extra_params:       { cache_policy: 'persist' }
+        tile_style_history: []
+        style_version:      "2.1.1"
+      infowindow:
+        template_name:      "table/views/infowindow_light"
+    background:
+      kind: "background"
+      options: { color: '#ffffff' }
+
+
+  #### BASEMAPS SETTINGS #####################################################
+    basemaps: # Adding `default: true` at a basemap marks its group as the default one. Its first basemap becomes the default one.
+    CARTO:
+      voyager_labels:
+        default: true
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Voyager'
+        className: 'voyager_labels'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+        labels:
+          urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png'
+          urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}@2x.png'
+      positron_rainbow_labels:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Positron'
+        className: 'positron_rainbow_labels'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+        labels:
+          urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png'
+          urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}@2x.png'
+      dark_matter_rainbow_labels:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Dark matter'
+        className: 'dark_matter_rainbow_labels'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+        labels:
+          urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png'
+          urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png'
+      voyager:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Voyager (labels below)'
+        className: 'voyager'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+      positron_rainbow:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Positron (labels below)'
+        className: 'positron_rainbow'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+      dark_matter_rainbow:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Dark matter (labels below)'
+        className: 'dark_matter_rainbow'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+      voyager_lite:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Voyager (lite)'
+        className: 'voyager_lite'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+      positron_lite_rainbow:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Positron (lite)'
+        className: 'positron_lite_rainbow'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+      dark_matter_lite_rainbow:
+        urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'
+        urlTemplate2x: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Dark matter (lite)'
+        className: 'dark_matter_lite_rainbow'
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+      eco_cartodb:
+        urlTemplate: 'https://cartocdn_{s}.global.ssl.fastly.net/base-eco/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '10'
+        name: 'CARTO World Eco'
+        className: 'eco_cartodb'
+        attribution: ''
+      flat_blue:
+        urlTemplate: 'https://cartocdn_{s}.global.ssl.fastly.net/base-flatblue/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '10'
+        name: 'CARTO World Flat Blue'
+        className: 'flat_blue'
+        attribution: ''
+      midnight_cartodb:
+        urlTemplate: 'https://cartocdn_{s}.global.ssl.fastly.net/base-midnight/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '10'
+        name: 'CARTO World Midnight Commander'
+        className: 'midnight_cartodb'
+        attribution: ''
+      antique_cartodb:
+        urlTemplate: 'https://cartocdn_{s}.global.ssl.fastly.net/base-antique/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: 0
+        maxZoom: 10
+        name: 'CARTO World Antique'
+        className: 'antique_cartodb'
+        attribution: ''
+    Stamen:
+      toner_stamen_labels:
+        urlTemplate: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Toner'
+        className: 'toner_stamen_labels'
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+        labels:
+          urlTemplate: 'http://{s}.tile.stamen.com/toner-labels/{z}/{x}/{y}.png'
+      toner_stamen:
+        urlTemplate: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Toner (labels below)'
+        className: 'toner_stamen'
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+      toner_background_stamen:
+        urlTemplate: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Toner Background'
+        className: 'toner_background_stamen'
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+      toner_lite_stamen:
+        urlTemplate: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Toner Lite'
+        className: 'toner_lite_stamen'
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+      toner_lines_stamen:
+        urlTemplate: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Toner Lines'
+        className: 'toner_lines_stamen'
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+      toner_hybrid_stamen:
+        urlTemplate: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner-hybrid/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Toner Hybrid'
+        className: 'toner_hybrid_stamen'
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+      watercolor_stamen:
+        urlTemplate: 'https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.png'
+        subdomains: 'abcd'
+        minZoom: '0'
+        maxZoom: '18'
+        name: 'Watercolor'
+        className: 'watercolor_stamen'
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+    GMaps:
+      roadmap:
+        name: 'GMaps Roadmap'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        className: 'googlemaps'
+        style: '[]'
+        default: true
+      hybrid:
+        name: 'GMaps Hybrid'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'hybrid'
+        className: 'googlemaps'
+        style: '[]'
+      satellite:
+        name: 'GMaps Satellite'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'satellite'
+        className: 'googlemaps'
+        style: '[]'
+      terrain:
+        name: 'GMaps Terrain'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'terrain'
+        className: 'googlemaps'
+        style: '[]'
+      gray_roadmap:
+        name: 'GMaps Gray Roadmap'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'gray_roadmap'
+        className: 'googlemaps'
+        style: '[{ "stylers": [ { "saturation": -100 } ] },{ "featureType": "water", "stylers": [ { "gamma": 1.67 }, { "lightness": 27 } ] },{ "elementType": "geometry", "stylers": [ { "gamma": 1.31 }, { "lightness": 12 } ] },{ "featureType": "administrative", "elementType": "labels", "stylers": [ { "lightness": 51 }, { "gamma": 0.94 } ] },{ },{ "featureType": "road", "elementType": "labels", "stylers": [ { "lightness": 57 } ] },{ "featureType": "poi", "elementType": "labels", "stylers": [ { "lightness": 42 } ] }]'
+      cool_grey:
+        name: 'GMaps cool grey'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'cool_grey'
+        className: 'googlemaps'
+        style: '[{"featureType":"landscape","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"color":"#ffffff"}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"stylers":[{"hue":"#00aaff"},{"saturation":-100},{"gamma":2.15},{"lightness":12}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"visibility":"on"},{"lightness":24}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":57}]}]'
+      clean_grey:
+        name: 'GMaps clean grey'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'clean_grey'
+        className: 'googlemaps'
+        style: '[{"featureType":"administrative","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"administrative.province","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#e3e3e3"}]},{"featureType":"landscape.natural","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"color":"#cccccc"}]},{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"visibility":"off"}]},{"featureType":"transit.line","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"transit.station.airport","elementType":"geometry","stylers":[{"visibility":"off"}]},{"featureType":"transit.station.airport","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#FFFFFF"}]},{"featureType":"water","elementType":"labels","stylers":[{"visibility":"off"}]}]'
+      shades_grey:
+        name: 'GMaps shades of grey'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'shades_grey'
+        className: 'googlemaps'
+        style: '[{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#000000"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":21}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":17}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":17}]}]'
+      neutral_blue:
+        name: 'GMaps neutral blue'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'neutral_blue'
+        className: 'googlemaps'
+        style: '[{"featureType":"water","elementType":"geometry","stylers":[{"color":"#193341"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#2c5a71"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#29768a"},{"lightness":-37}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#406d80"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#406d80"}]},{"elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#3e606f"},{"weight":2},{"gamma":0.84}]},{"elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"administrative","elementType":"geometry","stylers":[{"weight":0.6},{"color":"#1a3541"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#2c5a71"}]}]'
+      cleaner_midnight:
+        name: 'GMaps cleaner midnight'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'cleaner_midnight'
+        className: 'googlemaps'
+        style: '[{"featureType":"all","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"},{"weight":"0.20"},{"lightness":"28"},{"saturation":"23"},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"color":"#494949"},{"lightness":13},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#144b53"},{"lightness":14},{"weight":1.4}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#08304b"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#0c4152"},{"lightness":5}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#0b434f"},{"lightness":25}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#0b3d51"},{"lightness":16}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"}]},{"featureType":"transit","elementType":"all","stylers":[{"color":"#146474"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#021019"}]}]'
+      icy_blue:
+        name: 'GMaps icy blue'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'icy_blue'
+        className: 'googlemaps'
+        style: '[{"stylers":[{"hue":"#2c3e50"},{"saturation":250}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":50},{"visibility":"simplified"}]},{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]}]'
+      red_hues:
+        name: 'GMaps red hues'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'red_hues'
+        className: 'googlemaps'
+        style: '[{"stylers":[{"hue":"#dd0d0d"}]},{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":100},{"visibility":"simplified"}]}]'
+      light_green:
+        name: 'GMaps light green'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'light_green'
+        className: 'googlemaps'
+        style: '[{"stylers":[{"hue":"#baf4c4"},{"saturation":10}]},{"featureType":"water","stylers":[{"color":"#effefd"}]},{"featureType":"all","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"labels","stylers":[{"visibility":"on"}]},{"featureType":"road","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]}]'
+      mostly_grayscale:
+        name: 'GMaps mostly grayscale'
+        maxZoom: 40
+        minZoom: 0
+        baseType: 'roadmap'
+        baseName: 'mostly_grayscale'
+        className: 'googlemaps'
+        style: '[{"featureType":"administrative","elementType":"all","stylers":[{"visibility":"on"},{"lightness":33}]},{"featureType":"administrative","elementType":"labels","stylers":[{"saturation":"-100"}]},{"featureType":"administrative","elementType":"labels.text","stylers":[{"gamma":"0.75"}]},{"featureType":"administrative.neighborhood","elementType":"labels.text.fill","stylers":[{"lightness":"-37"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#f9f9f9"}]},{"featureType":"landscape.man_made","elementType":"geometry","stylers":[{"saturation":"-100"},{"lightness":"40"},{"visibility":"off"}]},{"featureType":"landscape.natural","elementType":"labels.text.fill","stylers":[{"saturation":"-100"},{"lightness":"-37"}]},{"featureType":"landscape.natural","elementType":"labels.text.stroke","stylers":[{"saturation":"-100"},{"lightness":"100"},{"weight":"2"}]},{"featureType":"landscape.natural","elementType":"labels.icon","stylers":[{"saturation":"-100"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"saturation":"-100"},{"lightness":"80"}]},{"featureType":"poi","elementType":"labels","stylers":[{"saturation":"-100"},{"lightness":"0"}]},{"featureType":"poi.attraction","elementType":"geometry","stylers":[{"lightness":"-4"},{"saturation":"-100"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#c5dac6"},{"visibility":"on"},{"saturation":"-95"},{"lightness":"62"}]},{"featureType":"poi.park","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":20}]},{"featureType":"road","elementType":"all","stylers":[{"lightness":20}]},{"featureType":"road","elementType":"labels","stylers":[{"saturation":"-100"},{"gamma":"1.00"}]},{"featureType":"road","elementType":"labels.text","stylers":[{"gamma":"0.50"}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"saturation":"-100"},{"gamma":"0.50"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#c5c6c6"},{"saturation":"-100"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"lightness":"-13"}]},{"featureType":"road.highway","elementType":"labels.icon","stylers":[{"lightness":"0"},{"gamma":"1.09"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#e4d7c6"},{"saturation":"-100"},{"lightness":"47"}]},{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"lightness":"-12"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"saturation":"-100"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#fbfaf7"},{"lightness":"77"}]},{"featureType":"road.local","elementType":"geometry.fill","stylers":[{"lightness":"-5"},{"saturation":"-100"}]},{"featureType":"road.local","elementType":"geometry.stroke","stylers":[{"saturation":"-100"},{"lightness":"-15"}]},{"featureType":"transit.station.airport","elementType":"geometry","stylers":[{"lightness":"47"},{"saturation":"-100"}]},{"featureType":"water","elementType":"all","stylers":[{"visibility":"on"},{"color":"#acbcc9"}]},{"featureType":"water","elementType":"geometry","stylers":[{"saturation":"53"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"lightness":"-42"},{"saturation":"17"}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"lightness":"61"}]}]'
+
+#### ENVIRONMENT SPECIFIC OVERRIDES ##########################################
+development:
+  <<: *defaults
+  http_port: 3000
+  varnish_management:
+    critical: false
+    host: '127.0.0.1'
+    port: 6082
+    purge_command: 'purge'
+    url_purge_command: 'url.purge'
+    retries: 5
+    timeout: 5
+
+test:
+  <<: *defaults
+  http_port: 53716
+  redis:
+    host: 'redis'
+    port: 6335
+  enforce_non_empty_layer_css: false
+  api_requests_es_service:
+    url: "http://api-calls-service.localhost.lan/search"
+    body: ""
+  session_domain: '.localhost.lan'
+  subdomainless_urls: false
