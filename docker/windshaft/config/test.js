@@ -61,7 +61,7 @@ var config = {
     // Purpose: Tells the api router whether to include profiling headers
     // File: lib/cartodb/api/api-router.js
     //       lib/cartodb/server_options.js
-    useProfiler: false,
+    useProfiler: true,
 
     //// GENERAL SETTINGS ////////////////////////////////////////////////////
 
@@ -71,7 +71,7 @@ var config = {
     // Purpose: Sets the value of process.env.NODE_ENV if unset and no arg is
     //          passed to app.js on start
     // File: app.js
-    environment: 'development',
+    environment: 'test',
 
     // Setting: 'gc_interval'
     // Required: No
@@ -116,8 +116,8 @@ var config = {
     // Setting: 'postgres_auth_user' and 'postgres_auth_pass'
     // Required: Only for test running
     // Purpose: Used in several places in the tests
-    postgres_auth_user: 'development_cartodb_user_<%= user_id %>',
-    postgres_auth_pass: '<%= user_password %>',
+    postgres_auth_user: 'test_windshaft_cartodb_user_<%= user_id %>',
+    postgres_auth_pass: 'test_windshaft_cartodb_user_<%= user_id %>_pass',
 
     // Setting: 'postgres'
     // Required: Yes
@@ -127,7 +127,7 @@ var config = {
     //       lib/cartodb/backends/pg_connection.js
     //       lib/cartodb/api/middlewares/db-conn-setup.js
     postgres: {
-        user: "publicuser",
+        user: "test_windshaft_publicuser",
         password: "public",
         host: "postgis",
         port: 5432,
@@ -179,6 +179,7 @@ var config = {
         mapnik: {
             poolSize: 8,
             poolMaxWaitingClients: 64,
+            useCartocssWorkers: false,
             metatile: 2,
             bufferSize: 64,
             snapToGrid: false,
@@ -227,12 +228,12 @@ var config = {
 
     analysis: {
         batch: {
-            inlineExecution: false,
+            inlineExecution: true,
             endpoint: 'http://127.0.0.1:8080/api/v2/sql/job',
             hostHeaderTemplate: '{{=it.username}}.localhost.lan'
         }, // end of 'analysis.batch'
         logger: {
-            filename: 'logs/node-windshaft-analysis.log'
+            filename: '/tmp/node-windshaft-analysis.log'
         }, // end of 'analysis.logger'
         limits: {
             moran: { timeout: 120000, maxNumberOfRows: 1e5 },
@@ -248,12 +249,12 @@ var config = {
     statsd: {
         host: 'localhost',
         port: 8125,
-        prefix: 'dev.',
+        prefix: 'test.:host.',
         cacheDns: true
     }, // end of 'statsd'
 
     millstone: {
-        cache_basedir: '/tmp/cdb-tiler-dev/millstone-dev'
+        cache_basedir: '/tmp/cdb-tiler-test/millstone-dev'
     }, // end of 'millstone'
 
     httpAgent: {
@@ -300,7 +301,7 @@ var config = {
     // Used in: module.exports.bind.port in server_options.js
     // Purpose: Sets the port the app server listens on
     // File: lib/cartodb/server_options.js
-    port: 8181,
+    port: 8888,
 
     // Setting: 'user_from_host'
     // Required: No
@@ -308,7 +309,7 @@ var config = {
     // Purpose: Sets the regex RE_USER_FROM_HOST, defaults to '^([^\\.]+)\\.',
     //          which extracts the first part of a dot separated hostname
     // File: lib/cartodb/models/cdb_request.js
-    user_from_host: '^([^\\.]+)\\.',
+    user_from_host: '(.*)',
 
     // Setting: 'routes'
     // Required: No, default values in lib/cartodb/server_options.js

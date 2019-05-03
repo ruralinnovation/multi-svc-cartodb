@@ -1,5 +1,13 @@
 FROM ubuntu:16.04 AS base
 
+WORKDIR /carto
+
+ENV PG_MAJOR 10                                                                 
+ENV CARTO_GIS_PPA_FINGERPRINT E54DBDF7355FE6DBEC654BAC6F44D37DD878D6C2
+
+COPY ./sources.list.d/*.list /etc/apt/sources.list.d/
+COPY ./setup_node_10.sh /carto/setup_node_10.sh
+
 RUN apt-get update \
  && apt-get -y install \
     software-properties-common \
@@ -7,23 +15,24 @@ RUN apt-get update \
     pkg-config \
     locales \
     make \
+    git \
+    wget \
     libcairo2-dev \
     libpango1.0-dev \
     libjpeg8-dev \
     libgif-dev \
  && locale-gen en_US.UTF-8 \
- && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
-
-WORKDIR /carto
-
-COPY ./setup_node_10.sh /carto/setup_node_10.sh
-
-RUN /bin/bash -c /carto/setup_node_10.sh \
+ && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+ && apt-key adv --keyserver=keyserver.ubuntu.com --recv-keys $CARTO_GIS_PPA_FINGERPRINT \
+ && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+    postgresql-server-dev-$PG_MAJOR \
+ && /bin/bash -c /carto/setup_node_10.sh \
  && apt-get update \
  && apt-get install -y nodejs
 
 COPY ./Windshaft-cartodb /carto/Windshaft-cartodb
-COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
 
 # Git is used during npm install. We have to re-add the remote to the repo
 # because it's installed in the multi-svc-cartodb repo as a submodule, and
@@ -31,8 +40,7 @@ COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
 # try to work with it absent the parent repo. It stays checked out at the
 # revision in the submodule when copied, this just reconnects it to its
 # source repository so git functions normally.
-RUN apt-get install -y git \
- && rm -rf /carto/Windshaft-cartodb/.git \
+RUN rm -rf /carto/Windshaft-cartodb/.git \
  && cd /carto/Windshaft-cartodb \
  && git init \
  && git remote add origin https://github.com/CartoDB/Windshaft-cartodb.git \
@@ -40,6 +48,7 @@ RUN apt-get install -y git \
  && npm install
 
 #COPY ./test/*.sh /carto/Windshaft-cartodb/test/
-#COPY ./docker-entrypoint.sh /carto/
+COPY ./docker-entrypoint.sh /carto/
+COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
 
-#ENTRYPOINT ["/bin/bash", "-c", "/carto/docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "-c", "/carto/docker-entrypoint.sh"]
