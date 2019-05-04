@@ -57,6 +57,16 @@ RUN apt-get install -y \
     postgresql-client-10 \
     curl 
 
+# The tests need redis-cli to prep the test db
+RUN cd /tmp \
+ && wget http://download.redis.io/redis-stable.tar.gz \
+ && tar xzvf redis-stable.tar.gz \
+ && cd redis-stable \
+ && make \
+ && cp src/redis-cli /usr/local/bin/ \
+ && chmod 755 /usr/local/bin/redis-cli \
+ && rm -rf /tmp/redis-stable
+
 # Something happens with this install such that you have to run it twice. The
 # first run installs all the packages, but attempting to run the app after
 # that results in "Error: Cannot find module 'pg'" being thrown by 
