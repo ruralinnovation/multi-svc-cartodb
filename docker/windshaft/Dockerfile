@@ -47,8 +47,22 @@ RUN rm -rf /carto/Windshaft-cartodb/.git \
  && mkdir logs \
  && npm install
 
-#COPY ./test/*.sh /carto/Windshaft-cartodb/test/
+# Tests need curl, psql, and redis-cli
+RUN apt-get -y install \
+    curl \
+    postgresql-client-$PG_MAJOR \
+ && cd /tmp \
+ && wget http://download.redis.io/redis-stable.tar.gz \
+ && tar xzvf redis-stable.tar.gz \
+ && cd redis-stable \
+ && make \
+ && cp src/redis-cli /usr/local/bin/ \
+ && chmod 755 /usr/local/bin/redis-cli \
+ && rm -rf /tmp/redis-stable
+
+
 COPY ./docker-entrypoint.sh /carto/
 COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
+COPY ./test/*.sh /carto/Windshaft-cartodb/test/
 
 ENTRYPOINT ["/bin/bash", "-c", "/carto/docker-entrypoint.sh"]
