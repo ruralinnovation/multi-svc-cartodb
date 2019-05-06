@@ -6,6 +6,7 @@ export TOP_PID=$$
 
 PREPARE_REDIS=yes
 PREPARE_PGSQL=yes
+TESTENV=../config/environments/test.js
 
 while [ -n "$1" ]; do
     if test "$1" = "--skip-pg"; then
@@ -27,8 +28,6 @@ function echo_and_exit() {
     echo "$1" >&2           # echo first arg to STDERR
     kill -s TERM $TOP_PID   # send SIGTERM to script process id
 }
-
-TESTENV=../config/environments/test.js
 
 # Usage: from_test_env "configKey" [ "defaultVal" ]
 function from_test_env() {
@@ -75,6 +74,7 @@ echo ""
 echo "Redis host and port: [$REDIS_HOST:$REDIS_PORT]"
 echo ""
 echo "Carto PostgreSQL DB info for testing:"
+echo "    Carto PG extension version: [$CARTO_PGEXT_VERSION]"
 echo "    Public user/pass: [$PUBLICUSER/$PUBLICPASS]"
 echo "    Test user/pass:   [$TESTUSER/$TESTPASS]"
 echo "    Test database:    [$TEST_DB]"
