@@ -29,9 +29,24 @@ $ docker-compose --version
 docker-compose version 1.23.2, build 1110ad01
 ```
 
+### Building the Images
+
+To build the images from the Dockerfiles:
+
+1. Clone this repo onto your development machine
+1. In the root of the repository (where the `docker-compose.yml` file is), call `docker-compose build`
+
+```bash
+git clone https://github.com/ruralinnovation/multi-svc-cartodb.git
+cd multi-svc-cartodb
+docker-compose build
+```
+
 ## Usage
 
 While each of the services here have their own Dockerfile, and it is possible to interact with them directly via the `docker` CLI utility, they are meant to be orchestrated via `docker-compose`. The `docker-compose.yml` file in the repository root defines the relationships between containers, and they expect to be able to make network requests to named hosts defined on the network `docker-compose` brings up. 
 
-### 
+### Starting the cluster of services
+
+In the root directory of the 
 
