@@ -985,7 +985,7 @@ defaults: &defaults
   # Used in: CartoDB::Application.config.secret_token
   # Purpose: Sets the value of that variable
   # File: config/initializers/secret_token.rb
-  secret_token: 'somerandomstring'
+  secret_token: 'SO2DBW50I62OQ589TFQI36DPOSUZOP7F80OQ'
 
   # Setting: 'passwords'
   # Required: I think so, don't see default values being set, but not sure
