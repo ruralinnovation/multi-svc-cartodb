@@ -3,9 +3,8 @@
 set -e
 
 cd /carto/cartodb
-#echo "Updating config files with current IP of container..."
-#sed -i "s/^[[:space:]]*\(module.exports.node_host\)[[:space:]]*=[[:space:]]*['\"]127.0.0.1[\"'][[:space:]]*;/\1 = '$(hostname -i)';/" ./config/environments/*.js
-#echo "Starting the node application..."
-#node app.js development 
-echo "tailing dev null"
-tail -f /dev/null
+echo "Updating config files with current IP of container..."
+sed -i "s/127.0.0.1/$(hostname -i)/g" ./config/*.yml
+echo "Starting the rails server process on $(hostname -i):3000..."
+bundle exec rails server -b $(hostname -i) -d
+bundle exec ./script/resque
