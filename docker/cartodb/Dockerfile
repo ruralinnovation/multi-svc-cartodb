@@ -79,6 +79,7 @@ RUN cd /carto/cartodb \
 COPY ./config/*.yml /carto/cartodb/config/
 
 ENV RAILS_ENV development
+
 COPY ./docker-entrypoint.sh /carto/
 
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
