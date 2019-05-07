@@ -12,6 +12,8 @@ services:
     ports:
       - "3000:3000"    # http_port from app_config.yml
       - "443:443"      # default https_port from app_config.yml
+    environment:
+      - CARTO_CARTODB_VERSION=${CARTO_CARTODB_VERSION}
   windshaft:
     container_name: windshaft
     build:
@@ -22,6 +24,8 @@ services:
       - redis
       - postgis
       - sqlapi
+    environment:
+      - CARTO_WINDSHAFT_VERSION=${CARTO_WINDSHAFT_VERSION}
   sqlapi:
     container_name: sqlapi
     build:
@@ -31,6 +35,8 @@ services:
     depends_on:
       - redis
       - postgis
+    environment:
+      - CARTO_SQLAPI_VERSION=${CARTO_SQLAPI_VERSION}
   redis:
     container_name: redis
     build:
@@ -73,3 +79,5 @@ services:
     #
     #stdin_open: true
     #tty: true
+    environment:
+      - CARTO_PGEXT_VERSION=${CARTO_PGEXT_VERSION}

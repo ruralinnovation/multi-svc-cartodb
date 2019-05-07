@@ -6,3 +6,6 @@
 
 # No node_modules in the repos!
 node_modules
+
+# Ignore the .env file, it should be built by setup-local.sh
+.env
