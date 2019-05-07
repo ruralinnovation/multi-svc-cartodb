@@ -15,7 +15,7 @@ export COMPOSE_PROJECT_NAME="carto-ms"
 # include the appropriately versioned code.
 export CARTO_PGEXT_VERSION="0.26.1"
 export CARTO_WINDSHAFT_VERSION="7.0.0"
-export CARTO_CARTODB_VERSION="v4.26.0"
+export CARTO_CARTODB_VERSION="v4.26.1"
 export CARTO_SQLAPI_VERSION="3.0.0"
 
 CARTO_PGEXT_SUBMODULE_PATH="./docker/postgis/cartodb-postgresql"
@@ -65,14 +65,22 @@ if [ "$SET_CHECKOUTS" = "yes" ]; then
     echo_if_unquiet "Setting checkouts to current version strings...\n"
 
     echo_if_unquiet "    Setting $CARTO_PGEXT_SUBMODULE_PATH to version $CARTO_PGEXT_VERSION... "
+    git --git-dir=$CARTO_PGEXT_SUBMODULE_PATH/.git checkout $GITQUIET master
+    git --git-dir=$CARTO_PGEXT_SUBMODULE_PATH/.git pull $GITQUIET
     git --git-dir=$CARTO_PGEXT_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_PGEXT_VERSION
 
     echo_if_unquiet "    Setting $CARTO_WINDSHAFT_SUBMODULE_PATH to version $CARTO_WINDSHAFT_VERSION... "
+    git --git-dir=$CARTO_WINDSHAFT_SUBMODULE_PATH/.git checkout $GITQUIET master
+    git --git-dir=$CARTO_WINDSHAFT_SUBMODULE_PATH/.git pull $GITQUIET
     git --git-dir=$CARTO_WINDSHAFT_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_WINDSHAFT_VERSION
 
     echo_if_unquiet "    Setting $CARTO_SQLAPI_SUBMODULE_PATH to version $CARTO_SQLAPI_VERSION... "
+    git --git-dir=$CARTO_SQLAPI_SUBMODULE_PATH/.git checkout $GITQUIET master
+    git --git-dir=$CARTO_SQLAPI_SUBMODULE_PATH/.git pull $GITQUIET
     git --git-dir=$CARTO_SQLAPI_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_SQLAPI_VERSION
 
     echo_if_unquiet "    Setting $CARTO_CARTODB_SUBMODULE_PATH to version $CARTO_CARTODB_VERSION... "
+    git --git-dir=$CARTO_CARTODB_SUBMODULE_PATH/.git checkout $GITQUIET master
+    git --git-dir=$CARTO_CARTODB_SUBMODULE_PATH/.git pull $GITQUIET
     git --git-dir=$CARTO_CARTODB_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_CARTODB_VERSION
 fi
