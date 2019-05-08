@@ -61,7 +61,15 @@ The script exports a number of environment variables:
     * `CARTO_DEFAULT_PASS`
     * `CARTO_DEFAULT_EMAIL`
 
-There are default values for each of those, but the last three should probably be set to something other than the default. The password doesn't need to be secure, just something you'll remember--it's not stored in a secrets manager, so it isn't secure. The script will source the values from existing env vars if there are any, so exporting values for user, password, and email in your `~/.bash_profile` should cause them to be carried through into the script (make sure to change the fake values in this example code):
+There are default values for each of those, but the last three should probably be set to something other than the default. The password doesn't need to be secure, just something you'll remember--it's not stored in a secrets manager, so it isn't secure. However! It does have to match the Carto password policy, which is:
+
+* Min length: 6
+* Max length: 64
+* Cannot be the same as the username
+* Cannot be blank
+* Cannot be in their [common passwords list](https://github.com/CartoDB/cartodb/blob/3cfc359ff51d8549d949b144a1c04a050885be85/lib/carto/common_passwords.rb)
+
+The script will source the values from existing env vars if there are any, so exporting values for user, password, and email in your `~/.bash_profile` should cause them to be carried through into the script (make sure to change the fake values in this example code):
 
 ```bash
 echo "export CARTO_DEFAULT_USER=jackjackson" >> ~/.bash_profile
