@@ -1,5 +1,6 @@
 #!/bin/bash
 SCRIPT_NAME=$0
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # This file sets environment variables useful for building / using this
 # repo. Note that to use it you should run `source setup-env.sh`, since
@@ -9,15 +10,18 @@ SCRIPT_NAME=$0
 # These are used to git checkout each submodule to specific tags. Once the
 # submodules are checked out to version tags, your docker-compose builds will
 # include the appropriately versioned code.
-export CARTO_PGEXT_VERSION="0.26.1"
-export CARTO_WINDSHAFT_VERSION="7.0.0"
-export CARTO_CARTODB_VERSION="v4.26.1"
-export CARTO_SQLAPI_VERSION="3.0.0"
+export CARTO_PGEXT_VERSION="${CARTO_PGEXT_VERSION:-0.26.1}"
+export CARTO_WINDSHAFT_VERSION="${CARTO_WINDSHAFT_VERSION:-7.0.0}"
+export CARTO_CARTODB_VERSION="${CARTO_CARTODB_VERSION:-v4.26.1}"
+export CARTO_SQLAPI_VERSION="${CARTO_SQLAPI_VERSION:-3.0.0}"
+export CARTO_DEFAULT_USER="${CARTO_DEFAULT_USER:-developer}"
+export CARTO_DEFAULT_PASS="${CARTO_DEFAULT_PASS:-dev123}"
+export CARTO_DEFAULT_EMAIL="${CARTO_DEFAULT_EMAIL:-username@example.com}"
 
-CARTO_PGEXT_SUBMODULE_PATH="./docker/postgis/cartodb-postgresql"
-CARTO_WINDSHAFT_SUBMODULE_PATH="./docker/windshaft/Windshaft-cartodb"
-CARTO_CARTODB_SUBMODULE_PATH="./docker/cartodb/cartodb"
-CARTO_SQLAPI_SUBMODULE_PATH="./docker/sqlapi/CartoDB-SQL-API"
+CARTO_PGEXT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/cartodb-postgresql"
+CARTO_WINDSHAFT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/windshaft/Windshaft-cartodb"
+CARTO_CARTODB_SUBMODULE_PATH="${SCRIPT_DIR}/docker/cartodb/cartodb"
+CARTO_SQLAPI_SUBMODULE_PATH="${SCRIPT_DIR}/docker/sqlapi/CartoDB-SQL-API"
 
 SET_CHECKOUTS=no
 QUIET=no
@@ -36,6 +40,9 @@ Purpose: Sets the following environment variables (current value in parens):
     CARTO_WINDSHAFT_VERSION   ($CARTO_WINDSHAFT_VERSION)
     CARTO_CARTODB_VERSION     ($CARTO_CARTODB_VERSION)
     CARTO_SQLAPI_VERSION      ($CARTO_SQLAPI_VERSION)
+    CARTO_DEFAULT_USER        ($CARTO_DEFAULT_USER)
+    CARTO_DEFAULT_PASS        ($CARTO_DEFAULT_PASS)
+    CARTO_DEFAULT_EMAIL       ($CARTO_DEFAULT_EMAIL)
 
     If the --set-submodule-versions flag is present, resets the
     submodule directories to the version tags in those variables.
@@ -96,13 +103,20 @@ EOF
 
 echo_if_unquiet "$vstrings"
 
+IFS='' read -r -d '' dot_env_lines <<EOF
+CARTO_PGEXT_VERSION=$CARTO_PGEXT_VERSION
+CARTO_WINDSHAFT_VERSION=$CARTO_WINDSHAFT_VERSION
+CARTO_SQLAPI_VERSION=$CARTO_SQLAPI_VERSION
+CARTO_CARTODB_VERSION=$CARTO_CARTODB_VERSION
+CARTO_DEFAULT_USER=$CARTO_DEFAULT_USER
+CARTO_DEFAULT_PASS=$CARTO_DEFAULT_PASS
+CARTO_DEFAULT_EMAIL=$CARTO_DEFAULT_EMAIL
+EOF
+
 if [[ "$SET_CHECKOUTS" = "yes" ]]; then
     # Need to set the values in the .env file, so docker-compose merge values
     # for individual containers work.
-    echo "CARTO_PGEXT_VERSION=$CARTO_PGEXT_VERSION" > ./.env
-    echo "CARTO_WINDSHAFT_VERSION=$CARTO_WINDSHAFT_VERSION" >> ./.env
-    echo "CARTO_SQLAPI_VERSION=$CARTO_SQLAPI_VERSION" >> ./.env
-    echo "CARTO_CARTODB_VERSION=$CARTO_CARTODB_VERSION" >> ./.env
+    echo "$dot_env_lines" > ./.env
 
     # Going to turn off warnings about detached head, but should be able to
     # set it back to the local value if there is one at the end of the script.
