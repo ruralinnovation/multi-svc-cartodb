@@ -27,6 +27,11 @@ services:
       - CARTO_DEFAULT_USER=${CARTO_DEFAULT_USER}
       - CARTO_DEFAULT_PASS=${CARTO_DEFAULT_PASS}
       - CARTO_DEFAULT_EMAIL=${CARTO_DEFAULT_EMAIL}
+    depends_on:
+      - windshaft
+      - sqlapi
+      - redis
+      - postgis
   windshaft:
     container_name: windshaft
     build:
