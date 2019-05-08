@@ -229,8 +229,8 @@ var config = {
     analysis: {
         batch: {
             inlineExecution: true,
-            endpoint: 'http://127.0.0.1:8080/api/v2/sql/job',
-            hostHeaderTemplate: '{{=it.username}}.localhost.lan'
+            endpoint: 'http://sqlapi:8080/api/v2/sql/job',
+            hostHeaderTemplate: '{{=it.username}}.localhost'
         }, // end of 'analysis.batch'
         logger: {
             filename: '/tmp/node-windshaft-analysis.log'
@@ -294,7 +294,7 @@ var config = {
     // Used in: module.exports.bind.host in server_options.js
     // Purpose: Sets the host of the server
     // File: lib/cartodb/server_options.js
-    host: '127.0.0.1',
+    host: '0.0.0.0',
 
     // Setting: 'port'
     // Required: I think so?
@@ -339,8 +339,8 @@ var config = {
     //          3. {{=it.port}}: uses the port from this config file
     // File: lib/cartodb/models/resource-locator.js
     resources_url_templates: {
-        http: 'http://{{=it.user}}.localhost.lan:{{=it.port}}/api/v1/map',
-        https: 'https://localhost.lan:{{=it.port}}/user/{{=it.user}}/api/v1/map'
+        http: 'http://{{=it.user}}.localhost:{{=it.port}}/api/v1/map',
+        https: 'https://localhost:{{=it.port}}/user/{{=it.user}}/api/v1/map'
     },
 
     //// LIMIT SETTINGS //////////////////////////////////////////////////////

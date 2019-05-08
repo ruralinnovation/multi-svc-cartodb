@@ -57,7 +57,7 @@ module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
 module.exports.base_url     = '(?:/api/:version|/user/:user/api/:version)';
 module.exports.user_from_host = '^([^.]*)\\.';
 module.exports.node_port    = 8080;
-module.exports.node_host    = '127.0.0.1';
+module.exports.node_host    = '0.0.0.0';
 
 //// PG DATABASE SETTINGS ////////////////////////////////////////////////////
 //

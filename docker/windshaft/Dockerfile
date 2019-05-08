@@ -65,4 +65,6 @@ COPY ./docker-entrypoint.sh /carto/
 COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
 COPY ./test/*.sh /carto/Windshaft-cartodb/test/
 
+WORKDIR /carto/Windshaft-cartodb
+
 ENTRYPOINT ["/bin/bash", "-c", "/carto/docker-entrypoint.sh"]

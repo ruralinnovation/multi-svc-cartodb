@@ -45,9 +45,10 @@ module.exports.log_format   = '[:date] :remote-addr :method '+
                               '-> :res[Content-Type] (:res[X-SQLAPI-Profiler])'+
                               '(:res[X-SQLAPI-Errors])';
 // If log_filename is not defined, defaults to STDOUT. Log file reopens on HUP.
-module.exports.log_filename = 'logs/cartodb-sql-api.log';
-module.exports.batch_log_filename = 'logs/batch-queries.log';
-module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
+//module.exports.log_filename = 'logs/cartodb-sql-api.log';
+module.exports.log_filename = undefined;
+//module.exports.batch_log_filename = 'logs/batch-queries.log';
+//module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
 
 //// URL / HTTP SETTINGS /////////////////////////////////////////////////////
 //
@@ -56,7 +57,7 @@ module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
 module.exports.base_url     = '(?:/api/:version|/user/:user/api/:version)';
 module.exports.user_from_host = '^(.*)\\.localhost';
 module.exports.node_port    = 8080;
-module.exports.node_host    = '127.0.0.1';
+module.exports.node_host    = '0.0.0.0';
 
 //// PG DATABASE SETTINGS ////////////////////////////////////////////////////
 //

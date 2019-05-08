@@ -82,4 +82,8 @@ COPY ./config/*.js /carto/CartoDB-SQL-API/config/environments/
 COPY ./test/*.sh /carto/CartoDB-SQL-API/test/
 COPY ./docker-entrypoint.sh /carto/
 
+WORKDIR /carto/CartoDB-SQL-API
+
 ENTRYPOINT ["/bin/bash", "-c", "/carto/docker-entrypoint.sh"]
+
+CMD []

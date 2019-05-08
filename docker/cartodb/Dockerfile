@@ -82,6 +82,8 @@ ENV RAILS_ENV development
 
 COPY ./docker-entrypoint.sh /carto/
 
+WORKDIR /carto/cartodb
+
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
 
 CMD []
