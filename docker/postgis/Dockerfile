@@ -21,6 +21,7 @@ RUN apt-get update \
            postgresql-server-dev-$PG_MAJOR=$PG_VERSION \
            postgis=$POSTGIS_VERSION \
            postgresql-plpython-$PG_MAJOR=$PG_VERSION \
+           postgresql-$PG_MAJOR-plproxy \
            make \
       && rm -rf /var/lib/apt/lists/*
 
