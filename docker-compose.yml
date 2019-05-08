@@ -3,6 +3,7 @@ version: '3.7'
 volumes:
   redis-data:
   postgis-data:
+  postgis-extensions:
 
 services:
   router:
@@ -81,6 +82,12 @@ services:
       #
       # - ./postgis-data:/var/lib/postgresql/data
       - postgis-data:/var/lib/postgresql/data
+      # The following volume should exist so that the extension files
+      # for the Carto PG extension get persisted. Otherwise they aren't
+      # available after the first container run, because they're built as
+      # part of the startup process if-and-only-if there is no data in the
+      # postgres data directory. 
+      - postgis-extensions:/usr/share/postgresql
     ports:
       - "5432:5432"
       - "6432:6432"     # pgbouncer runs on this port, which sqlapi's tests need
