@@ -3,7 +3,7 @@
 set -e
 
 DEFAULT_USER=${CARTO_DEFAULT_USER:-developer}
-PASSWORD=${CARTO_DEFAULT_PASS:-dev123}
+PASSWORD=${CARTO_DEFAULT_PASS:-abc123def}
 EMAIL=${CARTO_DEFAULT_EMAIL:-username@example.com}
 
 dev_db_name=$(sed -n '/development:/,/test:/p;/test:/q' config/database.yml \
@@ -17,8 +17,8 @@ dev_db_exists=$(psql -U postgres -h postgis -lqt \
 
 if [[ -n dev_db_exists ]]; then
     echo "Database $dev_db_name already exists in postgres, skipping db:create rake task"
-    echo "Running database migrations, with silenced output."
-    bundle exec rake db:migrate > /dev/null 2>&1
+    echo "Running database migrations, output sent to /carto/db_migration_output.log"
+    bundle exec rake db:migrate > /carto/db_migration_output.log 2>&1
 else
     echo "Creating database $dev_db_name..."
     bundle exec rake db:create

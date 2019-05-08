@@ -83,9 +83,6 @@ ENV RAILS_ENV development
 COPY ./docker-entrypoint.sh /carto/
 
 WORKDIR /carto/cartodb
-ENV CARTO_DEFAULT_USER
-ENV CARTO_DEFAULT_PASS
-ENV CARTO_DEFAULT_EMAIL
 
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
 
