@@ -24,6 +24,9 @@ services:
       - "443:443"      # default https_port from app_config.yml
     environment:
       - CARTO_CARTODB_VERSION=${CARTO_CARTODB_VERSION}
+      - CARTO_DEFAULT_USER=${CARTO_DEFAULT_USER}
+      - CARTO_DEFAULT_PASS=${CARTO_DEFAULT_PASS}
+      - CARTO_DEFAULT_EMAIL=${CARTO_DEFAULT_EMAIL}
   windshaft:
     container_name: windshaft
     build:
