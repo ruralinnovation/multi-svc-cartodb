@@ -14,14 +14,21 @@ export CARTO_PGEXT_VERSION="${CARTO_PGEXT_VERSION:-0.26.1}"
 export CARTO_WINDSHAFT_VERSION="${CARTO_WINDSHAFT_VERSION:-7.0.0}"
 export CARTO_CARTODB_VERSION="${CARTO_CARTODB_VERSION:-v4.26.1}"
 export CARTO_SQLAPI_VERSION="${CARTO_SQLAPI_VERSION:-3.0.0}"
-export CARTO_DEFAULT_USER="${CARTO_DEFAULT_USER:-developer}"
-export CARTO_DEFAULT_PASS="${CARTO_DEFAULT_PASS:-dev123}"
-export CARTO_DEFAULT_EMAIL="${CARTO_DEFAULT_EMAIL:-username@example.com}"
+export CARTO_DATASVCS_CLIENT_VERSION="${CARTO_DATASVCS_CLIENT_VERSION:-0.26.2-client}"
+export CARTO_DATASVCS_SERVER_VERSION="${CARTO_DATASVCS_SERVER_VERSION:-0.35.1-server}"
+
+ALL_MODULES="PGEXT WINDSHAFT CARTODB SQLAPI DATASVCS_CLIENT DATASVCS_SERVER"
 
 CARTO_PGEXT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/cartodb-postgresql"
 CARTO_WINDSHAFT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/windshaft/Windshaft-cartodb"
 CARTO_CARTODB_SUBMODULE_PATH="${SCRIPT_DIR}/docker/cartodb/cartodb"
 CARTO_SQLAPI_SUBMODULE_PATH="${SCRIPT_DIR}/docker/sqlapi/CartoDB-SQL-API"
+CARTO_DATASVCS_CLIENT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/dataservices-api-client"
+CARTO_DATASVCS_SERVER_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/dataservices-api-server"
+
+export CARTO_DEFAULT_USER="${CARTO_DEFAULT_USER:-developer}"
+export CARTO_DEFAULT_PASS="${CARTO_DEFAULT_PASS:-dev123}"
+export CARTO_DEFAULT_EMAIL="${CARTO_DEFAULT_EMAIL:-username@example.com}"
 
 SET_CHECKOUTS=no
 QUIET=no
@@ -36,13 +43,15 @@ Usage: $SCRIPT_NAME [--set-submodule-versions] [-q|--quiet]
 
 Purpose: Sets the following environment variables (current value in parens):
 
-    CARTO_PGEXT_VERSION       ($CARTO_PGEXT_VERSION)
-    CARTO_WINDSHAFT_VERSION   ($CARTO_WINDSHAFT_VERSION)
-    CARTO_CARTODB_VERSION     ($CARTO_CARTODB_VERSION)
-    CARTO_SQLAPI_VERSION      ($CARTO_SQLAPI_VERSION)
-    CARTO_DEFAULT_USER        ($CARTO_DEFAULT_USER)
-    CARTO_DEFAULT_PASS        ($CARTO_DEFAULT_PASS)
-    CARTO_DEFAULT_EMAIL       ($CARTO_DEFAULT_EMAIL)
+    CARTO_PGEXT_VERSION             ($CARTO_PGEXT_VERSION)
+    CARTO_WINDSHAFT_VERSION         ($CARTO_WINDSHAFT_VERSION)
+    CARTO_CARTODB_VERSION           ($CARTO_CARTODB_VERSION)
+    CARTO_SQLAPI_VERSION            ($CARTO_SQLAPI_VERSION)
+    CARTO_DATASVCS_CLIENT_VERSION   ($CARTO_DATASVCS_CLIENT_VERSION)
+    CARTO_DATASVCS_SERVER_VERSION   ($CARTO_DATASVCS_SERVER_VERSION)
+    CARTO_DEFAULT_USER              ($CARTO_DEFAULT_USER)
+    CARTO_DEFAULT_PASS              ($CARTO_DEFAULT_PASS)
+    CARTO_DEFAULT_EMAIL             ($CARTO_DEFAULT_EMAIL)
 
     If the --set-submodule-versions flag is present, resets the
     submodule directories to the version tags in those variables.
@@ -98,6 +107,8 @@ Current version strings for Carto submodules:
     Carto Windshaft:            $CARTO_WINDSHAFT_VERSION
     Carto SQLAPI:               $CARTO_SQLAPI_VERSION
     CartoDB:                    $CARTO_CARTODB_VERSION
+    Dataservices API (client)   $CARTO_DATASVCS_CLIENT_VERSION
+    Dataservices                $CARTO_DATASVCS_SERVER_VERSION
 
 EOF
 
@@ -108,6 +119,8 @@ CARTO_PGEXT_VERSION=$CARTO_PGEXT_VERSION
 CARTO_WINDSHAFT_VERSION=$CARTO_WINDSHAFT_VERSION
 CARTO_SQLAPI_VERSION=$CARTO_SQLAPI_VERSION
 CARTO_CARTODB_VERSION=$CARTO_CARTODB_VERSION
+CARTO_DATASVCS_CLIENT_VERSION=$CARTO_DATASVCS_CLIENT_VERSION
+CARTO_DATASVCS_SERVER_VERSION=$CARTO_DATASVCS_SERVER_VERSION
 CARTO_DEFAULT_USER=$CARTO_DEFAULT_USER
 CARTO_DEFAULT_PASS=$CARTO_DEFAULT_PASS
 CARTO_DEFAULT_EMAIL=$CARTO_DEFAULT_EMAIL
@@ -125,41 +138,22 @@ if [[ "$SET_CHECKOUTS" = "yes" ]]; then
 
     echo_if_unquiet "Setting checkouts to current version strings...\n"
 
-    echo_if_unquiet "$HORIZONTAL_LINE"
-    echo_if_unquiet "Carto PostgreSQL Extension\n\n"
-    echo_if_unquiet "Checking out tag '$CARTO_PGEXT_VERSION' in $CARTO_PGEXT_SUBMODULE_PATH:\n\n"
-    set -x
-    git --git-dir=$CARTO_PGEXT_SUBMODULE_PATH/.git checkout $GITQUIET master
-    git --git-dir=$CARTO_PGEXT_SUBMODULE_PATH/.git pull $GITQUIET
-    git --git-dir=$CARTO_PGEXT_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_PGEXT_VERSION
-    { set +x; } 2>/dev/null
+    for module in $ALL_MODULES
+    do
+        version_key="CARTO_${module}_VERSION"
+        path_key="CARTO_${module}_SUBMODULE_PATH"
+        eval version='$'$version_key
+        eval path='$'$path_key
 
-    echo_if_unquiet "$HORIZONTAL_LINE"
-    echo_if_unquiet "Carto Windshaft\n\n"
-    echo_if_unquiet "Checking out tag '$CARTO_WINDSHAFT_VERSION' in $CARTO_WINDSHAFT_SUBMODULE_PATH:\n\n"
-    set -x
-    git --git-dir=$CARTO_WINDSHAFT_SUBMODULE_PATH/.git checkout $GITQUIET master
-    git --git-dir=$CARTO_WINDSHAFT_SUBMODULE_PATH/.git pull $GITQUIET
-    git --git-dir=$CARTO_WINDSHAFT_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_WINDSHAFT_VERSION
-    { set +x; } 2>/dev/null
-
-    echo_if_unquiet "$HORIZONTAL_LINE"
-    echo_if_unquiet "Carto SQL API\n\n"
-    echo_if_unquiet "Checking out tag '$CARTO_SQLAPI_VERSION' in $CARTO_SQLAPI_SUBMODULE_PATH:\n\n"
-    set -x
-    git --git-dir=$CARTO_SQLAPI_SUBMODULE_PATH/.git checkout $GITQUIET master
-    git --git-dir=$CARTO_SQLAPI_SUBMODULE_PATH/.git pull $GITQUIET
-    git --git-dir=$CARTO_SQLAPI_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_SQLAPI_VERSION
-    { set +x; } 2>/dev/null
-
-    echo_if_unquiet "$HORIZONTAL_LINE"
-    echo_if_unquiet "CartoDB\n\n"
-    echo_if_unquiet "Checking out tag '$CARTO_CARTODB_VERSION' in $CARTO_CARTODB_SUBMODULE_PATH:\n\n"
-    set -x
-    git --git-dir=$CARTO_CARTODB_SUBMODULE_PATH/.git checkout $GITQUIET master
-    git --git-dir=$CARTO_CARTODB_SUBMODULE_PATH/.git pull $GITQUIET
-    git --git-dir=$CARTO_CARTODB_SUBMODULE_PATH/.git checkout $GITQUIET $CARTO_CARTODB_VERSION
-    { set +x; } 2>/dev/null
+        echo_if_unquiet "$HORIZONTAL_LINE"
+        echo_if_unquiet "Module $module:\n\n"
+        echo_if_unquiet "Checking out tag '$version' in $path:\n\n"
+        if [[ $QUIET != "yes" ]]; then set -x; fi
+        git --git-dir=$path/.git checkout $GITQUIET master
+        git --git-dir=$path/.git pull $GITQUIET
+        git --git-dir=$path/.git checkout $GITQUIET $version
+        if [[ $QUIET != "yes" ]]; then { set +x; } 2>/dev/null; fi
+    done
 
     if [[ -n $CURRENT_DETACHED_HEAD_ADVICE ]]; then
         git config --global advice.detachedHead "$CURRENT_DETACHED_HEAD_ADVICE"
