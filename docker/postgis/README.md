@@ -24,6 +24,8 @@ Relevant links:
 
 There are two asset types here: the `cartodb-postgresql` repository as a submodule, and db init scripts in the `initdb.d` folder. The submodule repo is checked out at a specific tag--the `0.26.1` release when this was written (2019-04-25). To change that, simply change into that directory and check out a different tag or revision, then rebuild the image.
 
+There are two submodules, `dataservices-api-client` and `dataservices-api-server`, which refer to the [same repository](https://github.com/CartoDB/dataservices-api). That repo has two different release paths (apparently), for `-client` and `-server` versions with divergent release numbers. The two different checkouts are to support having the repo available at two different checkouts at once.
+
 The db init scripts are:
 
 * `00_init_postgis.sh` - Creates the `template_postgis` database, and installs the following postgres extensions:

@@ -10,3 +10,9 @@
 [submodule "docker/cartodb/cartodb"]
 	path = docker/cartodb/cartodb
 	url = https://github.com/CartoDB/cartodb.git
+[submodule "docker/postgis/dataservices-api-client"]
+	path = docker/postgis/dataservices-api-client
+	url = https://github.com/CartoDB/dataservices-api.git
+[submodule "docker/postgis/dataservices-api-server"]
+	path = docker/postgis/dataservices-api-server
+	url = https://github.com/CartoDB/dataservices-api.git

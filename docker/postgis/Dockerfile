@@ -47,6 +47,20 @@ RUN rm /carto/cartodb-postgresql/.git \
  && mkdir -p /carto/cartodb-postgresql/.git \
  && echo "fake index file to satisfy Makefile rule carto_version.sql" > /carto/cartodb-postgresql/.git/index
 
+# Installing the dataservices api extensions
+COPY ./dataservices-api-server /carto/dataservices-api-server
+COPY ./dataservices-api-client /carto/dataservices-api-client
+
+# The client extension has a ruby builder script that the Makefile uses,
+# so we install and then remove ruby.
+RUN apt-get update \
+ && apt-get install -y ruby \
+ && cd /carto/dataservices-api-client/client \
+ && make install \
+ && cd /carto/dataservices-api-server/server/extension \
+ && make install \
+ && apt-get remove -y ruby
+
 # TODO: Figure out whether it's worth it to use pgbouncer.
 # Installing pgbouncer because some parts of the CartoDB ecosystem expect
 # it to be there.
