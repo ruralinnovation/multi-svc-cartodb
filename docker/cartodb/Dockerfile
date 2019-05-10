@@ -80,6 +80,7 @@ COPY ./config/*.yml /carto/cartodb/config/
 
 ENV RAILS_ENV development
 
+COPY ./better_create_dev_user.sh /carto/cartodb/script/
 COPY ./docker-entrypoint.sh /carto/
 
 WORKDIR /carto/cartodb
