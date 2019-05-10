@@ -138,6 +138,8 @@ if [[ "$SET_CHECKOUTS" = "yes" ]]; then
 
     echo_if_unquiet "Setting checkouts to current version strings...\n"
 
+    git --git-dir=${SCRIPT_DIR}/.git submodule update $GITQUIET --init --recursive
+    git --git-dir=${SCRIPT_DIR}/.git pull $GITQUIET --recurse-submodules
     for module in $ALL_MODULES
     do
         version_key="CARTO_${module}_VERSION"
@@ -149,8 +151,6 @@ if [[ "$SET_CHECKOUTS" = "yes" ]]; then
         echo_if_unquiet "Module $module:\n\n"
         echo_if_unquiet "Checking out tag '$version' in $path:\n\n"
         if [[ $QUIET != "yes" ]]; then set -x; fi
-        git --git-dir=$path/.git checkout $GITQUIET master
-        git --git-dir=$path/.git pull $GITQUIET
         git --git-dir=$path/.git checkout $GITQUIET $version
         if [[ $QUIET != "yes" ]]; then { set +x; } 2>/dev/null; fi
     done
