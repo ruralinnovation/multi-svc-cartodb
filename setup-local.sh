@@ -7,6 +7,11 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # if you just run the file directly it will spawn its own process
 # instead of adding to the environment of the current shell.
 
+# TODO: Need to make sure there's a good way to unset the env vars so they
+#       can take a new value in a transparent way. Too easy to get stuck
+#       in an incoherent state, particularly if you source this file
+#       in your .bash_profile.
+
 # These are used to git checkout each submodule to specific tags. Once the
 # submodules are checked out to version tags, your docker-compose builds will
 # include the appropriately versioned code.
@@ -27,7 +32,7 @@ CARTO_DATASVCS_CLIENT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/dataservices-
 CARTO_DATASVCS_SERVER_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/dataservices-api-server"
 
 export CARTO_DEFAULT_USER="${CARTO_DEFAULT_USER:-developer}"
-export CARTO_DEFAULT_PASS="${CARTO_DEFAULT_PASS:-dev123}"
+export CARTO_DEFAULT_PASS="${CARTO_DEFAULT_PASS:-abc123def}"
 export CARTO_DEFAULT_EMAIL="${CARTO_DEFAULT_EMAIL:-username@example.com}"
 
 SET_CHECKOUTS=no
@@ -132,7 +137,7 @@ if [[ "$SET_CHECKOUTS" = "yes" ]]; then
     echo "$dot_env_lines" > ./.env
 
     # Going to turn off warnings about detached head, but should be able to
-    # set it back to the local value if there is one at the end of the script.
+    # set it back to the global value if there is one at the end of the script.
     CURRENT_DETACHED_HEAD_ADVICE=$(git config --global --get advice.detachedHead)
     git config --global advice.detachedHead false
 
