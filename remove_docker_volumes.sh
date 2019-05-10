@@ -53,18 +53,6 @@ function echo_if_unquiet() {
     fi
 }
 
-cluster_running=0
-
-if [[ -n $COMPOSE_PROJECT_NAME ]]; then
-    images=$(docker ps --format '{{.Image}}' | grep "$COMPOSE_PROJECT_NAME" | xargs)
-    if [[ -n $images ]]; then cluster_running=1; fi
-fi
-
-if [[ cluster_running -eq 0 ]]; then
-    images=$(docker ps --format '{{.Image}}' | grep "$SCRIPT_BASE_DIR" | xargs)
-    if [[ -n $images ]]; then cluster_running=1; fi
-fi
-
 volume_names=$(sed -nE '/^volumes:/,/^[a-zA-Z0-9"'"'"']/p' ./docker-compose.yml \
                | grep -e '^[[:space:]]' \
                | sed -E 's/^[ -]*//' \
@@ -138,15 +126,13 @@ if [[ $AUTORUN != "yes" ]]; then
     done
 fi
 
-if [[ cluster_running -eq 1 ]]; then
-    echo_if_unquiet "\nCluster appears to be running, bringing it down...\n"
-    if [[ $QUIET != "yes" ]]; then
-        set -x
-        COMPOSE_FILE="$PWD/docker-compose.yml" docker-compose down
-        set +x
-    else
-        COMPOSE_FILE="$PWD/docker-compose.yml" docker-compose down > /dev/null 2>&1
-    fi
+echo_if_unquiet "Running docker-compose down to make sure the volumes aren't going to be attached to existing containers..."
+if [[ $QUIET != "yes" ]]; then
+    set -x
+    COMPOSE_FILE="$PWD/docker-compose.yml" docker-compose down
+    set +x
+else
+    COMPOSE_FILE="$PWD/docker-compose.yml" docker-compose down > /dev/null 2>&1
 fi
 
 echo_if_unquiet "Removing volumes..."
