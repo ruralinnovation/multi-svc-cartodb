@@ -6,16 +6,16 @@ volumes:
   postgis-extensions:
 
 services:
-  router:
-    container_name: router
-    build:
-      context: docker/router
-    ports:
-      - "80:80"
-    depends_on:
-      - cartodb
-      - windshaft
-      - sqlapi
+#  router:
+#    container_name: router
+#    build:
+#      context: docker/router
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - cartodb
+#      - windshaft
+#      - sqlapi
   cartodb:
     container_name: cartodb
     build:
