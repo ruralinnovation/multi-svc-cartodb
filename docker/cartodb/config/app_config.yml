@@ -1,4 +1,14 @@
 defaults: &defaults
+  #### UNKNOWN ###############################################################
+
+#  cdn_url:
+#    http:
+#    https:
+
+  secret_key_base: 'e5dd1322077d8904851648ce1c09827a01cc4773d50f2f4c2803abd49006fedd4a505bb1b4a63613eedffc57f1b4033adb6c29e56f17ec641ab3f275b4ea855f'
+  password_secret: '43b3749c7acf182f1d94c598d8a7691da6e978c5b4454976a45f55a9f0be6b9bf01fe51581725298555a125e64cbb82a0a96a1e18f470802f82924e3e7c9a5fe'
+
+  
   #### GENERAL SETTINGS ######################################################
 
   # Setting: 'mandatory_keys'
@@ -400,18 +410,18 @@ defaults: &defaults
     filter: 'mapnik'
     internal:
       protocol: 'http'
-      domain: 'localhost.lan'
+      domain: 'windshaft'
       port: '8181'
       host: 'windshaft'
       verifycert: false
     private:
       protocol: 'http'
-      domain: 'localhost.lan'
+      domain: 'windshaft'
       port: '8181'
       verifycert: false
     public:
       protocol: 'http'
-      domain: 'localhost.lan'
+      domain: 'windshaft'
       port: '8181'
       verifycert: false
 
@@ -446,13 +456,14 @@ defaults: &defaults
   sql_api:
     private:
       protocol: 'http'
-      domain: 'localhost.lan'
+      domain: 'sqlapi'
       endpoint: '/api/v1/sql'
       port: '8080'
     public:
       protocol: 'http'
-      domain: 'localhost.lan'
+      domain: 'sqlapi'
       endpoint: '/api/v2/sql'
+      port: '8080'
 
   # Setting: 'common_data'
   #
@@ -1025,7 +1036,9 @@ defaults: &defaults
     autocreation:
 
   # Setting: 'oauth'
-  # Required:
+  # Required: Yes. Also the sub-keys. If they're not present, it causes Ruby
+  #           to throw a fit, because the Carto code attempts to access nested
+  #           keys in oauth without checking to see if they're present.
   #
   # Used in: Carto::User.get_oauth_services
   # Purpose: Defines settings for specific oauth providers
@@ -1044,32 +1057,32 @@ defaults: &defaults
   # Purpose: Defines config params for particular services
   # File: lib/carto/oauth/google/config.rb
   #       lib/carto/oauth/github/config.rb
-#  oauth:
-#    gdrive:
-#      application_name: ''
-#      client_id: ''
-#      client_secret: ''
-#      callback_url: 'https://carto.com'
-#    github:
-#      client_id: ''
-#      client_secret: ''
-#    dropbox:
-#      app_key: ''
-#      app_secret: ''
-#      callback_url: ''
-#    box:
-#      application_name: ''
-#      client_id: ''
-#      client_secret: ''
-#      box_host: 'app.box.com'
-#    instagram:
-#      app_key: ''
-#      app_secret: ''
-#      callback_url: ''
-#    mailchimp:
-#      app_key: ''
-#      app_secret: ''
-#      callback_url: ''
+  oauth:
+    gdrive:
+      application_name: ''
+      client_id: ''
+      client_secret: ''
+      callback_url: 'https://carto.com'
+    github:
+      client_id: ''
+      client_secret: ''
+    dropbox:
+      app_key: ''
+      app_secret: ''
+      callback_url: ''
+    box:
+      application_name: ''
+      client_id: ''
+      client_secret: ''
+      box_host: 'app.box.com'
+    instagram:
+      app_key: ''
+      app_secret: ''
+      callback_url: ''
+    mailchimp:
+      app_key: ''
+      app_secret: ''
+      callback_url: ''
 
   #### PATH AND FILE SETTINGS ################################################
 
@@ -1093,7 +1106,7 @@ defaults: &defaults
   #          this is a way of disabling the status page in environments it
   #          shouldn't be available in?
   # File: app/controllers/home_controller.rb
-#  disable_file: '~/disable'
+  disable_file: '/carto/disable'
 
   #### LAYER OPTIONS ########################################################
   
