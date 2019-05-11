@@ -107,6 +107,10 @@ The windshaft and sqlapi containers will come up next, as they depend on postgis
 
 You should be able to load the application by going to `subdomain.localhost.lan:3000` in a browser, where `subdomain` is the value of `CARTO_DEFAULT_USER`, and log in with the password in `CARTO_DEFAULT_PASS`.
 
+### Clearing the databases
+
+If you need to remove the databases to force the containers to rebuild them, the easiest way to do that is to remove the docker volumes that the databases and postgres extensions are persisted on. There's a script in the root, `remove_docker_volumes.sh`, which will remove the appropriate volumes for you. Run `./remove_docker_volumes.sh --help` for more info. It runs with a manual confirmation step by default, so don't worry about accidentally dropping the volumes.
+
 ## Contributing
 
 **If you are going to add values to the `.env` file, you should add them by modifying the `setup-local.sh` script, not by adding them directly to the `.env` file! Otherwise they will be blown away the next time `setup-local.sh --set-submodule-versions` is run.** Note also that `.env` is in the `.gitignore` file, since it should only be constructed by `setup-local.sh`.
