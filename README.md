@@ -87,11 +87,25 @@ To build images from the Dockerfiles, call `docker-compose build` in the reposit
 
 While each of the services here have their own Dockerfile, and it is possible to interact with them directly via the `docker` CLI utility, they are meant to be orchestrated via `docker-compose`. The `docker-compose.yml` file in the repository root defines the relationships between containers, and they expect to be able to make network requests to named hosts defined on the network `docker-compose` brings up.
 
+### Aliasing your subdomain
+
+The carto instance will expect you to hit it at `subdomain.localhost.lan:3000`, where `subdomain` is the value given to `CARTO_DEFAULT_USER` in the .env file. Consequently you'll need to make sure that alias is listed in your computer's `/etc/hosts` (or the Windows equivalent, which I believe is `c:\Windows\System32\Drivers\etc\hosts`):
+
+```bash
+echo "127.0.0.1   $CARTO_DEFAULT_USER.localhost.lan" >> /etc/hosts
+```
+
 ### Starting the cluster of services
 
 Assuming you've built the images successfully, in the root directory of the repo run `docker-compose up`. This will bring up containers based on the images, in their internal dependency order as defined in `docker-compose.yml`.
 
 Note that once they're up, docker-compose will continually stream their output to your terminal's STDOUT, with each line prefixed by the container name it comes from.
+
+As it starts up, you'll see the redis and postgis containers reporting in first, as they don't have dependencies on other containers. The postgis container will have a lot of output on the initial run, because it will be creating the PostgreSQL database cluster (which persists on a docker volume) and installing extensions.
+
+The windshaft and sqlapi containers will come up next, as they depend on postgis and redis. Finally the cartodb container will come up, and run its initial setup by creating the development database, running migrations, and creating a dev user based on the credentials from `CARTO_DEFAULT_USER`, `CARTO_DEFAULT_PASS`, and `CARTO_DEFAULT_EMAIL`.
+
+You should be able to load the application by going to `subdomain.localhost.lan:3000` in a browser, where `subdomain` is the value of `CARTO_DEFAULT_USER`, and log in with the password in `CARTO_DEFAULT_PASS`.
 
 ## Contributing
 

@@ -12,6 +12,12 @@ If you just want to get started without reading the detailed instructions, do th
     source ~/.bash_profile
     ```
 
+1. Amend your `/etc/hosts` file to include the domain string Carto will expect you to hit:
+
+```bash
+echo "127.0.0.1   $CARTO_DEFAULT_USER.localhost.lan" >> /etc/hosts
+```
+
 1. Clone the `multi-svc-cartodb` repository and all submodules:
 
     ```bash
@@ -41,4 +47,4 @@ If you just want to get started without reading the detailed instructions, do th
     docker-compose up
     ```
 
-1. Go to the Carto login screen at `http://localhost:3000/` in a browser. You should be able to log in with the values you set in your `.bash_profile` for username and password.
+1. Go to the Carto login screen at `http://$CARTO_DEFAULT_USER.localhost.lan:3000/` in a browser. You should be able to log in with the values you set in your `.bash_profile` for username and password.
