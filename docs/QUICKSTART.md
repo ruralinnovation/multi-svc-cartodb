@@ -12,20 +12,20 @@ If you just want to get started without reading the detailed instructions, do th
     source ~/.bash_profile
     ```
 
-1. Clone the `multi-svc-cartodb` repository:
+1. Clone the `multi-svc-cartodb` repository and all submodules:
 
     ```bash
     cd /path/to/where/you/want/the/checkout
-    git clone https://github.com/ruralinnovation/multi-svc-cartodb.git
+    git clone --recurse-submodules https://github.com/ruralinnovation/multi-svc-cartodb.git
     cd multi-svc-cartodb
     ```
 
-1. In the repo, run the `setup-local.sh` script, which will populate some environment variables that the docker build will need, as well as check out the various submodules to the correct version tags. Then have your bash startup files source the script so the environment is populated for new terminals:
+1. In the repo, run the `setup-local.sh` script. That does two things:
+    1. Writes a number of values to a `.env` file, which will be used by `docker-compose` to merge values into the `docker-compose.yml` file as a pre-build step
+    1. When run with the `--set-submodule-versions` flag, updates the git checkout of each submodule, and checks it out to the version given in the script
 
     ```bash
     source ./setup-local.sh --set-submodule-versions
-    echo "source $PWD/setup-local.sh -q" >> ~/.bashrc
-    echo "test -f ~/.bashrc && source ~/.bashrc" >> ~/.bash_profile
     ```
 
 1. If all that went well, you should have a `.env` file in the root of the repo, and if you run `docker-compose config`, you should see your values for user/password/email substituted into the compose file.
@@ -41,4 +41,4 @@ If you just want to get started without reading the detailed instructions, do th
     docker-compose up
     ```
 
-1. Go to the Carto login screen at `http://localhost/` in a browser.
+1. Go to the Carto login screen at `http://localhost:3000/` in a browser. You should be able to log in with the values you set in your `.bash_profile` for username and password.

@@ -43,25 +43,18 @@ Once you have Docker and Git, you should clone this repo to your local machine:
 
 ```bash
 cd /path/to/where/you/want/the/checkout
-git clone https://github.com/ruralinnovation/multi-svc-cartodb.git
+git clone --recurse-submodules https://github.com/ruralinnovation/multi-svc-cartodb.git
 cd multi-svc-cartodb
 ```
 
 This project uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to bring in the various Carto sources, and you'll need to make sure those submodules are each checked out to an appropriate version. To streamline that process, and to make the versioning consistent, there's a script called `setup-local.sh` in the root of the repository.
 
-The script exports a number of environment variables:
+That script does two things:
 
-* Version strings for the various submodules:
-    * `CARTO_PGEXT_VERSION`
-    * `CARTO_WINDSHAFT_VERSION`
-    * `CARTO_CARTODB_VERSION`
-    * `CARTO_SQLAPI_VERSION`
-* Values to use when creating an initial Carto user:
-    * `CARTO_DEFAULT_USER`
-    * `CARTO_DEFAULT_PASS`
-    * `CARTO_DEFAULT_EMAIL`
+1. Each time it runs, it writes values for a number of variables to a `.env` file in the root of the repository. The `.env` file is used by `docker-compose` to merge values into the `docker-compose.yml` file prior to executing any other instructions. 
+1. If run with the `--set-submodule-versions` flag, it will update the submodule repositories, and make sure they are checked out to the version tags given in the file (or sourced from your bash environment).
 
-There are default values for each of those, but the last three should probably be set to something other than the default. The password doesn't need to be secure, just something you'll remember--it's not stored in a secrets manager, so it isn't secure. However! It does have to match the Carto password policy, which is:
+The values the script sets fall into two categories: submodule version strings, and credentials for the public user that will be created when you run the cartodb container for the first time. All of them have default values, and it is fine to leave them as-is. However, if you would like to change the user/password/email values you're welcome to do so. The password can just be something you'll remember--it's not stored in a secrets manager, so it isn't secure. However! It does have to match the Carto password policy, which is:
 
 * Min length: 6
 * Max length: 64
@@ -78,25 +71,13 @@ echo "export CARTO_DEFAULT_EMAIL=you@somedomain.tld" >> ~/.bash_profile
 source ~/.bash_profile
 ```
 
-Once you've done that, you can call the setup script with the `--set-submodule-versions` flag. That will cause it to check out each submodule to the version tag in the appropriate `CARTO_..._VERSION` variable, and will also write the various `CARTO_*` values above out to a `.env` file in the root of the repository. It's important to run the script (with the set flag) at least once prior to building the images, because `docker-compose` sources some values from the `.env` file, and that file does not exist prior to being created by the setup script.
+Once you've done that, you can call the setup script with the `--set-submodule-versions` flag:
 
 ```bash
-cd /path/to/where/you/want/the/checkout
-git clone https://github.com/ruralinnovation/multi-svc-cartodb.git
-cd multi-svc-cartodb
-source ./setup-local.sh --set-submodule-versions
+./setup-local.sh --set-submodule-versions
 ```
 
 Assuming the script ran successfully, you should now be able to see your custom values for user/password/email merged into the output of `docker-compose config`, which shows the `docker-compose.yml` file after variable and path expansion.
-
-In order to have the `CARTO_*` environment variables available in new terminal instances, you can add the setup script (without the `--set-submodule-versions` flag, and with `-q` to keep it from spamming your terminal at startup) to your `~/.bashrc` file, and (if it doesn't already), have your `~/.bash_profile` source the `~/.bashrc` (so the values are available to both login and non-login shells):
-
-```bash
-echo "source $PWD/setup-local.sh -q" >> ~/.bashrc                           
-echo "test -f ~/.bashrc && source ~/.bashrc" >> ~/.bash_profile
-```
-
-You should now have the `CARTO_*` variables in the environment of any new terminal--you can check with `env | grep "^CARTO"`. Note that to get them in any terminal that's already open, you just have to run `source ~/.bash_profile` to reload your profile.
 
 ### Building the Images
 
