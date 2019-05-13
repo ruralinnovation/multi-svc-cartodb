@@ -85,6 +85,8 @@ COPY ./docker-entrypoint.sh /carto/
 
 WORKDIR /carto/cartodb
 
+EXPOSE 3000
+
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
 
 CMD []

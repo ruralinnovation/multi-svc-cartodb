@@ -92,4 +92,6 @@ RUN mkdir -p /docker-entrypoint-initdb.d \
 COPY ./initdb.d/*.sh /docker-entrypoint-initdb.d/
 COPY ./initdb.d/*.sql /docker-entrypoint-initdb.d/
 
+EXPOSE 5432
+
 ENV POSTGRES_USER postgres

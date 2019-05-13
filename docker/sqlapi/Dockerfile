@@ -84,6 +84,8 @@ COPY ./docker-entrypoint.sh /carto/
 
 WORKDIR /carto/CartoDB-SQL-API
 
+EXPOSE 8080
+
 ENTRYPOINT ["/bin/bash", "-c", "/carto/docker-entrypoint.sh"]
 
 CMD []

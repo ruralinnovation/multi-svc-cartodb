@@ -67,4 +67,6 @@ COPY ./test/*.sh /carto/Windshaft-cartodb/test/
 
 WORKDIR /carto/Windshaft-cartodb
 
+EXPOSE 8181
+
 ENTRYPOINT ["/bin/bash", "-c", "/carto/docker-entrypoint.sh"]

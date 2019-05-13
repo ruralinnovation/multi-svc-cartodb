@@ -9,6 +9,8 @@ FROM redis:5.0.3-alpine AS base
 # using `docker-compose`, or attach the volume explicitly via `--mount`
 # flag to `docker run`.
 
+EXPOSE 6379
+
 # Options here are to run Redis with persistence.
 ENTRYPOINT [ \
     "docker-entrypoint.sh", \
