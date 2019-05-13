@@ -12,10 +12,10 @@ If you just want to get started without reading the detailed instructions, do th
     source ~/.bash_profile
     ```
 
-1. Amend your `/etc/hosts` file to include the domain string Carto will expect you to hit:
+1. Amend your `/etc/hosts` file to include the domain string Carto will expect you to hit, by adding the following line to your `/etc/hosts` (Linux, MacOS) or `c:\Windows\System32\Drivers\etc\hosts` (Windows) file. You may need to start your text editor with `sudo`, or the appropriate Windows administrative permissions. Make sure to change `CARTO_DEFAULT_USER` to the value you set in your `~/.bash_profile` file:
 
 ```bash
-echo "127.0.0.1   $CARTO_DEFAULT_USER.localhost.lan" >> /etc/hosts
+127.0.0.1   CARTO_DEFAULT_USER.localhost.lan
 ```
 
 1. Clone the `multi-svc-cartodb` repository and all submodules:

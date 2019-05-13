@@ -89,10 +89,10 @@ While each of the services here have their own Dockerfile, and it is possible to
 
 ### Aliasing your subdomain
 
-The carto instance will expect you to hit it at `subdomain.localhost.lan:3000`, where `subdomain` is the value given to `CARTO_DEFAULT_USER` in the .env file. Consequently you'll need to make sure that alias is listed in your computer's `/etc/hosts` (or the Windows equivalent, which I believe is `c:\Windows\System32\Drivers\etc\hosts`):
+The carto instance will expect you to hit it at `subdomain.localhost.lan:3000`, where `subdomain` is the value given to `CARTO_DEFAULT_USER` in the .env file. Consequently you'll need to make sure that alias is listed in your computer's `/etc/hosts` (or the Windows equivalent, which I believe is `c:\Windows\System32\Drivers\etc\hosts`). Use a text editor started with `sudo` (or whatever permissions Windows requires) to add the following line to your hosts file, replacing `CARTO_DEFAULT_USER` with the value you set in your `~/.bash_profile` file:
 
 ```bash
-echo "127.0.0.1   $CARTO_DEFAULT_USER.localhost.lan" >> /etc/hosts
+127.0.0.1   CARTO_DEFAULT_USER.localhost.lan
 ```
 
 ### Starting the cluster of services
