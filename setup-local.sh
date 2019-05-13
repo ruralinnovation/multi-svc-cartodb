@@ -28,6 +28,7 @@ CARTO_DEFAULT_PASS="${CARTO_DEFAULT_PASS:-abc123def}"
 CARTO_DEFAULT_EMAIL="${CARTO_DEFAULT_EMAIL:-username@example.com}"
 
 SET_CHECKOUTS="no"
+GENERATE_CERT="no"
 QUIET=no
 GITQUIET=""
 HORIZONTAL_LINE="\n$(printf '=%.0s' {1..79})\n\n"
@@ -36,7 +37,7 @@ function display_help() {
     local help_text=""
     IFS='' read -r -d '' help_text <<EOF
 
-Usage: $SCRIPT_NAME [--set-submodule-versions] [-q|--quiet]
+Usage: $SCRIPT_NAME [--set-submodule-versions] [--generate-ssl-cert]
 
 Purpose: Sets the following values in the .env file docker-compose uses to
          merge environment values into the docker-compose.yml file during the
@@ -63,10 +64,17 @@ Purpose: Sets the following values in the .env file docker-compose uses to
     to have the script write it, and supply test values to the script by
     environment variable.
 
+    If the --generate-ssl-cert flag is present, generates localhost.crt and
+    localhost.key files in ./docker/router/ssl, which are used to allow the
+    nginx reverse proxy in the router container to serve self-signed requests
+    over HTTPS.
+
 Flags:
     --set-submodule-versions   - For all submodules in the project,
                                  pull from master, then re-checkout
                                  to the version tag listed in the script.
+    --generate-ssl-cert        - Creates .crt and .key files for the nginx
+                                 router container to use for signing localhost.
     -q|--quiet                 - Display no output.
 
 EOF
@@ -83,6 +91,10 @@ while [[ $# -gt 0 ]]; do
         --set-submodule-versions)
             shift
             SET_CHECKOUTS=yes
+            ;;
+        --generate-ssl-cert)
+            shift
+            GENERATE_CERT=yes
             ;;
         -q|--quiet)
             shift
@@ -128,6 +140,22 @@ CARTO_DEFAULT_EMAIL=$CARTO_DEFAULT_EMAIL
 EOF
 
 echo "$dot_env_lines" > ${SCRIPT_DIR}/.env
+
+if [[ $GENERATE_CERT = "yes" ]]; then
+    echo_if_unquiet "Generating SSL .crt and .key files in docker/router/ssl..."
+
+    cert_output=$(openssl req -x509 \
+    -out docker/router/ssl/wildcard-localhost.crt \
+    -keyout docker/router/ssl/wildcard-localhost.key \
+    -newkey rsa:2048 -nodes -sha256 \
+    -subj '/CN=*.localhost' -extensions EXT -config <( \
+    printf "[dn]\nCN=*.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:*.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") 2>&1)
+
+    echo_if_unquiet "Completed generating SSL .crt and .key files."
+
+    chmod 644 docker/router/ssl/wildcard-localhost.crt
+    chmod 640 docker/router/ssl/wildcard-localhost.key
+fi
 
 if [[ "$SET_CHECKOUTS" = "yes" ]]; then
     # Going to turn off warnings about detached head, but should be able to
