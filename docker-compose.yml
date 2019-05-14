@@ -6,23 +6,23 @@ volumes:
   postgis-extensions:
 
 services:
-#  router:
-#    container_name: router
-#    build:
-#      context: docker/router
-#    ports:
-#      - "80:80"
-#    depends_on:
-#      - cartodb
-#      - windshaft
-#      - sqlapi
+  router:
+    container_name: router
+    build:
+      context: docker/router
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - cartodb
+      - windshaft
+      - sqlapi
   cartodb:
     container_name: cartodb
     build:
       context: docker/cartodb
-    ports:
-      - "3000:3000"    # http_port from app_config.yml
-      - "443:443"      # default https_port from app_config.yml
+    #ports:
+    #  - "3000:3000"    # http_port from app_config.yml
     environment:
       - CARTO_CARTODB_VERSION=${CARTO_CARTODB_VERSION}
       - CARTO_DEFAULT_USER=${CARTO_DEFAULT_USER}
@@ -37,8 +37,8 @@ services:
     container_name: windshaft
     build:
       context: docker/windshaft
-    ports:
-      - "8181:8181"
+    #ports:
+    #  - "8181:8181"
     depends_on:
       - redis
       - postgis
@@ -49,8 +49,8 @@ services:
     container_name: sqlapi
     build:
       context: docker/sqlapi
-    ports: 
-      - "8080:8080"
+    #ports: 
+    #  - "8080:8080"
     depends_on:
       - redis
       - postgis
@@ -67,8 +67,8 @@ services:
       # you will be able to attach the redis-data volume to either this
       # or another container (either running redis or not).
       - redis-data:/data
-    ports:
-      - "6379:6379"
+    #ports:
+    #  - "6379:6379"
   postgis:
     container_name: postgis
     build:
@@ -90,7 +90,7 @@ services:
       - postgis-extensions:/usr/share/postgresql
     ports:
       - "5432:5432"
-      - "6432:6432"     # pgbouncer runs on this port, which sqlapi's tests need
+    #  - "6432:6432"     # pgbouncer runs on this port, which sqlapi's tests need
     # If you need to get a shell on the postgis container, and you want the
     # data volume for postgis to be attached (which it won't be using plain
     # `docker run`), you should run `docker-compose stop` to stop the cluster,

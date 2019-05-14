@@ -327,7 +327,7 @@ defaults: &defaults
   # File: services/user-mover/spec/user_mover_spec.rb
   org_metadata_api:
     host: 'localhost.lan'
-    port: '3000'
+    port: '80'
     username: 'extension'
     password: 'elephant'
     timeout: 10
@@ -362,7 +362,7 @@ defaults: &defaults
   # Purpose: Defines domain strings to use as partial keys when purging data
   #          from the redis cache.
   # File: lib/cartodb/redis_vizjson_cache.rb
-  vizjson_cache_domains: ['.localhost.lan']
+  vizjson_cache_domains: ['localhost']
 
   # Setting: 'watcher'
   #
@@ -416,13 +416,13 @@ defaults: &defaults
       verifycert: false
     private:
       protocol: 'http'
-      domain: 'windshaft'
-      port: '8181'
+      domain: 'localhost'
+      port: '80'
       verifycert: false
     public:
       protocol: 'http'
-      domain: 'windshaft'
-      port: '8181'
+      domain: 'localhost'
+      port: '80'
       verifycert: false
 
   # Setting: 'sql_api'
@@ -456,14 +456,14 @@ defaults: &defaults
   sql_api:
     private:
       protocol: 'http'
-      domain: 'sqlapi'
+      domain: 'localhost'
       endpoint: '/api/v1/sql'
-      port: '8080'
+      port: '80'
     public:
       protocol: 'http'
-      domain: 'sqlapi'
+      domain: 'localhost'
       endpoint: '/api/v2/sql'
-      port: '8080'
+      port: '80'
 
   # Setting: 'common_data'
   #
@@ -494,8 +494,8 @@ defaults: &defaults
   #          visualizations API.
   # File: lib/tasks/remote_tables_maintenance.rake
   common_data:
-    protocol: 'https'
-    username: 'common-data'
+    protocol: 'http'
+    username: 'nick'
     # base_url: 'https://common-data.carto.com'
     format: 'shp'
     generate_every: 86400
@@ -846,7 +846,7 @@ defaults: &defaults
   # Used in: CartoDB.get_http_port
   # Purpose: Sets the http port, returns as string
   # File: config/initializers/carto_db.rb
-  http_port: 3000
+  http_port: 80
 
   # Setting: 'https_port'
   # Used in: CartoDB.get_https_port
@@ -863,7 +863,7 @@ defaults: &defaults
   # Used in: CartoDB.get_account_host
   # Purpose: getter for this value
   # File: config/initializers/carto_db.rb
-  account_host: 'localhost.lan:3000'
+  account_host: 'localhost:80'
 
   # Setting: 'session_domain'
   # Required: Yes
@@ -886,7 +886,7 @@ defaults: &defaults
   # Used in: Cartodb.config
   # Purpose: Helps set ActionDispatch::Http::Url.tld_length
   # File: config/initializers/01_app_config.rb
-  session_domain: '.localhost.lan'
+  session_domain: 'localhost'
 
   # Setting: 'developers_host'
   # Required: Only if you want the "learn more about using oauth in CARTO"
@@ -957,7 +957,7 @@ defaults: &defaults
   # Purpose: Sets the return value of the function, which is used to control
   #          a number of URL related things
   # File: config/initializers/carto_db.rb
-  subdomainless_urls: false
+  subdomainless_urls: true
 
   # Setting: 'account_path'
   # Required: Yes, no default value appears to be set
@@ -1141,10 +1141,10 @@ defaults: &defaults
         interactivity:      "cartodb_id"
         debug:              false
         visible:            true
-        tiler_domain:       "localhost.lan"
+        tiler_domain:       "localhost"
         tiler_port:         "80"
         tiler_protocol:     "http"
-        sql_domain:         "localhost.lan"
+        sql_domain:         "localhost"
         sql_port:           "80"
         sql_protocol:       "http"
         extra_params:       { cache_policy: 'persist' }
@@ -1478,7 +1478,7 @@ defaults: &defaults
 #### ENVIRONMENT SPECIFIC OVERRIDES ##########################################
 development:
   <<: *defaults
-  http_port: 3000
+  http_port: 80 
   varnish_management:
     critical: false
     host: '127.0.0.1'

@@ -37,6 +37,10 @@ docker-compose version 1.23.2, build 1110ad01
 
 If you don't have git (check with `git --version`), you can get it from the [official site](https://git-scm.com/download/).
 
+#### OpenSSL
+
+You'll need openssl to generate the security certificate for connecting to the router container over HTTPS. You can check for it with `openssl version`. If you don't have it, you should be able to install it from a package manager (homebrew, etc.).
+
 ### Setting up your dev environment
 
 Once you have Docker and Git, you should clone this repo to your local machine:
@@ -78,6 +82,32 @@ Once you've done that, you can call the setup script with the `--set-submodule-v
 ```
 
 Assuming the script ran successfully, you should now be able to see your custom values for user/password/email merged into the output of `docker-compose config`, which shows the `docker-compose.yml` file after variable and path expansion.
+
+#### Forcing Browsers to accept Self-Signed SSL certificates
+
+Since the router container is going to serve HTTPS content using a self-signed root certificate, most browsers will consider it to be insecure, and may refuse to serve it. There are workarounds in most browsers for at least allowing it to display page content (though it may still display a broken SSL lock icon).
+
+**Chrome**
+
+Per [this StackOverflow answer](https://stackoverflow.com/a/31900210/1461374), for Chrome, open a new window and load the following URL:
+
+```
+chrome://flags/#allow-insecure-localhost
+```
+
+Once open, you'll have the option to set that to 'enabled,' which will allow you to load pages without getting the insecure page blockage.
+
+**Safari**
+
+Per [this StackOverflow answer](https://stackoverflow.com/a/47492154/1461374), for Safari, add the certificate to your system keychain with the following (making sure to replace the `/path/to/my/wildcard-localhost.crt` with an actual path):
+
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /path/to/my/wildcard-localhost.crt
+```
+
+
+
+
 
 ### Building the Images
 

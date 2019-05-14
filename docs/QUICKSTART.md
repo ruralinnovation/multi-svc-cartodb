@@ -26,12 +26,13 @@ If you just want to get started without reading the detailed instructions, do th
     cd multi-svc-cartodb
     ```
 
-1. In the repo, run the `setup-local.sh` script. That does two things:
+1. In the repo, run the `setup-local.sh` script. That does several things:
     1. Writes a number of values to a `.env` file, which will be used by `docker-compose` to merge values into the `docker-compose.yml` file as a pre-build step
     1. When run with the `--set-submodule-versions` flag, updates the git checkout of each submodule, and checks it out to the version given in the script
+    1. When run with the `--generate-ssl-cert` flag, creates .key and .crt files for the router container to use when self-signing HTTPS requests to localhost
 
     ```bash
-    source ./setup-local.sh --set-submodule-versions
+    source ./setup-local.sh --set-submodule-versions --generate-ssl-cert
     ```
 
 1. If all that went well, you should have a `.env` file in the root of the repo, and if you run `docker-compose config`, you should see your values for user/password/email substituted into the compose file.

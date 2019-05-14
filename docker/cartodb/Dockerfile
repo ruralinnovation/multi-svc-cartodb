@@ -69,6 +69,7 @@ RUN cd /carto/cartodb \
  && RAILS_ENV=development bundle install \
  && npm install
 
+
 # Compile static assets, precompile assets
 ENV PATH $PATH:/carto/cartodb/node_modules/grunt-cli/bin
 RUN cd /carto/cartodb \
@@ -76,16 +77,15 @@ RUN cd /carto/cartodb \
  && npm run build:static \
  && bundle exec grunt --environment=development --force
 
-COPY ./config/*.yml /carto/cartodb/config/
-
 ENV RAILS_ENV development
 
+COPY ./config/*.yml /carto/cartodb/config/
 COPY ./better_create_dev_user.sh /carto/cartodb/script/
 COPY ./docker-entrypoint.sh /carto/
 
 WORKDIR /carto/cartodb
 
-EXPOSE 3000
+EXPOSE 80
 
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
 

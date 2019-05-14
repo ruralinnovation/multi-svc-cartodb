@@ -142,16 +142,16 @@ EOF
 echo "$dot_env_lines" > ${SCRIPT_DIR}/.env
 
 if [[ $GENERATE_CERT = "yes" ]]; then
-    echo_if_unquiet "Generating SSL .crt and .key files in docker/router/ssl..."
+    echo_if_unquiet "Generating SSL .crt and .key files in docker/router/ssl...\n"
 
     cert_output=$(openssl req -x509 \
     -out docker/router/ssl/wildcard-localhost.crt \
     -keyout docker/router/ssl/wildcard-localhost.key \
     -newkey rsa:2048 -nodes -sha256 \
-    -subj '/CN=*.localhost' -extensions EXT -config <( \
-    printf "[dn]\nCN=*.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:*.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") 2>&1)
+    -subj '/CN=*.localhost.lan' -extensions EXT -config <( \
+    printf "[dn]\nCN=*.localhost.lan\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:*.localhost.lan\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") 2>&1)
 
-    echo_if_unquiet "Completed generating SSL .crt and .key files."
+    echo_if_unquiet "Completed generating SSL .crt and .key files.\n"
 
     chmod 644 docker/router/ssl/wildcard-localhost.crt
     chmod 640 docker/router/ssl/wildcard-localhost.key

@@ -53,13 +53,17 @@ COPY ./dataservices-api-client /carto/dataservices-api-client
 
 # The client extension has a ruby builder script that the Makefile uses,
 # so we install and then remove ruby.
+# One of the CDB functions in the postgres extension needs Python's redis
+# module, so we have to install that too.
 RUN apt-get update \
- && apt-get install -y ruby \
+ && apt-get install -y ruby python-pip \
  && cd /carto/dataservices-api-client/client \
  && make install \
  && cd /carto/dataservices-api-server/server/extension \
  && make install \
- && apt-get remove -y ruby
+ && cd /carto \
+ && pip install redis \
+ && apt-get remove -y ruby python-pip
 
 # TODO: Figure out whether it's worth it to use pgbouncer.
 # Installing pgbouncer because some parts of the CartoDB ecosystem expect
