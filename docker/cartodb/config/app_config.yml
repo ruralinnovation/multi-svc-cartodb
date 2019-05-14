@@ -1,4 +1,9 @@
 defaults: &defaults
+  # THIS IS NOT AN OFFICIAL CARTO CONFIG KEY, IT'S A HACK TO MAKE HTTPS WORK
+  # IN DEVELOPMENT. IT TRIGGERS AN EDIT TO cartodb/config/initializers/carto_db.rb
+  # IN THE docker-entrypoint.sh SCRIPT.
+  use_https: true
+
   #### UNKNOWN ###############################################################
 
 #  cdn_url:
@@ -409,20 +414,20 @@ defaults: &defaults
   tiler:
     filter: 'mapnik'
     internal:
-      protocol: 'http'
+      protocol: 'https'
       domain: 'windshaft'
-      port: '8181'
+      port: '80'
       host: 'windshaft'
       verifycert: false
     private:
-      protocol: 'http'
+      protocol: 'https'
       domain: 'localhost'
-      port: '80'
+      port: '443'
       verifycert: false
     public:
-      protocol: 'http'
+      protocol: 'https'
       domain: 'localhost'
-      port: '80'
+      port: '443'
       verifycert: false
 
   # Setting: 'sql_api'
@@ -455,15 +460,15 @@ defaults: &defaults
   # File: services/sql-api/sql_api.rb
   sql_api:
     private:
-      protocol: 'http'
+      protocol: 'https'
       domain: 'localhost'
       endpoint: '/api/v1/sql'
-      port: '80'
+      port: '443'
     public:
-      protocol: 'http'
+      protocol: 'https'
       domain: 'localhost'
       endpoint: '/api/v2/sql'
-      port: '80'
+      port: '443'
 
   # Setting: 'common_data'
   #
@@ -494,7 +499,7 @@ defaults: &defaults
   #          visualizations API.
   # File: lib/tasks/remote_tables_maintenance.rake
   common_data:
-    protocol: 'http'
+    protocol: 'https'
     username: 'nick'
     # base_url: 'https://common-data.carto.com'
     format: 'shp'
@@ -852,7 +857,7 @@ defaults: &defaults
   # Used in: CartoDB.get_https_port
   # Purpose: Sets the https port, returns as string
   # File: config/initializers/carto_db.rb
-  https_port:
+  https_port: 443
 
   # Setting: 'account_host'
   #
@@ -1142,11 +1147,11 @@ defaults: &defaults
         debug:              false
         visible:            true
         tiler_domain:       "localhost"
-        tiler_port:         "80"
-        tiler_protocol:     "http"
+        tiler_port:         "443"
+        tiler_protocol:     "https"
         sql_domain:         "localhost"
-        sql_port:           "80"
-        sql_protocol:       "http"
+        sql_port:           "443"
+        sql_protocol:       "https"
         extra_params:       { cache_policy: 'persist' }
         tile_style_history: []
         style_version:      "2.1.1"
@@ -1478,10 +1483,10 @@ defaults: &defaults
 #### ENVIRONMENT SPECIFIC OVERRIDES ##########################################
 development:
   <<: *defaults
-  http_port: 80 
+  http_port: 80
   varnish_management:
     critical: false
-    host: '127.0.0.1'
+    host: 'localhost'
     port: 6082
     purge_command: 'purge'
     url_purge_command: 'url.purge'

@@ -9,6 +9,7 @@ PG_READY=""
 PG_READY_WAIT_SECONDS=5
 COUNT=0
 DB_CONFIG_FILE=/carto/cartodb/config/database.yml
+APP_CONFIG_FILE=/carto/cartodb/config/app_config.yml
 
 # Usage: value_from_dbconf 'env' 'value'
 # Example: value_from_dbconf 'development' 'database'
@@ -16,6 +17,23 @@ function value_from_dbconf() {
     local val=$(echo "dbconf=YAML.load_file('${DB_CONFIG_FILE}');puts dbconf['${1}']['${2}'];" | ruby -ryaml)
     echo $val
 }
+
+function value_from_appconf() {
+    local val=$(echo "appconf=YAML.load_file('${APP_CONFIG_FILE}');puts appconf['${1}']['${2}'];" | ruby -ryaml)
+    echo $val
+}
+
+# This section is a hack to make https stay on without changing the rails env
+# to staging or production, which is otherwise required to get it to stop
+# constructing http based urls.
+USE_HTTPS=$(value_from_appconf 'defaults' 'use_https')
+USE_HTTPS=${USE_HTTPS:-false}
+
+if [[ $USE_HTTPS = 'true' ]]; then
+    CARTO_DB_INIT_FILE="/carto/cartodb/config/initializers/carto_db.rb"
+    echo "Changing the self.use_https? method in $CARTO_DB_INIT_FILE to return true, so https works in dev."
+    sed -i "/def self.use_https\?/,/end/c\  def self.use_https?\n    true\n  end" $CARTO_DB_INIT_FILE
+fi
 
 DB_HOST=$(value_from_dbconf $CARTO_ENV 'host')
 DB_PORT=$(value_from_dbconf $CARTO_ENV 'port')
