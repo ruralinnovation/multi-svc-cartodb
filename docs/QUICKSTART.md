@@ -3,25 +3,25 @@
 If you just want to get started without reading the detailed instructions, do the following:
 
 1. Make sure Docker and git are installed on your system.
-1. Run this (subbing in real values) to make sure your default Carto user will get set up with values you'll remember (by default it'll be username: `developer`, password: `dev123`, email: <code>username@example.com</code>). These values won't be securely stored, so just use a password value you'll remember.
+1. Run this (subbing in real values) to make sure your default Carto user will get set up with values you'll remember (by default it'll be username: `developer`, password: `abc123def`, email: <code>username@example.com</code>). The username value will be used as the subdomain for logging in, so no spaces or other URL incompatible characters should be used.
 
     ```bash
     echo "export CARTO_DEFAULT_USER=jackjackson" >> ~/.bash_profile
-    echo "export CARTO_DEFAULT_PASS=somepassword" >> ~/.bash_profile
     echo "export CARTO_DEFAULT_EMAIL=you@somedomain.tld" >> ~/.bash_profile
     source ~/.bash_profile
     ```
 
-1. Amend your `/etc/hosts` file to include the domain string Carto will expect you to hit, by adding the following line to your `/etc/hosts` (Linux, MacOS) or `c:\Windows\System32\Drivers\etc\hosts` (Windows) file. You may need to start your text editor with `sudo`, or the appropriate Windows administrative permissions. Make sure to change `CARTO_DEFAULT_USER` to the value you set in your `~/.bash_profile` file:
+1. Amend your `/etc/hosts` file to include the domain string Carto will expect you to hit:
 
-```bash
-127.0.0.1   CARTO_DEFAULT_USER.localhost.lan
-```
+    ```bash
+    echo "127.0.0.1    $CARTO_DEFAULT_USER.localhost" | sudo tee -a /etc/hosts
+    ```
 
 1. Clone the `multi-svc-cartodb` repository and all submodules:
 
     ```bash
-    cd /path/to/where/you/want/the/checkout
+    mkdir ~/CARTO
+    cd ~/CARTO
     git clone --recurse-submodules https://github.com/ruralinnovation/multi-svc-cartodb.git
     cd multi-svc-cartodb
     ```
@@ -48,4 +48,4 @@ If you just want to get started without reading the detailed instructions, do th
     docker-compose up
     ```
 
-1. Go to the Carto login screen at `http://$CARTO_DEFAULT_USER.localhost.lan:3000/` in a browser. You should be able to log in with the values you set in your `.bash_profile` for username and password.
+1. Go to the Carto login screen at `https://$CARTO_DEFAULT_USER.localhost/` in a browser. You should be able to log in with the values you set in your `.bash_profile` for username and password (`abc123def` by default).
