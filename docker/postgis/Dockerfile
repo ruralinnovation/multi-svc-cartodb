@@ -1,4 +1,4 @@
-FROM postgres:10 AS base
+FROM postgres:10 AS baGse
 
 # This file is based largely on mdillon's postgis Dockerfile for PostgreSQL 10
 # and PostGIS 2.5. It inherits PG_MAJOR and PG_VERSION from the official
@@ -56,14 +56,15 @@ COPY ./dataservices-api-client /carto/dataservices-api-client
 # One of the CDB functions in the postgres extension needs Python's redis
 # module, so we have to install that too.
 RUN apt-get update \
- && apt-get install -y ruby python-pip \
+ && apt-get install -y --no-install-recommends ruby python-pip \
  && cd /carto/dataservices-api-client/client \
  && make install \
  && cd /carto/dataservices-api-server/server/extension \
  && make install \
  && cd /carto \
  && pip install redis \
- && apt-get remove -y ruby python-pip
+ && apt-get remove -y ruby python-pip \
+ && rm -rf /var/lib/apt/lists/*
 
 # TODO: Figure out whether it's worth it to use pgbouncer.
 # Installing pgbouncer because some parts of the CartoDB ecosystem expect
