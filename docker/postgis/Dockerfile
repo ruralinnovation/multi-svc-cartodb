@@ -1,4 +1,4 @@
-FROM postgres:10 AS baGse
+FROM postgres:10 AS base
 
 # This file is based largely on mdillon's postgis Dockerfile for PostgreSQL 10
 # and PostGIS 2.5. It inherits PG_MAJOR and PG_VERSION from the official
@@ -34,6 +34,9 @@ RUN apt-get update \
 # and then rebuild the container.
 WORKDIR /carto
 COPY --chown=postgres:postgres ./cartodb-postgresql ./cartodb-postgresql
+COPY ./dataservices-api-server /carto/dataservices-api-server
+COPY ./dataservices-api-client /carto/dataservices-api-client
+
 # The makefile expects a target of 'index' in the .git directory for the 
 # module, which for git submodules is in the git directory of the parent
 # module. In this case the parent will be missing entirely, because the 
@@ -43,19 +46,15 @@ COPY --chown=postgres:postgres ./cartodb-postgresql ./cartodb-postgresql
 # .git directory location), and replace it with a dummy folder with a blank
 # index file in it. The Makefile doesn't actually *use* the index file for
 # anything, it just requires that it be present.
-RUN rm /carto/cartodb-postgresql/.git \
- && mkdir -p /carto/cartodb-postgresql/.git \
- && echo "fake index file to satisfy Makefile rule carto_version.sql" > /carto/cartodb-postgresql/.git/index
-
-# Installing the dataservices api extensions
-COPY ./dataservices-api-server /carto/dataservices-api-server
-COPY ./dataservices-api-client /carto/dataservices-api-client
-
+#
 # The client extension has a ruby builder script that the Makefile uses,
 # so we install and then remove ruby.
 # One of the CDB functions in the postgres extension needs Python's redis
 # module, so we have to install that too.
-RUN apt-get update \
+RUN rm /carto/cartodb-postgresql/.git \
+ && mkdir -p /carto/cartodb-postgresql/.git \
+ && echo "fake index file to satisfy Makefile rule carto_version.sql" > /carto/cartodb-postgresql/.git/index \
+ && apt-get update \
  && apt-get install -y --no-install-recommends ruby python-pip \
  && cd /carto/dataservices-api-client/client \
  && make install \
@@ -64,21 +63,8 @@ RUN apt-get update \
  && cd /carto \
  && pip install redis \
  && apt-get remove -y ruby python-pip \
- && rm -rf /var/lib/apt/lists/*
-
-# TODO: Figure out whether it's worth it to use pgbouncer.
-# Installing pgbouncer because some parts of the CartoDB ecosystem expect
-# it to be there.
-#RUN apt-get update \
-# && apt-get install -y \
-#    pgbouncer \
-# && mkdir -p /var/log/pgbouncer \
-# && mkdir -p /var/run/pgbouncer \
-# && chown -R postgres:postgres /var/log/pgbouncer \
-# && chown -R postgres:postgres /var/run/pgbouncer 
-#
-#COPY ./pgbouncer/pgbouncer.ini /etc/pgbouncer/
-#COPY ./pgbouncer/userlist.txt /etc/pgbouncer/
+ && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /carto/dataservices-api-*
 
 # The following parts of this are concerned with installing scripts to init
 # the database on container run. The mechanism for doing so (by copying .sh

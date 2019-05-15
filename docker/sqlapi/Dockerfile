@@ -3,69 +3,52 @@ FROM ubuntu:16.04 AS base
 ENV PG_MAJOR 10
 ENV CARTO_GIS_PPA_FINGERPRINT E54DBDF7355FE6DBEC654BAC6F44D37DD878D6C2
 
+WORKDIR /carto
+
+COPY ./setup_node_10.sh /carto/setup_node_10.sh
+COPY ./dpkg_no_docs /etc/dpkg/dpkg.cfg.d/01_nodocs
+
 RUN apt-get update \
- && apt-get -y install \
+ && apt-get install -y --no-install-recommends \
     software-properties-common \
+    wget \
+ && add-apt-repository ppa:cartodb/gis \
+ && echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+ && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+ && /bin/bash -c /carto/setup_node_10.sh \
+ && apt-get update \
+ && apt-get -y install \
     build-essential \
     pkg-config \
     locales \
     make \
     zip \
-    wget \
- && locale-gen en_US.UTF-8 \
- && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
-
-# Add all package indexes to the container
-COPY ./sources.list.d/*.list /etc/apt/sources.list.d/
-
-# Install PPA keys/fingerprints, then install PPA-sourced packages
-RUN apt-key adv --keyserver=keyserver.ubuntu.com --recv-keys $CARTO_GIS_PPA_FINGERPRINT \
- && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
- && apt-get update \
- && apt-get install -y --no-install-recommends \
+    git \
     postgresql-server-dev-$PG_MAJOR \
-    gdal-bin \
-    libgdal-dev
-
-WORKDIR /carto
-
-COPY ./setup_node_10.sh /carto/setup_node_10.sh
-
-RUN /bin/bash -c /carto/setup_node_10.sh \
- && apt-get update \
- && apt-get install -y nodejs
-
-ENV CARTODB_SQL_API_VERSION 3.0.0
-
-COPY ./CartoDB-SQL-API /carto/CartoDB-SQL-API
-
-
-# Git is used during npm install. We have to re-add the remote to the repo
-# because it's installed in the multi-svc-cartodb repo as a submodule, and
-# gets quite upset when you copy only the submodule into the container and
-# try to work with it absent the parent repo. It stays checked out at the
-# revision in the submodule when copied, this just reconnects it to its
-# source repository so git functions normally.
-RUN apt-get install -y git \
- && rm -rf /carto/CartoDB-SQL-API/.git \
- && cd /carto/CartoDB-SQL-API \
- && git init \
- && git remote add origin https://github.com/CartoDB/CartoDB-SQL-API.git
-
-# These packages are needed in order to run the test suite for the app.
-RUN apt-get install -y \
     postgresql-client-10 \
-    curl 
-
-# The tests need redis-cli to prep the test db
-RUN cd /tmp \
+    curl \
+    gdal-bin \
+    libgdal-dev \
+    nodejs \
+ && locale-gen en_US.UTF-8 \
+ && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+ && cd /tmp \
  && wget http://download.redis.io/redis-stable.tar.gz \
  && tar xzvf redis-stable.tar.gz \
  && cd redis-stable \
  && make \
  && cp src/redis-cli /usr/local/bin/ \
  && chmod 755 /usr/local/bin/redis-cli \
- && rm -rf /tmp/redis-stable
+ && rm -rf /tmp/redis-stable \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get remove -y curl wget
+
+COPY ./CartoDB-SQL-API /carto/CartoDB-SQL-API
+
+RUN rm -rf /carto/CartoDB-SQL-API/.git \
+ && cd /carto/CartoDB-SQL-API \
+ && git init \
+ && git remote add origin https://github.com/CartoDB/CartoDB-SQL-API.git
 
 # Something happens with this install such that you have to run it twice. The
 # first run installs all the packages, but attempting to run the app after
