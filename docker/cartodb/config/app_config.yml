@@ -415,9 +415,9 @@ defaults: &defaults
     filter: 'mapnik'
     internal:
       protocol: 'https'
-      domain: 'windshaft'
-      port: '80'
-      host: 'windshaft'
+      domain: 'localhost'
+      port: '443'
+      host: 'localhost'
       verifycert: false
     private:
       protocol: 'https'
