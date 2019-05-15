@@ -36,6 +36,7 @@ WORKDIR /carto
 COPY --chown=postgres:postgres ./cartodb-postgresql ./cartodb-postgresql
 COPY ./dataservices-api-server /carto/dataservices-api-server
 COPY ./dataservices-api-client /carto/dataservices-api-client
+COPY ./data-services /carto/data-services
 
 # The makefile expects a target of 'index' in the .git directory for the 
 # module, which for git submodules is in the git directory of the parent
@@ -55,16 +56,22 @@ RUN rm /carto/cartodb-postgresql/.git \
  && mkdir -p /carto/cartodb-postgresql/.git \
  && echo "fake index file to satisfy Makefile rule carto_version.sql" > /carto/cartodb-postgresql/.git/index \
  && apt-get update \
- && apt-get install -y --no-install-recommends ruby python-pip \
+ && apt-get install -y --no-install-recommends \
+    ruby \
+    python-pip \
+    python-dev \
+    software-properties-common \
+    build-essential \
+    pkg-config \
+ && pip install setuptools \
  && cd /carto/dataservices-api-client/client \
  && make install \
  && cd /carto/dataservices-api-server/server/extension \
  && make install \
- && cd /carto \
- && pip install redis \
- && apt-get remove -y ruby python-pip \
- && rm -rf /var/lib/apt/lists/* \
- && rm -rf /carto/dataservices-api-*
+ && cd /carto/dataservices-api-server/server/lib/python/cartodb_services \
+ && pip install -r requirements.txt \
+ && pip install . --upgrade \
+ && rm -rf /var/lib/apt/lists/*
 
 # The following parts of this are concerned with installing scripts to init
 # the database on container run. The mechanism for doing so (by copying .sh

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -ex;
+DB_USER="${POSTGRES_USER:-postgres}"
+DB_HOST="localhost"
+DB_CONN=" -U ${DB_USER} -h ${DB_HOST} "
 
-export PGUSER="${POSTGRES_USER:-postgres}"
-
-createuser publicuser --no-createrole --no-createdb --no-superuser
-createuser tileuser --no-createrole --no-createdb --no-superuser
+createuser $DB_CONN publicuser --no-createrole --no-createdb --no-superuser
+createuser $DB_CONN tileuser --no-createrole --no-createdb --no-superuser

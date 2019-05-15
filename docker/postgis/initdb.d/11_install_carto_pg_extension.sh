@@ -1,7 +1,12 @@
 #!/bin/bash
 
-set -ex;
+set -x
+
+echo "Installing the cartodb-postgresql extension..."
 
 cd /carto/cartodb-postgresql
 make all install
-#psql -U postgres -d template_postgis -c 'CREATE EXTENSION cartodb;'
+
+set +x
+echo "Completed install of cartodb-postgresql extension."
+

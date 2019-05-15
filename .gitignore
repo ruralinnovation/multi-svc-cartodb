@@ -13,3 +13,6 @@ node_modules
 # Ignore ssl cert files
 *.crt
 *.key
+
+# Ignore the data directory for data services
+docker/postgis/geocoder_data/*.sql
