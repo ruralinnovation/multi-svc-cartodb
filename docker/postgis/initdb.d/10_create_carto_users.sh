@@ -1,8 +1,10 @@
 #!/bin/bash
 
 DB_USER="${POSTGRES_USER:-postgres}"
-DB_HOST="localhost"
-DB_CONN=" -U ${DB_USER} -h ${DB_HOST} "
+DB_CONN=" -U ${DB_USER} "
 
-createuser $DB_CONN publicuser --no-createrole --no-createdb --no-superuser
-createuser $DB_CONN tileuser --no-createrole --no-createdb --no-superuser
+ROLES="publicuser tileuser"
+
+for role in $ROLES; do
+    createuser $DB_CONN $role --no-createrole --no-createdb --no-superuser
+done
