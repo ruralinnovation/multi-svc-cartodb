@@ -5,24 +5,31 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # These are used to git checkout each submodule to specific tags. Once the
 # submodules are checked out to version tags, your docker-compose builds will
 # include the appropriately versioned code.
-CARTO_PGEXT_VERSION="${CARTO_PGEXT_VERSION:-0.26.1}"
 CARTO_WINDSHAFT_VERSION="${CARTO_WINDSHAFT_VERSION:-7.0.0}"
 CARTO_CARTODB_VERSION="${CARTO_CARTODB_VERSION:-v4.26.1}"
 CARTO_SQLAPI_VERSION="${CARTO_SQLAPI_VERSION:-3.0.0}"
+# These are Postgres extensions
+CARTO_PGEXT_VERSION="${CARTO_PGEXT_VERSION:-0.26.1}"
 CARTO_DATASVCS_API_CLIENT_VERSION="${CARTO_DATASVCS_CLIENT_VERSION:-0.26.2-client}"
 CARTO_DATASVCS_API_SERVER_VERSION="${CARTO_DATASVCS_SERVER_VERSION:-0.35.1-server}"
 CARTO_DATASVCS_VERSION="${CARTO_DATASVCS_VERSION:-cdb_geocoder-v0.0.1rc2}"
+CARTO_ODBC_FDW_VERSION="${CARTO_ODBC_FDW_VERSION:-0.3.0}"
 
-ALL_MODULES="PGEXT WINDSHAFT CARTODB SQLAPI DATASVCS_API_CLIENT "
-ALL_MODULES+="DATASVCS_API_SERVER DATASVCS"
+CARTO_MODULES="CARTODB WINDSHAFT SQLAPI"
+PG_EXT_MODULES="PGEXT DATASVCS_API_CLIENT DATASVCS_API_SERVER DATASVCS ODBC_FDW"
+ALL_MODULES="${CARTO_MODULES} ${PG_EXT_MODULES}"
 
-CARTO_PGEXT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/cartodb-postgresql"
+PG_EXT_DIR="${SCRIPT_DIR}/docker/postgis/pg_extensions"
+
 CARTO_WINDSHAFT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/windshaft/Windshaft-cartodb"
 CARTO_CARTODB_SUBMODULE_PATH="${SCRIPT_DIR}/docker/cartodb/cartodb"
 CARTO_SQLAPI_SUBMODULE_PATH="${SCRIPT_DIR}/docker/sqlapi/CartoDB-SQL-API"
-CARTO_DATASVCS_API_CLIENT_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/dataservices-api-client"
-CARTO_DATASVCS_API_SERVER_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/dataservices-api-server"
-CARTO_DATASVCS_SUBMODULE_PATH="${SCRIPT_DIR}/docker/postgis/data-services"
+
+CARTO_PGEXT_SUBMODULE_PATH="${PG_EXT_DIR}/cartodb-postgresql"
+CARTO_DATASVCS_API_CLIENT_SUBMODULE_PATH="${PG_EXT_DIR}/dataservices-api-client"
+CARTO_DATASVCS_API_SERVER_SUBMODULE_PATH="${PG_EXT_DIR}/dataservices-api-server"
+CARTO_DATASVCS_SUBMODULE_PATH="${PG_EXT_DIR}/data-services"
+CARTO_ODBC_FDW_SUBMODULE_PATH="${PG_EXT_DIR}/odbc_fdw"
 
 # These values are used to set up the dev user on the cartodb instance.
 # CARTO_DEFAULT_USER corresponds to SUBDOMAIN in the create_dev_user script.
@@ -30,6 +37,7 @@ CARTO_DEFAULT_USER="${CARTO_DEFAULT_USER:-developer}"
 CARTO_DEFAULT_PASS="${CARTO_DEFAULT_PASS:-abc123def}"
 CARTO_DEFAULT_EMAIL="${CARTO_DEFAULT_EMAIL:-username@example.com}"
 
+# Script settings and flags
 SET_CHECKOUTS="no"
 GENERATE_CERT="no"
 QUIET=no
@@ -46,13 +54,14 @@ Purpose: Sets the following values in the .env file docker-compose uses to
          merge environment values into the docker-compose.yml file during the
          pre-processing steps for builds.
 
-    CARTO_PGEXT_VERSION                 ($CARTO_PGEXT_VERSION)
     CARTO_WINDSHAFT_VERSION             ($CARTO_WINDSHAFT_VERSION)
     CARTO_CARTODB_VERSION               ($CARTO_CARTODB_VERSION)
     CARTO_SQLAPI_VERSION                ($CARTO_SQLAPI_VERSION)
+    CARTO_PGEXT_VERSION                 ($CARTO_PGEXT_VERSION)
     CARTO_DATASVCS_API_CLIENT_VERSION   ($CARTO_DATASVCS_API_CLIENT_VERSION)
     CARTO_DATASVCS_API_SERVER_VERSION   ($CARTO_DATASVCS_API_SERVER_VERSION)
     CARTO_DATASVCS_VERSION              ($CARTO_DATASVCS_VERSION)
+    CARTO_ODBC_FDW_VERSION              ($CARTO_ODBC_FDW_VERSION)
     CARTO_DEFAULT_USER                  ($CARTO_DEFAULT_USER)
     CARTO_DEFAULT_PASS                  ($CARTO_DEFAULT_PASS)
     CARTO_DEFAULT_EMAIL                 ($CARTO_DEFAULT_EMAIL)
@@ -120,32 +129,35 @@ function echo_if_unquiet() {
 IFS='' read -r -d '' vstrings <<EOF
 
 Current version strings for Carto submodules:
-    Carto PostgreSQL Extension: $CARTO_PGEXT_VERSION
     Carto Windshaft:            $CARTO_WINDSHAFT_VERSION
     Carto SQLAPI:               $CARTO_SQLAPI_VERSION
     CartoDB:                    $CARTO_CARTODB_VERSION
+  PG Extensions:
+    Carto PostgreSQL Extension: $CARTO_PGEXT_VERSION
     Dataservices API (client)   $CARTO_DATASVCS_API_CLIENT_VERSION
     Dataservices API (server)   $CARTO_DATASVCS_API_SERVER_VERSION
     Dataservices                $CARTO_DATASVCS_VERSION
+    ODBC Foreign Data Wrapper   $CARTO_ODBC_FDW_VERSION
 
 EOF
 
 echo_if_unquiet "$vstrings"
 
 IFS='' read -r -d '' dot_env_lines <<EOF
-CARTO_PGEXT_VERSION=$CARTO_PGEXT_VERSION
 CARTO_WINDSHAFT_VERSION=$CARTO_WINDSHAFT_VERSION
 CARTO_SQLAPI_VERSION=$CARTO_SQLAPI_VERSION
 CARTO_CARTODB_VERSION=$CARTO_CARTODB_VERSION
+CARTO_PGEXT_VERSION=$CARTO_PGEXT_VERSION
 CARTO_DATASVCS_API_CLIENT_VERSION=$CARTO_DATASVCS_API_CLIENT_VERSION
 CARTO_DATASVCS_API_SERVER_VERSION=$CARTO_DATASVCS_API_SERVER_VERSION
 CARTO_DATASVCS_VERSION=$CARTO_DATASVCS_VERSION
+CARTO_ODBC_FDW_VERSION=$CARTO_ODBC_FDW_VERSION
 CARTO_DEFAULT_USER=$CARTO_DEFAULT_USER
 CARTO_DEFAULT_PASS=$CARTO_DEFAULT_PASS
 CARTO_DEFAULT_EMAIL=$CARTO_DEFAULT_EMAIL
 EOF
 
-echo "$dot_env_lines" > ${SCRIPT_DIR}/.env
+printf "$dot_env_lines" > ${SCRIPT_DIR}/.env
 
 if [[ $GENERATE_CERT = "yes" ]]; then
     echo_if_unquiet "Generating SSL .crt and .key files in docker/router/ssl...\n"

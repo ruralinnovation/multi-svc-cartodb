@@ -1,5 +1,5 @@
 [submodule "docker/postgis/cartodb-postgresql"]
-	path = docker/postgis/cartodb-postgresql
+	path = docker/postgis/pg_extensions/cartodb-postgresql
 	url = https://github.com/CartoDB/cartodb-postgresql
 [submodule "docker/sqlapi/CartoDB-SQL-API"]
 	path = docker/sqlapi/CartoDB-SQL-API
@@ -11,11 +11,14 @@
 	path = docker/cartodb/cartodb
 	url = https://github.com/CartoDB/cartodb.git
 [submodule "docker/postgis/dataservices-api-client"]
-	path = docker/postgis/dataservices-api-client
+	path = docker/postgis/pg_extensions/dataservices-api-client
 	url = https://github.com/CartoDB/dataservices-api.git
 [submodule "docker/postgis/dataservices-api-server"]
-	path = docker/postgis/dataservices-api-server
+	path = docker/postgis/pg_extensions/dataservices-api-server
 	url = https://github.com/CartoDB/dataservices-api.git
 [submodule "docker/postgis/data-services"]
-	path = docker/postgis/data-services
+	path = docker/postgis/pg_extensions/data-services
 	url = https://github.com/CartoDB/data-services.git
+[submodule "docker/postgis/odbc_fdw"]
+	path = docker/postgis/pg_extensions/odbc_fdw
+	url = https://github.com/CartoDB/odbc_fdw.git

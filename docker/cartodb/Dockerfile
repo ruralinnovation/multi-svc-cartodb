@@ -80,6 +80,8 @@ RUN cd /carto/cartodb \
 ENV RAILS_ENV development
 
 COPY ./config/*.yml /carto/cartodb/config/
+COPY ./config/environments/*.rb /carto/cartodb/config/environments/
+COPY ./config/environments/*.rb.front /carto/cartodb/config/environments/
 COPY ./better_create_dev_user.sh /carto/cartodb/script/
 COPY ./docker-entrypoint.sh /carto/
 

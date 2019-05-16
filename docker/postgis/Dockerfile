@@ -17,6 +17,8 @@ RUN apt-get update \
     postgis=$POSTGIS_VERSION \
     postgresql-plpython-$PG_MAJOR \
     postgresql-$PG_MAJOR-plproxy \
+    odbc-postgresql \
+    unixodbc-dev \
     software-properties-common \
     build-essential \
     pkg-config \
@@ -28,26 +30,27 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Install the Carto PostgreSQL extensions
-WORKDIR /carto
-COPY ./cartodb-postgresql ./cartodb-postgresql
-COPY ./dataservices-api-server /carto/dataservices-api-server
-COPY ./dataservices-api-client /carto/dataservices-api-client
-COPY ./data-services /carto/data-services
+COPY ./pg_extensions /carto/pg_extensions
+ENV CARTO_PG_EXT_DIR /carto/pg_extensions
 
-RUN rm /carto/cartodb-postgresql/.git \
- && mkdir -p /carto/cartodb-postgresql/.git \
- && echo "fake index file to satisfy Makefile rule carto_version.sql" > /carto/cartodb-postgresql/.git/index \
- && cd /carto/cartodb-postgresql \
+RUN rm ${CARTO_PG_EXT_DIR}/cartodb-postgresql/.git \
+ && mkdir -p ${CARTO_PG_EXT_DIR}/cartodb-postgresql/.git \
+ && echo "fake index file to satisfy Makefile rule carto_version.sql" > ${CARTO_PG_EXT_DIR}/cartodb-postgresql/.git/index \
+ && cd ${CARTO_PG_EXT_DIR}/cartodb-postgresql \
  && make install \
- && cd /carto/dataservices-api-client/client \
+ && cd ${CARTO_PG_EXT_DIR}/dataservices-api-client/client \
  && make install \
- && cd /carto/dataservices-api-server/server/extension \
+ && cd ${CARTO_PG_EXT_DIR}/dataservices-api-server/server/extension \
  && make install \
- && cd /carto/dataservices-api-server/server/lib/python/cartodb_services \
+ && cd ${CARTO_PG_EXT_DIR}/dataservices-api-server/server/lib/python/cartodb_services \
  && pip install -r requirements.txt \
  && pip install . --upgrade \
- && cd /carto/data-services/geocoder/extension \
- && make install
+ && cd ${CARTO_PG_EXT_DIR}/data-services/geocoder/extension \
+ && make install \
+ && cd ${CARTO_PG_EXT_DIR}/odbc_fdw \
+ && make install 
+
+WORKDIR /carto
 
 RUN mkdir -p /docker-entrypoint-initdb.d \
  && chmod 777 /usr/share/doc \

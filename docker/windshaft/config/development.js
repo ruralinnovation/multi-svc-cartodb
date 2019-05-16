@@ -97,7 +97,7 @@ var config = {
     health: {
         // If enabled is true, /health responds with some info. If false, it
         // responds with just a 200 or 503
-        enabled: false,
+        enabled: true,
         // username: 'localhost', // can't find this used anywhere
         // z: 0, x: 0, y: 0,      // can't find this used anywhere
     }, // end of 'health'
@@ -339,7 +339,7 @@ var config = {
     // File: lib/cartodb/models/resource-locator.js
     resources_url_templates: {
         http: 'http://{{=it.user}}.localhost:{{=it.port}}/api/v1/map',
-        https: 'https://localhost:{{=it.port}}/user/{{=it.user}}/api/v1/map'
+        https: 'https://{{=it.user}}.localhost:{{=it.port}}/api/v1/map'
     },
 
     //// LIMIT SETTINGS //////////////////////////////////////////////////////
