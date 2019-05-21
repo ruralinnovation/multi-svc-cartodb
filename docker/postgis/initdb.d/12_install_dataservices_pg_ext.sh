@@ -25,3 +25,4 @@ psql $DB_CONN -c "SELECT CDB_Conf_SetConf('redis_metadata_config', '{\"redis_hos
 psql $DB_CONN -c "SELECT CDB_Conf_SetConf('redis_metrics_config', '{\"redis_host\": \"redis\", \"redis_port\": 6379, \"sentinel_master_id\": \"\", \"timeout\": 0.1, \"redis_db\": 5}');" -e
 psql $DB_CONN -c "SELECT CDB_Conf_SetConf('user_config', '{\"is_organization\": false, \"entity_name\": \"nick\"}');" -e
 psql $DB_CONN -c "SELECT CDB_Conf_SetConf('server_conf', '{\"environment\": \"development\"}');" -e
+psql $DB_CONN -c "SELECT CDB_Conf_SetConf('heremaps_conf', '{\"geocoder\": {\"app_id\": \"here_geocoder_app_id\", \"app_code\": \"here_geocoder_app_code\", \"geocoder_cost_per_hit\": \"1\"}, \"isolines\" : {\"app_id\": \"here_isolines_app_id\", \"app_code\": \"here_geocoder_app_code\"}}');" -e 
