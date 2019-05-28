@@ -10,7 +10,7 @@
     cd ../..
     ```
 
-1. Set the contents of the `.env` file to include versions and default user settings, and generate the SSL certificates for nginx:
+1. Set the contents of the `.env` file to include versions and default user settings, and generate the SSL certificates for nginx, use the `setup-local.sh` script. If you want to cause the cartodb container to run without https, call `CARTO_USE_HTTPS=false ./setup-local.sh --generate-ssl-cert` (You still need to generate the certificates at least once, even if you won't be using them.)
 
     ```bash
     ./setup-local.sh --generate-ssl-cert
