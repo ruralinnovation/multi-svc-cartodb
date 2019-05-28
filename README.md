@@ -28,6 +28,8 @@
     docker-compose up
     ```
 
+1. If you created custom values for the `CARTO_DEFAULT_USER` and `CARTO_DEFAULT_PASS` environment variables, you'll use those to log in, at `<CARTO_DEFAULT_USER>.localhost`. If you left the defaults (set in `setup-local.sh`), you'll go to `developer.localhost` and log in with username `developer` and password `abc123def`. You may need to amend your `/etc/hosts` file to include the domain.
+
 
 
 ## Overview
