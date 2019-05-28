@@ -65,13 +65,15 @@ done
 # This section is a hack to make https stay on without changing the rails env
 # to staging or production, which is otherwise required to get it to stop
 # constructing http based urls.
-USE_HTTPS=$(value_from_appconf 'defaults' 'use_https')
-USE_HTTPS=${USE_HTTPS:-false}
+USE_HTTPS=${CARTO_USE_HTTPS:-true}
 
 if [[ $USE_HTTPS = 'true' ]]; then
     CARTO_DB_INIT_FILE="/carto/cartodb/config/initializers/carto_db.rb"
     echo "Changing the self.use_https? method in $CARTO_DB_INIT_FILE to return true, so https works in dev."
     sed -i "/def self.use_https\?/,/end/c\  def self.use_https?\n    true\n  end" $CARTO_DB_INIT_FILE
+else
+    echo "CARTO_USE_HTTPS was not 'true', so using the app_config_no_https.yml file..."
+    cat config/app_config_no_https.yml > config/app_config.yml
 fi
 
 #### CREATING THE DATABASE IF IT DOES NOT EXIST ##############################

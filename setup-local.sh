@@ -4,6 +4,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)"
 
 #### GIT VERSIONS FOR CARTO MODULES ##########################################
 
+# Whether CartoDB will construct https links or not
+CARTO_USE_HTTPS="${CARTO_USE_HTTPS:-true}"
+
 # Core modules
 CARTO_CARTODB_VERSION="${CARTO_CARTODB_VERSION:-v4.26.1}"
 CARTO_WINDSHAFT_VERSION="${CARTO_WINDSHAFT_VERSION:-7.1.0}"
@@ -30,6 +33,7 @@ CARTO_ORG_PASS="${CARTO_ORG_PASS:-abc123def}"
 #### VERSION STRING PRINTING #################################################
 
 IFS='' read -r -d '' dot_env_lines <<EOF
+CARTO_USE_HTTPS=$CARTO_USE_HTTPS
 CARTO_WINDSHAFT_VERSION=$CARTO_WINDSHAFT_VERSION
 CARTO_SQLAPI_VERSION=$CARTO_SQLAPI_VERSION
 CARTO_CARTODB_VERSION=$CARTO_CARTODB_VERSION

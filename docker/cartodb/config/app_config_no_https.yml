@@ -324,7 +324,7 @@ defaults: &defaults
   # File: services/user-mover/spec/user_mover_spec.rb
   org_metadata_api:
     host: 'localhost'
-    port: '443'
+    port: '80'
     username: 'extension'
     password: 'elephant'
     timeout: 10
@@ -408,20 +408,20 @@ defaults: &defaults
   tiler:
     filter: 'mapnik'
     internal:
-      protocol: 'https'
+      protocol: 'http'
       domain: 'localhost'
-      port: '443'
+      port: '80'
       host: 'localhost'
       verifycert: false
     private:
-      protocol: 'https'
+      protocol: 'http'
       domain: 'localhost'
-      port: '443'
+      port: '80'
       verifycert: false
     public:
-      protocol: 'https'
+      protocol: 'http'
       domain: 'localhost'
-      port: '443'
+      port: '80'
       verifycert: false
 
   # Setting: 'sql_api'
@@ -454,15 +454,15 @@ defaults: &defaults
   # File: services/sql-api/sql_api.rb
   sql_api:
     private:
-      protocol: 'https'
+      protocol: 'http'
       domain: 'localhost'
       endpoint: '/api/v1/sql'
-      port: '443'
+      port: '80'
     public:
-      protocol: 'https'
+      protocol: 'http'
       domain: 'localhost'
       endpoint: '/api/v2/sql'
-      port: '443'
+      port: '80'
 
   # Setting: 'common_data'
   #
@@ -493,7 +493,7 @@ defaults: &defaults
   #          visualizations API.
   # File: lib/tasks/remote_tables_maintenance.rake
   common_data:
-    protocol: 'https'
+    protocol: 'http'
     username: 'nick'
     # base_url: 'https://common-data.carto.com'
     format: 'shp'
@@ -854,7 +854,7 @@ defaults: &defaults
   # Used in: CartoDB.get_https_port
   # Purpose: Sets the https port, returns as string
   # File: config/initializers/carto_db.rb
-  https_port: 443
+  https_port: 443 
 
   # Setting: 'account_host'
   #
@@ -1158,11 +1158,11 @@ defaults: &defaults
         debug:              false
         visible:            true
         tiler_domain:       "localhost"
-        tiler_port:         "443"
-        tiler_protocol:     "https"
+        tiler_port:         "80"
+        tiler_protocol:     "http"
         sql_domain:         "localhost"
-        sql_port:           "443"
-        sql_protocol:       "https"
+        sql_port:           "80"
+        sql_protocol:       "http"
         extra_params:       { cache_policy: 'persist' }
         tile_style_history: []
         style_version:      "2.1.1"

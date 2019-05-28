@@ -31,6 +31,7 @@ services:
       - sqlapi
       - windshaft
     environment:
+      - CARTO_USE_HTTPS=${CARTO_USE_HTTPS:-true}
       - CARTO_CARTODB_VERSION=${CARTO_CARTODB_VERSION}
       - CARTO_DEFAULT_USER=${CARTO_DEFAULT_USER}
       - CARTO_DEFAULT_PASS=${CARTO_DEFAULT_PASS}
