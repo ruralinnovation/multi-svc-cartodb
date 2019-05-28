@@ -10,9 +10,6 @@ defaults: &defaults
 #    http:
 #    https:
 
-  secret_key_base: 'e5dd1322077d8904851648ce1c09827a01cc4773d50f2f4c2803abd49006fedd4a505bb1b4a63613eedffc57f1b4033adb6c29e56f17ec641ab3f275b4ea855f'
-  password_secret: '43b3749c7acf182f1d94c598d8a7691da6e978c5b4454976a45f55a9f0be6b9bf01fe51581725298555a125e64cbb82a0a96a1e18f470802f82924e3e7c9a5fe'
-
   
   #### GENERAL SETTINGS ######################################################
 
@@ -161,11 +158,11 @@ defaults: &defaults
   # 'dataservices' is all over the place. Not sure yet what all it controls.
   dataservices:
     enabled:
-      geocoder_internal: false
+      geocoder_internal: true
       hires_geocoder: false
       isolines: false
       routing: false
-      data_observatory: false
+      data_observatory: true
 
   #### LOGGING SETTINGS ######################################################
 
@@ -331,8 +328,8 @@ defaults: &defaults
   # Purpose: Sets up a test for the ExportJob
   # File: services/user-mover/spec/user_mover_spec.rb
   org_metadata_api:
-    host: 'localhost.lan'
-    port: '80'
+    host: 'localhost'
+    port: '443'
     username: 'extension'
     password: 'elephant'
     timeout: 10
@@ -367,6 +364,8 @@ defaults: &defaults
   # Purpose: Defines domain strings to use as partial keys when purging data
   #          from the redis cache.
   # File: lib/cartodb/redis_vizjson_cache.rb
+  # Value, official:    ['.localhost.lan']
+  # Value, sverhoeven:  ['.localhost']
   vizjson_cache_domains: ['localhost']
 
   # Setting: 'watcher'
@@ -614,8 +613,9 @@ defaults: &defaults
   # File: lib/varnish/lib/cartodb-varnish.rb
   varnish_management:
     critical: false
-    host: '127.0.0.1'
+    host: 'varnish'
     port: 6082
+    http_port: 6081
     purge_command: 'purge'
     retries: 5
     timeout: 5
@@ -637,7 +637,7 @@ defaults: &defaults
   # File: /app/models/user/db_service.rb
   invalidation_service:
     enabled: false
-    host: '127.0.0.1'
+    host: 'varnish'
     port: 3142
     retries: 5
     critical: false
@@ -693,7 +693,7 @@ defaults: &defaults
     tomtom:
       search_bar_api_key: ''
     api:
-      host: 'localhost'
+      host: 'postgis'
       port: '5432'
       dbname: 'dataservices_db'
       user: 'geocoder_api'
@@ -851,6 +851,8 @@ defaults: &defaults
   # Used in: CartoDB.get_http_port
   # Purpose: Sets the http port, returns as string
   # File: config/initializers/carto_db.rb
+  # Value, official:    3000
+  # Value, sverhoeven:  empty
   http_port: 80
 
   # Setting: 'https_port'
@@ -868,7 +870,9 @@ defaults: &defaults
   # Used in: CartoDB.get_account_host
   # Purpose: getter for this value
   # File: config/initializers/carto_db.rb
-  account_host: 'localhost:80'
+  # Value, official:    'localhost.lan:3000'
+  # Value, sverhoeven:  'cartodb.localhost:3000'
+  account_host: 'localhost'
 
   # Setting: 'session_domain'
   # Required: Yes
@@ -962,6 +966,8 @@ defaults: &defaults
   # Purpose: Sets the return value of the function, which is used to control
   #          a number of URL related things
   # File: config/initializers/carto_db.rb
+  # Value, official:    false
+  # Value, sverhoeven:  true
   subdomainless_urls: true
 
   # Setting: 'account_path'
@@ -985,6 +991,16 @@ defaults: &defaults
 
   #### SECURITY SETTINGS #####################################################
   
+  # Setting: 'secret_key_base'
+  # Value, official:    long alphanumeric string
+  # Value, sverhoeven:  NOT PRESENT
+  secret_key_base: 'e5dd1322077d8904851648ce1c09827a01cc4773d50f2f4c2803abd49006fedd4a505bb1b4a63613eedffc57f1b4033adb6c29e56f17ec641ab3f275b4ea855f'
+
+  # Setting: 'password_secret'
+  # Value, official:    long alphanumeric string
+  # Value, sverhoeven:  NOT PRESENT
+  password_secret: '43b3749c7acf182f1d94c598d8a7691da6e978c5b4454976a45f55a9f0be6b9bf01fe51581725298555a125e64cbb82a0a96a1e18f470802f82924e3e7c9a5fe'
+
   # Setting: 'superadmin'
   # TODO: This should be under secrets management.
   # Required: Yes
@@ -1483,15 +1499,6 @@ defaults: &defaults
 #### ENVIRONMENT SPECIFIC OVERRIDES ##########################################
 development:
   <<: *defaults
-  http_port: 80
-  varnish_management:
-    critical: false
-    host: 'localhost'
-    port: 6082
-    purge_command: 'purge'
-    url_purge_command: 'url.purge'
-    retries: 5
-    timeout: 5
 
 test:
   <<: *defaults

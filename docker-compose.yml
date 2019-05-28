@@ -17,92 +17,80 @@ services:
       - cartodb
       - windshaft
       - sqlapi
-  cartodb:
+      - postgis
+      - redis
+      - varnish
+
+  cartodb: 
     container_name: cartodb
     build:
       context: docker/cartodb
-    #ports:
-    #  - "3000:3000"    # http_port from app_config.yml
+    depends_on:
+      - redis
+      - postgis
+      - sqlapi
+      - windshaft
     environment:
       - CARTO_CARTODB_VERSION=${CARTO_CARTODB_VERSION}
       - CARTO_DEFAULT_USER=${CARTO_DEFAULT_USER}
       - CARTO_DEFAULT_PASS=${CARTO_DEFAULT_PASS}
       - CARTO_DEFAULT_EMAIL=${CARTO_DEFAULT_EMAIL}
+      - CARTO_ORG_NAME=${CARTO_ORG_NAME}
+      - CARTO_ORG_USER=${CARTO_ORG_USER}
+      - CARTO_ORG_EMAIL=${CARTO_ORG_EMAIL}
+      - CARTO_ORG_PASS=${CARTO_ORG_PASS}
+
+  varnish:
+    container_name: varnish
+    build:
+      context: docker/varnish
     depends_on:
-      - windshaft
       - sqlapi
-      - redis
       - postgis
+      - redis
+
   windshaft:
     container_name: windshaft
     build:
       context: docker/windshaft
-    #ports:
-    #  - "8181:8181"
     depends_on:
       - redis
       - postgis
       - sqlapi
     environment:
       - CARTO_WINDSHAFT_VERSION=${CARTO_WINDSHAFT_VERSION}
+
   sqlapi:
     container_name: sqlapi
     build:
       context: docker/sqlapi
-    #ports: 
-    #  - "8080:8080"
     depends_on:
       - redis
       - postgis
     environment:
       - CARTO_SQLAPI_VERSION=${CARTO_SQLAPI_VERSION}
+
   redis:
     container_name: redis
     build:
       context: docker/redis
     volumes:
-      # Note that this uses a docker volume in preference to mounting a
-      # directory of the host. It's unlikely that you would want to examine
-      # the contents of the data directory directly, and if you do want to
-      # you will be able to attach the redis-data volume to either this
-      # or another container (either running redis or not).
       - redis-data:/data
-    #ports:
-    #  - "6379:6379"
+
   postgis:
     container_name: postgis
     build:
       context: docker/postgis
     volumes:
-      # As with the Redis persistence, this is a docker volume rather than
-      # a direct mount of a host directory. If in either case you would like
-      # to change to using a host mount point, create a directory in the root
-      # of the repo called 'postgis-data' and uncomment the following line,
-      # then comment out the line that uses the named volume.
-      #
-      # - ./postgis-data:/var/lib/postgresql/data
       - postgis-data:/var/lib/postgresql/data
-      # The following volume should exist so that the extension files
-      # for the Carto PG extension get persisted. Otherwise they aren't
-      # available after the first container run, because they're built as
-      # part of the startup process if-and-only-if there is no data in the
-      # postgres data directory. 
       - postgis-extensions:/usr/share/postgresql
     ports:
       - "5432:5432"
-    #  - "6432:6432"     # pgbouncer runs on this port, which sqlapi's tests need
-    # If you need to get a shell on the postgis container, and you want the
-    # data volume for postgis to be attached (which it won't be using plain
-    # `docker run`), you should run `docker-compose stop` to stop the cluster,
-    # then uncomment the following two lines. Once that's done, you can start
-    # the container with `docker-compose run postgis`, and you will be dropped
-    # into a bash shell, on a container that has the postgis-data volume 
-    # attached in the correct location. 
-    #
-    # Note that if you *also* need the port exposed for postgres, you have to
-    # use the --service-ports flag to `docker-compose run`. 
-    #
-    #stdin_open: true
-    #tty: true
     environment:
       - CARTO_PGEXT_VERSION=${CARTO_PGEXT_VERSION}
+      - CARTO_DATASVCS_API_CLIENT_VERSION=${CARTO_DATASVCS_API_CLIENT_VERSION}
+      - CARTO_DATASVCS_API_SERVER_VERSION=${CARTO_DATASVCS_API_SERVER_VERSION}
+      - CARTO_DATASVCS_VERSION=${CARTO_DATASVCS_VERSION}
+      - CARTO_ODBC_FDW_VERSION=${CARTO_ODBC_FDW_VERSION}
+      - CARTO_CRANKSHAFT_VERSION=${CARTO_CRANKSHAFT_VERSION}
+      - CARTO_OBSERVATORY_VERSION=${CARTO_OBSERVATORY_VERSION}

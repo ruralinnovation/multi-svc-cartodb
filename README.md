@@ -1,6 +1,34 @@
 # Implementation of CartoDB in multiple services
 
-The instructions below are detailed--the [Quickstart is here](./docs/QUICKSTART.md).
+## INSTALL
+
+1. Create the `cartobuilder:latest` image, which is a docker image that has all the pre-requisities for CartoDB, SQL-API, and Windshaft. Those images will be built off of that common base:
+
+    ```bash
+    cd docker/BUILDER
+    docker build -t cartobuilder:latest .
+    cd ../..
+    ```
+
+1. Set the contents of the `.env` file to include versions and default user settings, and generate the SSL certificates for nginx:
+
+    ```bash
+    ./setup-local.sh --generate-ssl-cert
+    ```
+
+1. Build the container images for `postgis`, `redis`, `sqlapi`, `windshaft`, `varnish`, `cartodb`, and `router`:
+
+    ```bash
+    docker-compose build
+    ```
+
+1. Start the cluster. For the first startup, the database and user will be initialized, so expect a lot of output:
+
+    ```bash
+    docker-compose up
+    ```
+
+
 
 ## Overview
 
@@ -14,6 +42,3 @@ CartoDB is itself a multi-service application, made up of the following core pie
 
 This repo adds an additonal container, `router`, which runs an Nginx reverse proxy in front of the other containers. That consolidates the requests to the various services so that they can all go through the same port on localhost, and allows us to use SSL when loading the application.
 
-## Installation
-
-See the instructions in [docs/INSTALL.md](docs/INSTALL.md).

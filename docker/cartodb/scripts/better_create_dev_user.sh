@@ -6,6 +6,11 @@ if [[ ${RAILS_ENV:-undefinedbashvar} == "undefinedbashvar" ]]; then
     RAILS_ENV_SOURCE="this script (undefined in env of script)"
 fi
 RAILS_ENV=${RAILS_ENV:-development}
+RUBYOPT=""
+
+DB_USER=${PGUSER:-postgres}
+DB_HOST=${DB_HOST:-postgis}
+DB_PORT=${DB_PORT:-5432}
 SUBDOMAIN=${SUBDOMAIN:-dev}
 PASSWORD=${PASSWORD:-abc123def}
 EMAIL=${EMAIL:-info@ruralinnovation.us}
@@ -70,11 +75,13 @@ while [[ $# -gt 0 ]]; do
         --no-rake-trace)
             shift
             RAKE_TRACE=""
+            RUBYOPT="W0"
             ;;
         -q|--quiet)
             shift
             QUIET="yes"
             RAKE_TRACE=""
+            RUBYOPT="W0"
             ;;
         *)
             break
@@ -82,7 +89,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ $QUIET == "yes" && $CONFIRM == "yes" ]]; then 
+export RUBYOPT RAILS_ENV
+
+if [[ $QUIET == "yes" && $CONFIRM == "yes" ]]; then
     printf "Error: Can't use the --quiet and --confirm flags together.\n"
     exit 1
 fi
@@ -117,12 +126,26 @@ if [[ $CONFIRM == "yes" ]]; then
 fi
 
 echo_if_unquiet "\nCalling the create task..."
+bundle exec rake cartodb:db:create_dev_user $RAKE_TRACE SUBDOMAIN="${SUBDOMAIN}" PASSWORD="${PASSWORD}" EMAIL="${EMAIL}"
+if [[ $? -ne 0 ]]; then exit 1; fi     # If the create failed, no use doing the rest of this stuff.
 
-set -x
-RAILS_ENV="$RAILS_ENV" bundle exec rake cartodb:db:create_dev_user $RAKE_TRACE \
-    SUBDOMAIN="${SUBDOMAIN}" \
-    PASSWORD="${PASSWORD}" \
-    EMAIL="${EMAIL}"
-set +x
+echo_if_unquiet "\nManaging settings for user ${SUBDOMAIN}..."
 
-if [[ $? -ne 0 ]]; then exit 1; fi
+echo_if_unquiet "\nUpdating user quota to 100GB for user ${SUBDOMAIN}..."
+bundle exec rake cartodb:db:set_user_quota["${SUBDOMAIN}",102400]
+
+echo_if_unquiet "\nAllowing unlimited table creation for user ${SUBDOMAIN}..."
+bundle exec rake cartodb:db:set_unlimited_table_quota["${SUBDOMAIN}"]
+
+echo_if_unquiet "\nAllowing private table creation for user ${SUBDOMAIN}..."
+bundle exec rake cartodb:db:set_user_private_tables_enabled["${SUBDOMAIN}",'true']
+
+echo_if_unquiet "\nSetting cartodb account type for user ${SUBDOMAIN}..."
+bundle exec rake cartodb:db:set_user_account_type["${SUBDOMAIN}",'[DEDICATED]']
+
+echo_if_unquiet "\nSetting dataservices server for user ${SUBDOMAIN}..."
+bundle exec rake cartodb:db:configure_geocoder_extension_for_non_org_users[${SUBDOMAIN}]
+
+echo_if_unquiet "\nEnabling sync tables for user ${SUBDOMAIN}..."
+echo "UPDATE users SET sync_tables_enabled=true WHERE username='${SUBDOMAIN}';" | psql -t -U $DB_USER -h $DB_HOST -p $DB_PORT -d carto_db_development
+
