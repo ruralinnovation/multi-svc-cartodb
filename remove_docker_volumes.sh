@@ -53,54 +53,29 @@ function echo_if_unquiet() {
     fi
 }
 
-volume_names=$(sed -nE '/^volumes:/,/^[a-zA-Z0-9"'"'"']/p' ./docker-compose.yml \
-               | grep -e '^[[:space:]]' \
-               | sed -E 's/^[ -]*//' \
-               | sed -E 's/:?//g' \
-               | xargs)
+volume_prefix=${PWD##*/}
+if [[ -n $COMPOSE_PROJECT_NAME ]]; then volume_prefix=$COMPOSE_PROJECT_NAME; fi
 
+volume_names=$(docker-compose config --volumes)
 docker_volume_names=""
 
 echo_if_unquiet "\nFound these volumes in ./docker-compose.yml:\n"
 
 for vol in $volume_names
 do
-    msg="    $vol\n        - "
-    matching_docker_volumes=$(docker volume ls -q | grep "$vol" | xargs)
-    if [[ -n $matching_docker_volumes ]]; then
-        match_found=0
-        for mdvol in $matching_docker_volumes
-        do
-            matches_compose_name=0
-            matches_basedir_name=0
-            if [[ -n $COMPOSE_PROJECT_NAME && -n $(echo "$mdvol" | grep "$COMPOSE_PROJECT_NAME") ]]; then
-                matches_compose_name=1; match_found=1
-            fi
-            if [[ -n $(echo "$mdvol" | grep "$SCRIPT_BASE_DIR") ]]; then
-                matches_basedir_name=1; match_found=1
-            fi
-
-            if [[ $matches_compose_name -eq 1 || $matches_basedir_name -eq 1 ]]; then
-                docker_volume_names+=" $mdvol"
-                msg+="matches existing docker vol '$mdvol'"
-            fi
-            match_found=0
-        done
-        if [[ $match_found -eq 1 ]]; then
-            msg+="has no current docker volume matching its name"
-        fi
+    msg="    $vol:\n        - "
+    full_vol_name="${volume_prefix}_${vol}"
+    match_found=$(docker volume ls -q --filter "name=${full_vol_name}")
+    if [[ -n $match_found ]]; then
+        msg+="matches existing docker volume ${full_vol_name}"
+        docker_volume_names+=" $full_vol_name"
     else
         msg+="has no current docker volume matching its name"
     fi
     echo_if_unquiet "$msg"
 done
-echo_if_unquiet ""
 
-docker_volume_names=$(echo "$docker_volume_names" \
-                      | sed -E 's/ +/ /g' \
-                      | sed -E 's/^ //' \
-                      | sed -E 's/ +$//' \
-                      | xargs)
+echo_if_unquiet ""
 
 if [[ -z $docker_volume_names ]]; then
     echo_if_unquiet "\nNo current docker volumes found that match those in ./docker-compose.yml, exiting.\n"

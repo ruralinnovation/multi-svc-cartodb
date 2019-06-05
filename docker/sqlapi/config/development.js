@@ -24,9 +24,12 @@ module.exports.ratelimits = {
     rateLimitsEnabled: false,   // whether to ratelimit any endpoints at all
     endpoints: {                // whether to ratelimit specific endpoints, if
         query: false,           // rateLimitsEnabled is set to true
+        query_format: false,
         job_create: false,
         job_get: false,
-        job_delete: false
+        job_delete: false,
+        copy_from: false,
+        copy_to: false
     }
 };
 
@@ -54,7 +57,7 @@ module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
 // If the :user param is in the base_url, that is used. Otherwise falls back
 // to whatever is in the host header, using the user_from_host regex.
 module.exports.base_url     = '(?:/api/:version|/user/:user/api/:version)';
-module.exports.user_from_host = '^(.*)\\.localhost';
+module.exports.user_from_host = '^([^\\.]+)\\.';
 module.exports.node_port    = 8080;
 module.exports.node_host    = '0.0.0.0';
 
