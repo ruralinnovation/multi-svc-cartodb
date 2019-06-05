@@ -24,9 +24,12 @@ module.exports.ratelimits = {
     rateLimitsEnabled: false,   // whether to ratelimit any endpoints at all
     endpoints: {                // whether to ratelimit specific endpoints, if
         query: false,           // rateLimitsEnabled is set to true
+        query_format: false,
         job_create: false,
         job_get: false,
-        job_delete: false
+        job_delete: false,
+        copy_from: false,
+        copy_to: false
     }
 };
 
@@ -45,17 +48,16 @@ module.exports.log_format   = '[:date] :remote-addr :method '+
                               '-> :res[Content-Type] (:res[X-SQLAPI-Profiler])'+
                               '(:res[X-SQLAPI-Errors])';
 // If log_filename is not defined, defaults to STDOUT. Log file reopens on HUP.
-//module.exports.log_filename = 'logs/cartodb-sql-api.log';
-module.exports.log_filename = undefined;
-//module.exports.batch_log_filename = 'logs/batch-queries.log';
-//module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
+module.exports.log_filename = 'logs/cartodb-sql-api.log';
+module.exports.batch_log_filename = 'logs/batch-queries.log';
+module.exports.dataIngestionLogPath = 'logs/data-ingestion.log';
 
 //// URL / HTTP SETTINGS /////////////////////////////////////////////////////
 //
 // If the :user param is in the base_url, that is used. Otherwise falls back
 // to whatever is in the host header, using the user_from_host regex.
 module.exports.base_url     = '(?:/api/:version|/user/:user/api/:version)';
-module.exports.user_from_host = '^(.*)\\.localhost';
+module.exports.user_from_host = '^([^\\.]+)\\.';
 module.exports.node_port    = 8080;
 module.exports.node_host    = '0.0.0.0';
 

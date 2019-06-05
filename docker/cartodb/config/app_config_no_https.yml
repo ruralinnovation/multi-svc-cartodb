@@ -323,8 +323,8 @@ defaults: &defaults
   # Purpose: Sets up a test for the ExportJob
   # File: services/user-mover/spec/user_mover_spec.rb
   org_metadata_api:
-    host: 'carto.localhost'
-    port: ''
+    host: 'localhost'
+    port: '80'
     username: 'extension'
     password: 'elephant'
     timeout: 10
@@ -361,7 +361,7 @@ defaults: &defaults
   # File: lib/cartodb/redis_vizjson_cache.rb
   # Value, official:    ['.localhost.lan']
   # Value, sverhoeven:  ['.localhost']
-  vizjson_cache_domains: ['.localhost']
+  vizjson_cache_domains: ['localhost']
 
   # Setting: 'watcher'
   #
@@ -414,14 +414,14 @@ defaults: &defaults
       host: 'windshaft'
       verifycert: false
     private:
-      protocol: 'https'
-      domain: 'carto.localhost'
-      port: '443'
+      protocol: 'http'
+      domain: 'localhost'
+      port: '80'
       verifycert: false
     public:
-      protocol: 'https'
-      domain: 'carto.localhost'
-      port: '443'
+      protocol: 'http'
+      domain: 'localhost'
+      port: '80'
       verifycert: false
 
   # Setting: 'sql_api'
@@ -454,15 +454,15 @@ defaults: &defaults
   # File: services/sql-api/sql_api.rb
   sql_api:
     private:
-      protocol: 'https'
-      domain: 'carto.localhost'
-      endpoint: '/api/v2/sql'
-      port: '443'
+      protocol: 'http'
+      domain: 'localhost'
+      endpoint: '/api/v1/sql'
+      port: '80'
     public:
-      protocol: 'https'
-      domain: 'carto.localhost'
+      protocol: 'http'
+      domain: 'localhost'
       endpoint: '/api/v2/sql'
-      port: '443'
+      port: '80'
 
   # Setting: 'common_data'
   #
@@ -493,10 +493,10 @@ defaults: &defaults
   #          visualizations API.
   # File: lib/tasks/remote_tables_maintenance.rake
   common_data:
-    protocol: 'https'
-    username: 'common-data'
-    base_url: 'https://common-data.carto.com'
-    format: 'gpkg'
+    protocol: 'http'
+    username: 'nick'
+    # base_url: 'https://common-data.carto.com'
+    format: 'shp'
     generate_every: 86400
 
   # Setting: 'explore_api'
@@ -854,7 +854,7 @@ defaults: &defaults
   # Used in: CartoDB.get_https_port
   # Purpose: Sets the https port, returns as string
   # File: config/initializers/carto_db.rb
-  https_port: 443
+  https_port: 443 
 
   # Setting: 'account_host'
   #
@@ -867,7 +867,7 @@ defaults: &defaults
   # File: config/initializers/carto_db.rb
   # Value, official:    'localhost.lan:3000'
   # Value, sverhoeven:  'cartodb.localhost:3000'
-  account_host: 'carto.localhost'
+  account_host: 'localhost'
 
   # Setting: 'session_domain'
   # Required: Yes
@@ -890,7 +890,7 @@ defaults: &defaults
   # Used in: Cartodb.config
   # Purpose: Helps set ActionDispatch::Http::Url.tld_length
   # File: config/initializers/01_app_config.rb
-  session_domain: 'carto.localhost'
+  session_domain: 'localhost'
 
   # Setting: 'developers_host'
   # Required: Only if you want the "learn more about using oauth in CARTO"
@@ -982,7 +982,7 @@ defaults: &defaults
 
   # Setting: 'cartodb_central_domain_name'
   # Required: No, it doesn't appear to be anywhere else in the entire codebase
-  cartodb_central_domain_name: 'carto.localhost'
+#  cartodb_central_domain_name: 'carto.com'
 
   #### SECURITY SETTINGS #####################################################
   
@@ -1131,7 +1131,7 @@ defaults: &defaults
   # Used in: Layer.validate
   # Purpose: Unless explicitly false, raises an error if tile style is empty
   # File: app/models/layer.rb
-  enforce_non_empty_layer_css: false
+#  enforce_non_empty_layer_css: false
 
   # Setting: 'layer_opts'
   # Required: Yes
@@ -1157,12 +1157,12 @@ defaults: &defaults
         interactivity:      "cartodb_id"
         debug:              false
         visible:            true
-        tiler_domain:       "carto.localhost"
-        tiler_port:         "443"
-        tiler_protocol:     "https"
-        sql_domain:         "carto.localhost"
-        sql_port:           "443"
-        sql_protocol:       "https"
+        tiler_domain:       "localhost"
+        tiler_port:         "80"
+        tiler_protocol:     "http"
+        sql_domain:         "localhost"
+        sql_port:           "80"
+        sql_protocol:       "http"
         extra_params:       { cache_policy: 'persist' }
         tile_style_history: []
         style_version:      "2.1.1"
@@ -1494,3 +1494,16 @@ defaults: &defaults
 #### ENVIRONMENT SPECIFIC OVERRIDES ##########################################
 development:
   <<: *defaults
+
+test:
+  <<: *defaults
+  http_port: 53716
+  redis:
+    host: 'redis'
+    port: 6335
+  enforce_non_empty_layer_css: false
+  api_requests_es_service:
+    url: "http://api-calls-service.localhost.lan/search"
+    body: ""
+  session_domain: '.localhost.lan'
+  subdomainless_urls: false
