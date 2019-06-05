@@ -409,9 +409,9 @@ defaults: &defaults
     filter: 'mapnik'
     internal:
       protocol: 'http'
-      domain: 'localhost'
-      port: '80'
-      host: 'localhost'
+      domain: ''
+      port: '8181'
+      host: 'windshaft'
       verifycert: false
     private:
       protocol: 'http'

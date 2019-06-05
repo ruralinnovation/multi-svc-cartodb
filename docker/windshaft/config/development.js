@@ -52,6 +52,8 @@ var config = {
         //      sverhoeven: NOT PRESENT
         layerStats: true,
 
+        layerMetadata: true,
+
         // Setting: 'enabledFeatures.rateLimitsEnabled'
         // Required:
         // Used in:
@@ -598,7 +600,13 @@ var config = {
         // Values from sources:
         //      official:   
         //      sverhoeven: 
-        torque: {},
+        torque: {
+            dbPoolParams: {
+                size: 16,
+                idleTimeout: 3000,
+                reapInterval: 1000
+            }
+        },
 
         http: {
             timeout: 2000,
@@ -619,7 +627,7 @@ var config = {
     analysis: {
         batch: {
             inlineExecution: false,
-            endpoint: 'http://sqlapi:8080/api/v2/sql/job',
+            endpoint: 'https://carto.localhost/api/v2/sql/job',
             hostHeaderTemplate: '{{=it.username}}.localhost'
         }, // end of 'analysis.batch'
         logger: {
@@ -886,13 +894,13 @@ var config = {
         // Values from sources:
         //      official:   'http://{{=it.user}}.localhost.lan:{{=it.port}}/api/v1/map'
         //      sverhoeven: 'http://cartodb.localhost/user/{{=it.user}}/api/v1/map'
-        http: 'http://{{=it.user}}.localhost/api/v1/map',
+        http: 'http://carto.localhost/user/{{=it.user}}/api/v1/map',
 
         // Setting: 'resources_url_templates.http'
         // Values from sources:
         //      official:   'http://localhost.lan:{{=it.port}}/user/{{=it.user}}/api/v1/map'
         //      sverhoeven: 'http://cartodb.localhost/user/{{=it.user}}/api/v1/map'
-        https: 'https://{{=it.user}}.localhost/api/v1/map'
+        https: 'https://carto.localhost/user/{{=it.user}}/api/v1/map'
     },
 
     // Setting: 'base_url_templated'

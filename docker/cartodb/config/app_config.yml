@@ -323,8 +323,8 @@ defaults: &defaults
   # Purpose: Sets up a test for the ExportJob
   # File: services/user-mover/spec/user_mover_spec.rb
   org_metadata_api:
-    host: 'localhost'
-    port: '443'
+    host: 'carto.localhost'
+    port: ''
     username: 'extension'
     password: 'elephant'
     timeout: 10
@@ -361,7 +361,7 @@ defaults: &defaults
   # File: lib/cartodb/redis_vizjson_cache.rb
   # Value, official:    ['.localhost.lan']
   # Value, sverhoeven:  ['.localhost']
-  vizjson_cache_domains: ['localhost']
+  vizjson_cache_domains: ['.localhost']
 
   # Setting: 'watcher'
   #
@@ -408,19 +408,19 @@ defaults: &defaults
   tiler:
     filter: 'mapnik'
     internal:
-      protocol: 'https'
-      domain: 'localhost'
-      port: '443'
-      host: 'localhost'
+      protocol: 'http'
+      domain: ''
+      port: '8181'
+      host: 'windshaft'
       verifycert: false
     private:
       protocol: 'https'
-      domain: 'localhost'
+      domain: 'carto.localhost'
       port: '443'
       verifycert: false
     public:
       protocol: 'https'
-      domain: 'localhost'
+      domain: 'carto.localhost'
       port: '443'
       verifycert: false
 
@@ -455,12 +455,12 @@ defaults: &defaults
   sql_api:
     private:
       protocol: 'https'
-      domain: 'localhost'
-      endpoint: '/api/v1/sql'
+      domain: 'carto.localhost'
+      endpoint: '/api/v2/sql'
       port: '443'
     public:
       protocol: 'https'
-      domain: 'localhost'
+      domain: 'carto.localhost'
       endpoint: '/api/v2/sql'
       port: '443'
 
@@ -494,9 +494,9 @@ defaults: &defaults
   # File: lib/tasks/remote_tables_maintenance.rake
   common_data:
     protocol: 'https'
-    username: 'nick'
-    # base_url: 'https://common-data.carto.com'
-    format: 'shp'
+    username: 'common-data'
+    base_url: 'https://common-data.carto.com'
+    format: 'gpkg'
     generate_every: 86400
 
   # Setting: 'explore_api'
@@ -867,7 +867,7 @@ defaults: &defaults
   # File: config/initializers/carto_db.rb
   # Value, official:    'localhost.lan:3000'
   # Value, sverhoeven:  'cartodb.localhost:3000'
-  account_host: 'localhost'
+  account_host: 'carto.localhost'
 
   # Setting: 'session_domain'
   # Required: Yes
@@ -890,7 +890,7 @@ defaults: &defaults
   # Used in: Cartodb.config
   # Purpose: Helps set ActionDispatch::Http::Url.tld_length
   # File: config/initializers/01_app_config.rb
-  session_domain: 'localhost'
+  session_domain: 'carto.localhost'
 
   # Setting: 'developers_host'
   # Required: Only if you want the "learn more about using oauth in CARTO"
@@ -982,7 +982,7 @@ defaults: &defaults
 
   # Setting: 'cartodb_central_domain_name'
   # Required: No, it doesn't appear to be anywhere else in the entire codebase
-#  cartodb_central_domain_name: 'carto.com'
+  cartodb_central_domain_name: 'carto.localhost'
 
   #### SECURITY SETTINGS #####################################################
   
@@ -1131,7 +1131,7 @@ defaults: &defaults
   # Used in: Layer.validate
   # Purpose: Unless explicitly false, raises an error if tile style is empty
   # File: app/models/layer.rb
-#  enforce_non_empty_layer_css: false
+  enforce_non_empty_layer_css: false
 
   # Setting: 'layer_opts'
   # Required: Yes
@@ -1157,10 +1157,10 @@ defaults: &defaults
         interactivity:      "cartodb_id"
         debug:              false
         visible:            true
-        tiler_domain:       "localhost"
+        tiler_domain:       "carto.localhost"
         tiler_port:         "443"
         tiler_protocol:     "https"
-        sql_domain:         "localhost"
+        sql_domain:         "carto.localhost"
         sql_port:           "443"
         sql_protocol:       "https"
         extra_params:       { cache_policy: 'persist' }
@@ -1494,16 +1494,3 @@ defaults: &defaults
 #### ENVIRONMENT SPECIFIC OVERRIDES ##########################################
 development:
   <<: *defaults
-
-test:
-  <<: *defaults
-  http_port: 53716
-  redis:
-    host: 'redis'
-    port: 6335
-  enforce_non_empty_layer_css: false
-  api_requests_es_service:
-    url: "http://api-calls-service.localhost.lan/search"
-    body: ""
-  session_domain: '.localhost.lan'
-  subdomainless_urls: false

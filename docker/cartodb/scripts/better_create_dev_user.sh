@@ -126,7 +126,7 @@ if [[ $CONFIRM == "yes" ]]; then
 fi
 
 echo_if_unquiet "\nCalling the create task..."
-bundle exec rake cartodb:db:create_dev_user $RAKE_TRACE SUBDOMAIN="${SUBDOMAIN}" PASSWORD="${PASSWORD}" EMAIL="${EMAIL}"
+bundle exec rake cartodb:db:create_user $RAKE_TRACE SUBDOMAIN="${SUBDOMAIN}" PASSWORD="${PASSWORD}" ADMIN_PASSWORD="${PASSWORD}" EMAIL="${EMAIL}"
 if [[ $? -ne 0 ]]; then exit 1; fi     # If the create failed, no use doing the rest of this stuff.
 
 echo_if_unquiet "\nManaging settings for user ${SUBDOMAIN}..."

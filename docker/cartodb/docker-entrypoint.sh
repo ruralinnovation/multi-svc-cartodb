@@ -127,9 +127,19 @@ fi
 
 #### STARTING PROCESSES ######################################################
 
+echo "Restoring redis..."
+bundle exec script/restore_redis
+
 echo "Starting the Resque script. Not capturing output--if you need it, change the docker/cartodb/docker-entrypoint.sh script"
 
 bundle exec ./script/resque > /carto/resque.log 2>&1 &
+
+echo "Starting the sync_tables_trigger.sh script..."
+script/sync_tables_trigger.sh &
+
+echo "Recreating api keys in db and redis, so sql api is authenticated..."
+psql $PG_CONN -d carto_db_development -c "DELETE FROM api_keys;"
+bundle exec rake carto:api_key:create_default
 
 echo "Starting the CartoDB Builder application..."
 bundle exec thin start --threaded -p 80 -a 0.0.0.0 --threadpool-size 5

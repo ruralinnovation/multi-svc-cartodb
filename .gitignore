@@ -16,3 +16,8 @@ node_modules
 
 # Ignore the data directory for data services
 docker/postgis/geocoder_data/*.sql
+
+*.sver.js
+*.official.js
+*sver.yml
+*official.yml

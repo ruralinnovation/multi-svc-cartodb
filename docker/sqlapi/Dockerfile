@@ -20,6 +20,8 @@ EXPOSE 8080
 
 WORKDIR /carto/CartoDB-SQL-API
 
+ENV CURLOPT_SSL_VERIFYPEER 0
+
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
 
 CMD []

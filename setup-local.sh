@@ -119,7 +119,7 @@ if [[ $GENERATE_CERT = "yes" ]]; then
     -keyout docker/router/ssl/wildcard-localhost.key \
     -newkey rsa:2048 -nodes -sha256 \
     -subj '/CN=*.localhost' -extensions EXT -config <( \
-    printf "[dn]\nCN=*.localhost.lan\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:*.localhost.lan\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") 2>&1)
+    printf "[dn]\nCN=*.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:*.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") 2>&1)
 
     echo_if_unquiet "Completed generating SSL .crt and .key files.\n"
 

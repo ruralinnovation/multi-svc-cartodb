@@ -18,6 +18,8 @@ COPY ./docker-entrypoint.sh /carto/
 
 EXPOSE 8181
 
+ENV CURLOPT_SSL_VERIFYPEER 0
+
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
 
 CMD []
