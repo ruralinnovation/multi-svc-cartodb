@@ -1,6 +1,5 @@
 # Implementation of CartoDB in multiple services
 
-
 ## Overview
 
 CartoDB is itself a multi-service application, made up of the following core pieces:
@@ -201,3 +200,7 @@ docker-compose exec redis redis-cli
 ```
 
 Or by getting a `/bin/sh` shell on the container and calling `redis-cli` from that.
+
+## Contributing
+
+Hey, thanks for thinking about helping with this effort! Here's our [contribution guidelines](./CONTRIBUTING.md).
