@@ -70,10 +70,10 @@ Note that the image names, as created by `docker-compose`, will have the name of
     CARTO_ORG_PASS=abc123def
     ```
 
-1. In order to build the `router` container (and connect to the cluster over HTTPS), you will need to generate a self-signed SSL certificate. You can do this by calling `setup-local.sh` with the `--generate-ssl-cert` flag. This should generate `.crt` and `.key` files in `docker/router/ssl`.
+1. In order to support HTTPS (and to build the `router` container), you will need to generate a number of SSL related files (primarily a root certificate for a local certificate authority, and .crt and .key files for a signed SSL certificate). You can do this by using the `generate_ssl_certs.sh` script:
 
     ```bash
-    ./setup-local.sh --generate-ssl-cert
+    ./generate_ssl_certs.sh
     ```
 
 1. You will also need to add an entry for `cori.localhost` to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
@@ -82,6 +82,7 @@ Note that the image names, as created by `docker-compose`, will have the name of
     echo "127.0.0.1   cori.localhost" | sudo tee -a /etc/hosts
     ```
 
+1. And in order to make your local browser consider the `router` container's signed certificate legitimate, you'll need to add the root certificate of the signing CA you created to your local development machine's trusted cert store. On a Linux host that probably means adding it to `/usr/local/share/ca-certificates/`, on a Mac it will mean adding it to your Keychain (for instructions see the Installing Your Root Certificate section [of this article about local HTTPS](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/)). (TODO: Add Windows instructions.)
 1. Now that you have a `.env` file and SSL certificate files, you can build the container images for `postgis`, `redis`, `sqlapi`, `windshaft`, `varnish`, `cartodb`, and `router`. This may take some time.
 
     ```bash
