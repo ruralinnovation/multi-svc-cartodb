@@ -33,6 +33,9 @@ COPY ./scripts/better_create_dev_user.sh /carto/cartodb/script/
 COPY ./scripts/setup_organization.sh /carto/cartodb/script/
 COPY ./scripts/sync_tables_trigger.sh /carto/cartodb/script/
 COPY ./docker-entrypoint.sh /carto/
+COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+
+RUN update-ca-certificates
 
 ENV SYNC_TABLES_INTERVAL 3600
 # TODO: This should probably be ARG based so non-dev instances still verify.

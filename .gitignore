@@ -10,7 +10,8 @@ node_modules
 # Ignore the .env file, it should be built by setup-local.sh
 .env
 
-# Ignore ssl cert files
+# Ignore ssl cert files and directories
+ssl/
 *.crt
 *.key
 

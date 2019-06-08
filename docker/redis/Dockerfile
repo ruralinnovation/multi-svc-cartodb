@@ -9,6 +9,13 @@ FROM redis:5.0.3-alpine AS base
 # using `docker-compose`, or attach the volume explicitly via `--mount`
 # flag to `docker run`.
 
+COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+
+RUN apk update \
+ && apk add ca-certificates \
+ && update-ca-certificates \
+ && rm -rf /var/cache/apk/*
+
 EXPOSE 6379
 
 # Options here are to run Redis with persistence.

@@ -49,6 +49,7 @@ services:
       - sqlapi
       - postgis
       - redis
+    tty: true
 
   windshaft:
     container_name: windshaft

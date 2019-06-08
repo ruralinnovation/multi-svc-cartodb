@@ -15,12 +15,13 @@ RUN git clone --recursive ${CARTO_SQLAPI_REPO} \
 
 COPY ./config/*.js /carto/CartoDB-SQL-API/config/environments/
 COPY ./docker-entrypoint.sh /carto/
+COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+
+RUN update-ca-certificates
 
 EXPOSE 8080
 
 WORKDIR /carto/CartoDB-SQL-API
-
-ENV CURLOPT_SSL_VERIFYPEER 0
 
 ENTRYPOINT ["/carto/docker-entrypoint.sh"]
 

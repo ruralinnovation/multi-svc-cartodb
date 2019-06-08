@@ -627,8 +627,8 @@ var config = {
     analysis: {
         batch: {
             inlineExecution: false,
-            endpoint: 'https://carto.localhost/api/v2/sql/job',
-            hostHeaderTemplate: '{{=it.username}}.localhost'
+            endpoint: 'https://cori.localhost/api/v2/sql/job',
+            hostHeaderTemplate: '{{=it.username}}.windshaft.localhost'
         }, // end of 'analysis.batch'
         logger: {
             filename: 'logs/node-windshaft-analysis.log'
@@ -894,13 +894,13 @@ var config = {
         // Values from sources:
         //      official:   'http://{{=it.user}}.localhost.lan:{{=it.port}}/api/v1/map'
         //      sverhoeven: 'http://cartodb.localhost/user/{{=it.user}}/api/v1/map'
-        http: 'http://carto.localhost/user/{{=it.user}}/api/v1/map',
+        http: 'http://cori.localhost/user/{{=it.user}}/api/v1/map',
 
         // Setting: 'resources_url_templates.http'
         // Values from sources:
         //      official:   'http://localhost.lan:{{=it.port}}/user/{{=it.user}}/api/v1/map'
         //      sverhoeven: 'http://cartodb.localhost/user/{{=it.user}}/api/v1/map'
-        https: 'https://carto.localhost/user/{{=it.user}}/api/v1/map'
+        https: 'https://cori.localhost/user/{{=it.user}}/api/v1/map'
     },
 
     // Setting: 'base_url_templated'

@@ -55,25 +55,15 @@ EOF
 
 printf "$dot_env_lines" > ${SCRIPT_DIR}/.env
 
-#### SCRIPT SETTINGS AND FLAGS ###############################################
-
-GENERATE_CERT="no"
-QUIET="no"
-
 #### HELP FUNCTION ###########################################################
 
 function display_help() {
     local help_text=""
     IFS='' read -r -d '' help_text <<EOF
 
-Usage: $SCRIPT_NAME [--generate-ssl-cert]
+Usage: $SCRIPT_NAME 
 
-Purpose: Sets values in the .env file, and generates SSL cert files.
-
-Flags:
-    --generate-ssl-cert        - Creates .crt and .key files for the nginx
-                                 router container to use for signing localhost.
-    -q|--quiet                 - Display no output.
+Purpose: Sets values in the .env file.
 
 EOF
 
@@ -87,42 +77,8 @@ while [[ $# -gt 0 ]]; do
             display_help
             exit 0
             ;;
-        --generate-ssl-cert)
-            shift
-            GENERATE_CERT=yes
-            ;;
-        -q|--quiet)
-            shift
-            QUIET=yes
-            ;;
         *)
             break
             ;;
     esac
 done
-
-#### PRINT UNLESS QUIET FUNCTION #############################################
-
-function echo_if_unquiet() {
-    if [ "$QUIET" != "yes" ]; then
-        printf "$1"
-    fi
-}
-
-#### SSL CERTIFICATE GENERATION ##############################################
-
-if [[ $GENERATE_CERT = "yes" ]]; then
-    echo_if_unquiet "Generating SSL .crt and .key files in docker/router/ssl...\n"
-
-    cert_output=$(openssl req -x509 \
-    -out docker/router/ssl/wildcard-localhost.crt \
-    -keyout docker/router/ssl/wildcard-localhost.key \
-    -newkey rsa:2048 -nodes -sha256 \
-    -subj '/CN=*.localhost' -extensions EXT -config <( \
-    printf "[dn]\nCN=*.localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:*.localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth") 2>&1)
-
-    echo_if_unquiet "Completed generating SSL .crt and .key files.\n"
-
-    chmod 644 docker/router/ssl/wildcard-localhost.crt
-    chmod 640 docker/router/ssl/wildcard-localhost.key
-fi

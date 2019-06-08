@@ -15,6 +15,9 @@ WORKDIR /carto/Windshaft-cartodb
 
 COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
 COPY ./docker-entrypoint.sh /carto/
+COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+
+RUN update-ca-certificates
 
 EXPOSE 8181
 

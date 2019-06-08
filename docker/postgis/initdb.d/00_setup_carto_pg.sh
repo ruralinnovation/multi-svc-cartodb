@@ -156,6 +156,16 @@ EOF
 
 cat <<EOF | psql -U $DB_USER -d $GEOCODER_DB -e
 SELECT cartodb.CDB_Conf_SetConf(
+    'logger_conf',
+    '{"geocoder_log_path": "/tmp/geocodings.log",
+      "min_log_level": "debug",
+      "rollbar_api_key": "SERVER_SIDE_API_KEY",
+      "log_file_path": "LOG_FILE_PATH"}'
+);
+EOF
+
+cat <<EOF | psql -U $DB_USER -d $GEOCODER_DB -e
+SELECT cartodb.CDB_Conf_SetConf(
     'data_observatory_conf',
     '{"connection": {"whitelist": [],
                      "production": "host=postgis port=5432 dbname=${GEOCODER_DB} user=${GEOCODER_USER}",

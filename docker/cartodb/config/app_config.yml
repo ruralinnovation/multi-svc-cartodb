@@ -323,7 +323,7 @@ defaults: &defaults
   # Purpose: Sets up a test for the ExportJob
   # File: services/user-mover/spec/user_mover_spec.rb
   org_metadata_api:
-    host: 'carto.localhost'
+    host: 'cori.localhost'
     port: ''
     username: 'extension'
     password: 'elephant'
@@ -415,12 +415,12 @@ defaults: &defaults
       verifycert: false
     private:
       protocol: 'https'
-      domain: 'carto.localhost'
+      domain: 'cori.localhost'
       port: '443'
       verifycert: false
     public:
       protocol: 'https'
-      domain: 'carto.localhost'
+      domain: 'cori.localhost'
       port: '443'
       verifycert: false
 
@@ -455,12 +455,12 @@ defaults: &defaults
   sql_api:
     private:
       protocol: 'https'
-      domain: 'carto.localhost'
+      domain: 'cori.localhost'
       endpoint: '/api/v2/sql'
       port: '443'
     public:
       protocol: 'https'
-      domain: 'carto.localhost'
+      domain: 'cori.localhost'
       endpoint: '/api/v2/sql'
       port: '443'
 
@@ -867,7 +867,7 @@ defaults: &defaults
   # File: config/initializers/carto_db.rb
   # Value, official:    'localhost.lan:3000'
   # Value, sverhoeven:  'cartodb.localhost:3000'
-  account_host: 'carto.localhost'
+  account_host: 'cori.localhost'
 
   # Setting: 'session_domain'
   # Required: Yes
@@ -890,7 +890,7 @@ defaults: &defaults
   # Used in: Cartodb.config
   # Purpose: Helps set ActionDispatch::Http::Url.tld_length
   # File: config/initializers/01_app_config.rb
-  session_domain: 'carto.localhost'
+  session_domain: 'cori.localhost'
 
   # Setting: 'developers_host'
   # Required: Only if you want the "learn more about using oauth in CARTO"
@@ -982,7 +982,7 @@ defaults: &defaults
 
   # Setting: 'cartodb_central_domain_name'
   # Required: No, it doesn't appear to be anywhere else in the entire codebase
-  cartodb_central_domain_name: 'carto.localhost'
+  cartodb_central_domain_name: 'cori.localhost'
 
   #### SECURITY SETTINGS #####################################################
   
@@ -1157,10 +1157,10 @@ defaults: &defaults
         interactivity:      "cartodb_id"
         debug:              false
         visible:            true
-        tiler_domain:       "carto.localhost"
+        tiler_domain:       "cori.localhost"
         tiler_port:         "443"
         tiler_protocol:     "https"
-        sql_domain:         "carto.localhost"
+        sql_domain:         "cori.localhost"
         sql_port:           "443"
         sql_protocol:       "https"
         extra_params:       { cache_policy: 'persist' }

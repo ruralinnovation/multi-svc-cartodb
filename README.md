@@ -76,10 +76,10 @@ Note that the image names, as created by `docker-compose`, will have the name of
     ./setup-local.sh --generate-ssl-cert
     ```
 
-1. You will also need to add an entry for `carto.localhost` to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
+1. You will also need to add an entry for `cori.localhost` to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
 
     ```bash
-    echo "127.0.0.1   carto.localhost" | sudo tee -a /etc/hosts
+    echo "127.0.0.1   cori.localhost" | sudo tee -a /etc/hosts
     ```
 
 1. Now that you have a `.env` file and SSL certificate files, you can build the container images for `postgis`, `redis`, `sqlapi`, `windshaft`, `varnish`, `cartodb`, and `router`. This may take some time.
@@ -94,7 +94,7 @@ Note that the image names, as created by `docker-compose`, will have the name of
     docker-compose up
     ```
 
-1. Once the application cluster is initialized (see below for details), load the cluster in a browser, at `https://carto.localhost/`. You should be able to log in with the values for `CARTO_DEFAULT_USER` and `CARTO_DEFAULT_PASS` from your `.env` file. You may need to adjust your browser settings to allow for a self-signed SSL certificate for localhost. In Chrome you can do this by loading `chrome://flags/#allow-insecure-localhost` in the browser and changing the setting to enabled. You will still get some warnings (the browser's SSL lock icon will almost certainly tell you it is an insecure connection), but it won't prevent you loading the page.
+1. Once the application cluster is initialized (see below for details), load the cluster in a browser, at `https://cori.localhost/`. You should be able to log in with the values for `CARTO_DEFAULT_USER` and `CARTO_DEFAULT_PASS` from your `.env` file. You may need to adjust your browser settings to allow for a self-signed SSL certificate for localhost. In Chrome you can do this by loading `chrome://flags/#allow-insecure-localhost` in the browser and changing the setting to enabled. You will still get some warnings (the browser's SSL lock icon will almost certainly tell you it is an insecure connection), but it won't prevent you loading the page.
 
 ## Application Initialization
 
