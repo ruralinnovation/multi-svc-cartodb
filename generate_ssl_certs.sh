@@ -159,7 +159,8 @@ echo_if_unquiet "Copying files to docker contexts..."
 cp ${SSL_KEYFILE} ./docker/router/ssl
 cp ${SSL_CERTFILE} ./docker/router/ssl
 
-CONTAINERS="router cartodb windshaft sqlapi postgis redis varnish"
-for container in $OTHER_CONTAINERS; do
+CONTAINERS=("router cartodb windshaft sqlapi postgis redis varnish")
+for container in "${CONTAINERS[@]}"; do
+    echo_if_unquiet "Copying cert to ${container}"
     cp ${CA_ROOTCERT} ./docker/${container}/ssl/
 done
