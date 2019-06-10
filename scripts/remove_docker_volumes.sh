@@ -1,7 +1,8 @@
 #!/bin/bash
 
 SCRIPT_NAME=$0
-SCRIPT_BASE_DIR="${PWD##*/}"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(dirname ${SCRIPT_DIR})"
 
 QUIET=no
 AUTORUN=no
@@ -47,19 +48,29 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+#### DOCKER DAEMON CHECK #####################################################
+
+docker stats --no-stream > /dev/null 2>&1
+if [[ ! $? -eq 0 ]]; then
+    echo "Whoops! The Docker daemon doesn't appear to be running. Check that and try again?"
+    exit 1
+fi
+
+#### ECHO FUNCTION ###########################################################
+
 function echo_if_unquiet() {
     if [[ $QUIET != "yes" ]]; then
         printf "$1\n"
     fi
 }
 
-volume_prefix=${PWD##*/}
+volume_prefix=${REPO_ROOT##*/}
 if [[ -n $COMPOSE_PROJECT_NAME ]]; then volume_prefix=$COMPOSE_PROJECT_NAME; fi
 
-volume_names=$(docker-compose config --volumes)
+volume_names=$(cd ${REPO_ROOT} && docker-compose config --volumes)
 docker_volume_names=""
 
-echo_if_unquiet "\nFound these volumes in ./docker-compose.yml:\n"
+echo_if_unquiet "\nFound these volumes in ${REPO_ROOT}/docker-compose.yml:\n"
 
 for vol in $volume_names
 do
@@ -78,7 +89,7 @@ done
 echo_if_unquiet ""
 
 if [[ -z $docker_volume_names ]]; then
-    echo_if_unquiet "\nNo current docker volumes found that match those in ./docker-compose.yml, exiting.\n"
+    echo_if_unquiet "\nNo current docker volumes found that match those in ${REPO_ROOT}/docker-compose.yml, exiting.\n"
     exit 0
 fi
 
@@ -104,10 +115,10 @@ fi
 echo_if_unquiet "Running docker-compose down to make sure the volumes aren't going to be attached to existing containers..."
 if [[ $QUIET != "yes" ]]; then
     set -x
-    COMPOSE_FILE="$PWD/docker-compose.yml" docker-compose down
+    COMPOSE_FILE="$REPO_ROOT/docker-compose.yml" docker-compose down
     set +x
 else
-    COMPOSE_FILE="$PWD/docker-compose.yml" docker-compose down > /dev/null 2>&1
+    COMPOSE_FILE="$REPO_ROOT/docker-compose.yml" docker-compose down > /dev/null 2>&1
 fi
 
 echo_if_unquiet "Removing volumes..."

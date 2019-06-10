@@ -39,13 +39,13 @@ Note that the image names, as created by `docker-compose`, will have the name of
     docker build --tag cartobuilder:latest docker/BUILDER
     ```
 
-1. You will build (and run) the rest of the containers using the `docker-compose` command. During the build process Compose will need some environment values that it can merge into the containers, for version strings, default user info, etc. It can get those values from various places, but we'll consolidate them in a `.env` file in the root of the repo. To create that file, you can run the `setup-local.sh` script in the repo root:
+1. You will build (and run) the rest of the containers using the `docker-compose` command. During the build process Compose will need some environment values that it can merge into the containers, for version strings, default user info, etc. It can get those values from various places, but we'll consolidate them in a `.env` file in the root of the repo. To create that file, you can run the `scripts/setup-local.sh` script in the repo root:
 
     ```bash
-    ./setup-local.sh
+    ./scripts/setup-local.sh
     ```
 
-1. You can view the file contents, which should look something like the following. If you would like to set custom values for any of the environment variables, you can: a) edit the `.env` file directly (note that it will be overwritten in any subsequent call to `setup-local.sh`, as in the next step of this guide); b) set a value for that variable for a single run of `setup-local.sh`, by prepending it to the call (as in `CARTO_USE_HTTPS=false ./setup-local.sh`); or c) export a value for that variable in your `~/.bash_profile` file, which will be set in the environment of any new terminal window from which you might call `setup-local.sh`. Using option c will ensure that your new value is used for every new generation of the `.env` file.
+1. You can view the file contents, which should look something like the following. If you would like to set custom values for any of the environment variables, you can: a) edit the `.env` file directly (note that it will be overwritten in any subsequent call to `setup-local.sh`, as in the next step of this guide); b) set a value for that variable for a single run of `setup-local.sh`, by prepending it to the call (as in `CARTO_USE_HTTPS=false ./scripts/setup-local.sh`); or c) export a value for that variable in your `~/.bash_profile` file, which will be set in the environment of any new terminal window from which you might call `setup-local.sh`. Using option c will ensure that your new value is used for every new generation of the `.env` file.
 
     ```
     $ cat .env
@@ -69,10 +69,10 @@ Note that the image names, as created by `docker-compose`, will have the name of
     CARTO_ORG_PASS=abc123def
     ```
 
-1. In order to support HTTPS (and to build the `router` container), you will need to generate a number of SSL related files (primarily a root certificate for a local certificate authority, and .crt and .key files for a signed SSL certificate). You can do this by using the `generate_ssl_certs.sh` script:
+1. In order to support HTTPS (and to build the `router` container), you will need to generate a number of SSL related files (primarily a root certificate for a local certificate authority, and .crt and .key files for a signed SSL certificate). You can do this by using the `scripts/generate_ssl_certs.sh` script:
 
     ```bash
-    ./generate_ssl_certs.sh
+    ./scripts/generate_ssl_certs.sh
     ```
 
 1. You will also need to add an entry for `cori.localhost` to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
@@ -156,7 +156,7 @@ docker-compose down
 docker volume ls -q --filter "name=postgis-data" | xargs docker volume rm
 ```
 
-If you would like to remove _all_ of the volumes for the cluster, there is a utility script in the root of the repo called `remove_docker_volumes.sh`. Note that if you remove them all, you may need to run `docker-compose build postgis` to repopulate the PostgreSQL extensions directory before bringing the cluster back up.
+If you would like to remove _all_ of the volumes for the cluster, there is a utility script in the this repo's `/scripts` directory called `remove_docker_volumes.sh`. Note that if you remove them all, you may need to run `docker-compose build postgis` to repopulate the PostgreSQL extensions directory before bringing the cluster back up.
 
 ## Operating
 

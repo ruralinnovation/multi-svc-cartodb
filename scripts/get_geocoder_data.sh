@@ -1,7 +1,8 @@
 #!/bin/bash
 SCRIPT_NAME=$0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-GEOCODER_DATA_DIR="${SCRIPT_DIR}/docker/postgis/geocoder_data/"
+REPO_ROOT="$( dirname ${SCRIPT_DIR} )"
+GEOCODER_DATA_DIR="${REPO_ROOT}/docker/postgis/geocoder_data/"
 
 QUIET="no"
 WGET_QUIET=""

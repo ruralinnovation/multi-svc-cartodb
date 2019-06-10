@@ -1,6 +1,7 @@
 #!/bin/bash
 SCRIPT_NAME=$0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(dirname ${SCRIPT_DIR})"
 
 #### GIT VERSIONS FOR CARTO MODULES ##########################################
 
@@ -53,7 +54,7 @@ CARTO_ORG_EMAIL=$CARTO_ORG_EMAIL
 CARTO_ORG_PASS=$CARTO_ORG_PASS
 EOF
 
-printf "$dot_env_lines" > ${SCRIPT_DIR}/.env
+printf "$dot_env_lines" > ${REPO_ROOT}/.env
 
 #### HELP FUNCTION ###########################################################
 

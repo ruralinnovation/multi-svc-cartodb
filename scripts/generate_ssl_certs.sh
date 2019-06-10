@@ -3,6 +3,7 @@
 # Script location variables
 SCRIPT_NAME=$0
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(dirname ${SCRIPT_DIR})"
 
 function display_help() {
     local help_text=""
@@ -103,20 +104,20 @@ EMAIL="noreply@ruralinnovation.us"
 PASSWORD="abc123def"
 
 SSL_BASE_NAME="${DOMAIN}"
-SSL_KEYFILE="${SCRIPT_DIR}/ssl/${SSL_BASE_NAME}.key"
-SSL_CSRFILE="${SCRIPT_DIR}/ssl/${SSL_BASE_NAME}.csr"
-SSL_CERTFILE="${SCRIPT_DIR}/ssl/${SSL_BASE_NAME}.crt"
+SSL_KEYFILE="${REPO_ROOT}/ssl/${SSL_BASE_NAME}.key"
+SSL_CSRFILE="${REPO_ROOT}/ssl/${SSL_BASE_NAME}.csr"
+SSL_CERTFILE="${REPO_ROOT}/ssl/${SSL_BASE_NAME}.crt"
 
 # Certificate authority info variables
 CA_BASE_NAME="coriCA"
-CA_KEYFILE="${SCRIPT_DIR}/ssl/${CA_BASE_NAME}.key"
-CA_ROOTCERT="${SCRIPT_DIR}/ssl/${CA_BASE_NAME}.pem"
+CA_KEYFILE="${REPO_ROOT}/ssl/${CA_BASE_NAME}.key"
+CA_ROOTCERT="${REPO_ROOT}/ssl/${CA_BASE_NAME}.pem"
 
 echo_if_unquiet "Creating 'ssl' directories if they don't already exist..."
 
-mkdir -p ${SCRIPT_DIR}/ssl
+mkdir -p ${REPO_ROOT}/ssl
 
-docker_contexts=$(find ${SCRIPT_DIR}/docker ! -path ${SCRIPT_DIR}/docker -type d -maxdepth 1)
+docker_contexts=$(find ${REPO_ROOT}/docker ! -path ${REPO_ROOT}/docker -type d -maxdepth 1)
 
 for dc in $docker_contexts; do
     mkdir -p $dc/ssl
