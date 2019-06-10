@@ -9,7 +9,9 @@ This repository is intended to serve as a guide to packaging the open-source ver
 * [Project Overview](./DOCS/OVERVIEW.md) - _Description of this project, and how it decomposes the CARTO stack._
 * [Installation](./DOCS/INSTALL.md) - _Local installation of this repo, and how to build the cluster for local development._
 * [Configuration](./DOCS/CONFIGURATION.md) - _How the various services are configured._
+* [Testing](./DOCS/TESTING.md) - _How to run tests for each component._
 * [Operations](./DOCS/OPERATIONS.md) - _How the stack is architected and run._
+* [Metrics](./DOCS/METRICS.md) - _How metrics are emitted and collected for each component._
 * [Deployment](./DOCS/DEPLOYMENT.md) - _How to deploy built images to a cloud environment._
 * [Optimization](./DOCS/OPTIMIZATION.md) - _How to tune a cloud deployment of CartoDB._
 * [Contribution Guidelines](./CONTRIBUTING.md) - _Interested in helping? Look here first._
