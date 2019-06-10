@@ -1,4 +1,6 @@
-**Project Status (2019-06-09):** Local images build, containers run, application is usable but with critical bugs.
+**Project Status (2019-06-09):** Local images build, containers run, application is usable over HTTPS but with critical bugs.
+
+![Banner image, slice of world elevation map](./assets/multi-svc-cartodb-banner.jpg)
 
 # Containerized, Multi-service, Open-Source CartoDB
 
