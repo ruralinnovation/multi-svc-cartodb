@@ -1,0 +1,1600 @@
+root@77e673eef35d:/carto/cartodb-postgresql# PGUSER=postgres make installcheck
+mkdir -p sql/test/
+mkdir -p expected/test/
+mkdir -p results/test/
+for f in test/CDB_HeadsTailsBinsTest.sql test/CDB_GhostTables.sql test/CDB_QueryStatementsTest.sql test/CDB_RectangleTest.sql test/CDB_QuotaTest.sql test/CDB_StatsTest.sql test/CDB_DateToNumberTest.sql test/CDB_HexagonTest.sql test/CDB_GreatCircle.sql test/CDB_MathTest.sql test/CDB_JenksBinsTest.sql test/CDB_QueryTablesTest.sql test/CDB_OverviewsTest.sql test/CDB_QuantileBinsTest.sql test/CDB_DistinctMeasureTest.sql test/CDB_CartodbfyTableTest.sql test/CDB_EqualIntervalBinsTest.sql test/CDB_Username.sql test/CDB_AnalysisCheckTest.sql test/CDB_XYZ_ExtentTest.sql test/CDB_DistTypeTest.sql test/CDB_HelperTest.sql test/CDB_UserTablesTest.sql test/CDB_DigitSeparatorTest.sql test/CDB_EstimateRowCountTest.sql test/CDB_TransformToWebmercatorTest.sql; do \
+	tn=`basename ${f} .sql`; \
+	of=sql/test/${tn}.sql; \
+	echo '\set ECHO none' > ${of}; \
+	echo '\a' >> ${of}; \
+	echo '\t' >> ${of}; \
+	echo '\set QUIET off' >> ${of}; \
+	cat ${f} | \
+		sed -e 's/@@VERSION@@/0.27.1/' -e 's/@extschema@/cartodb/g' -e "s/@postgisschema@/public/g" >> ${of}; \
+	exp=expected/test/${tn}.out; \
+	echo '\set ECHO none' > ${exp}; \
+	cat test/${tn}_expect >> ${exp}; \
+done
+bash test/extension/test.sh
+CREATE DATABASE
+> Executing query 'CREATE EXTENSION postgis;'
+CREATE EXTENSION
+
+> Executing query 'DO
+$$
+BEGIN
+    IF substring(postgis_lib_version() FROM 1 FOR 1) = '3' THEN
+        CREATE EXTENSION postgis_raster;
+    END IF;
+END
+$$;' as postgres
+DO
+
+> Executing query 'CREATE EXTENSION cartodb CASCADE;'
+NOTICE:  installing required extension "plpythonu"
+CREATE EXTENSION
+
+ALTER DATABASE
+
+
+
+############################# SETUP #############################
+> Executing query 'CREATE ROLE cdb_testmember_1 LOGIN;'
+CREATE ROLE
+
+> Executing query 'GRANT CONNECT ON DATABASE "test_extension" TO cdb_testmember_1;'
+GRANT
+
+> Executing query 'CREATE SCHEMA cdb_testmember_1 AUTHORIZATION cdb_testmember_1;'
+CREATE SCHEMA
+
+> Executing query 'GRANT USAGE ON SCHEMA cartodb TO cdb_testmember_1;'
+GRANT
+
+> Executing query 'SELECT cartodb.CDB_Organization_Create_Member('cdb_testmember_1');'
+
+
+> Executing query 'ALTER ROLE cdb_testmember_1 SET search_path TO cdb_testmember_1,cartodb,public;'
+ALTER ROLE
+
+> Executing query 'CREATE ROLE cdb_testmember_2 LOGIN;'
+CREATE ROLE
+
+> Executing query 'GRANT CONNECT ON DATABASE "test_extension" TO cdb_testmember_2;'
+GRANT
+
+> Executing query 'CREATE SCHEMA cdb_testmember_2 AUTHORIZATION cdb_testmember_2;'
+CREATE SCHEMA
+
+> Executing query 'GRANT USAGE ON SCHEMA cartodb TO cdb_testmember_2;'
+GRANT
+
+> Executing query 'SELECT cartodb.CDB_Organization_Create_Member('cdb_testmember_2');'
+
+
+> Executing query 'ALTER ROLE cdb_testmember_2 SET search_path TO cdb_testmember_2,cartodb,public;'
+ALTER ROLE
+
+> Executing query 'CREATE TABLE cdb_testmember_1.foo ( a int );' as cdb_testmember_1
+CREATE TABLE
+
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (1), (2), (3), (4), (5), (6);' as cdb_testmember_1
+INSERT 0 6
+
+> Executing query 'SELECT * FROM cdb_testmember_1.foo;' as cdb_testmember_1
+1 2 3 4 5 6
+
+> Executing query 'CREATE TABLE cdb_testmember_2.bar ( a int );' as cdb_testmember_2
+CREATE TABLE
+
+> Executing query 'INSERT INTO bar VALUES (1), (2), (3);' as cdb_testmember_2
+INSERT 0 3
+
+> Executing query 'SELECT * FROM cdb_testmember_2.bar;' as cdb_testmember_2
+1 2 3
+
+####################################################################
+#
+# Running: test_quota_for_each_user
+#
+####################################################################
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_1'::TEXT);' as cdb_testmember_1
+4096
+
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_2'::TEXT);' as cdb_testmember_2
+4096
+
+> Executing query 'CREATE TABLE cdb_testmember_1.raster_1 (rid serial PRIMARY KEY, the_raster_webmercator raster);' as cdb_testmember_1
+CREATE TABLE
+
+> Executing query 'CREATE TABLE cdb_testmember_1.o_2_raster_1 (rid serial PRIMARY KEY, the_raster_webmercator raster);' as cdb_testmember_1
+CREATE TABLE
+
+> Executing query 'SELECT AddOverviewConstraints('cdb_testmember_1','o_2_raster_1','the_raster_webmercator','cdb_testmember_1','raster_1','the_raster_webmercator',2);' as cdb_testmember_1
+t
+
+> Executing query 'CREATE TABLE cdb_testmember_2.raster_2 (rid serial PRIMARY KEY, the_raster_webmercator raster);' as cdb_testmember_2
+CREATE TABLE
+
+> Executing query 'CREATE TABLE cdb_testmember_2.o_2_raster_2 (rid serial PRIMARY KEY, the_raster_webmercator raster);' as cdb_testmember_2
+CREATE TABLE
+
+> Executing query 'SELECT AddOverviewConstraints('cdb_testmember_2','o_2_raster_2','the_raster_webmercator','cdb_testmember_2','raster_2','the_raster_webmercator',2);' as cdb_testmember_2
+t
+
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_1'::TEXT);' as cdb_testmember_1
+20480
+
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_2'::TEXT);' as cdb_testmember_2
+20480
+
+> Executing query 'CREATE TABLE cdb_testmember_1.raster_3 (rid serial PRIMARY KEY, the_raster_webmercator raster);' as cdb_testmember_1
+CREATE TABLE
+
+> Executing query 'CREATE TABLE cdb_testmember_1.o_2_raster_3 (rid serial PRIMARY KEY, the_raster_webmercator raster);' as cdb_testmember_1
+CREATE TABLE
+
+> Executing query 'SELECT AddOverviewConstraints('cdb_testmember_1','o_2_raster_3','the_raster_webmercator','cdb_testmember_1','raster_3','the_raster_webmercator',2);' as cdb_testmember_1
+t
+
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_1'::TEXT);' as cdb_testmember_1
+36864
+
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_2'::TEXT);' as cdb_testmember_2
+20480
+
+> Executing query 'DROP TABLE cdb_testmember_1.o_2_raster_1;' as cdb_testmember_1
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_1.raster_1;' as cdb_testmember_1
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_2.o_2_raster_2;' as cdb_testmember_2
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_2.raster_2;' as cdb_testmember_2
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_1.o_2_raster_3;' as cdb_testmember_1
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_1.raster_3;' as cdb_testmember_1
+DROP TABLE
+
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_1'::TEXT);' as cdb_testmember_1
+4096
+
+> Executing query 'SELECT cartodb.CDB_UserDataSize('cdb_testmember_2'::TEXT);' as cdb_testmember_2
+4096
+
+####################################################################
+#
+# Running: test_cdb_tablemetadatatouch
+#
+####################################################################
+> Executing query 'CREATE TABLE touch_example (a int)' as postgres
+CREATE TABLE
+
+> Executing query 'SELECT updated_at FROM CDB_TableMetadata WHERE tabname = 'touch_example'::regclass;' as postgres
+
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_example');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT updated_at FROM CDB_TableMetadata WHERE tabname = 'touch_example'::regclass;' as postgres
+2019-06-11 00:15:26.06895+00
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_example');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT updated_at FROM CDB_TableMetadata WHERE tabname = 'touch_example'::regclass;' as postgres
+2019-06-11 00:15:26.18312+00
+
+> Executing query 'SELECT CDB_TableMetadataTouch('public.touch_example');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT CDB_TableMetadataTouch('public."touch_example"');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT CDB_TableMetadataTouch('"public".touch_example');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT CDB_TableMetadataTouch('"public"."touch_example"');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT tabname from CDB_TableMetadata;' as postgres
+touch_example
+
+> Executing query 'SELECT count(*) from CDB_TableMetadata;' as postgres
+1
+
+> Executing query 'SELECT CDB_TableMetadataTouch('33600');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT tabname from CDB_TableMetadata;' as postgres
+touch_example
+
+> Executing query 'SELECT count(*) from CDB_TableMetadata;' as postgres
+1
+
+> Executing query 'SELECT CDB_TableMetadataTouch(33600);' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT tabname from CDB_TableMetadata;' as postgres
+touch_example
+
+> Executing query 'SELECT count(*) from CDB_TableMetadata;' as postgres
+1
+
+> Executing query 'DROP TABLE touch_example;' as postgres
+DROP TABLE
+
+####################################################################
+#
+# Running: test_cdb_tablemetadatatouch_fails_for_unexistent_table
+#
+####################################################################
+> Executing query 'SELECT CDB_TableMetadataTouch('unexistent_example');' as cdb_testmember_1
+ERROR:  relation "unexistent_example" does not exist
+LINE 1: SELECT CDB_TableMetadataTouch('unexistent_example');
+                                      ^
+
+
+FAILED TO EXECUTE QUERY: SELECT CDB_TableMetadataTouch('unexistent_example');
+####################################################################
+#
+# Running: test_cdb_tablemetadatatouch_fails_from_user_without_permission
+#
+####################################################################
+> Executing query 'CREATE TABLE touch_example (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_example');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_example');' as cdb_testmember_1
+ERROR:  permission denied for relation cdb_tablemetadata
+CONTEXT:  SQL statement "WITH upsert AS (
+            UPDATE cartodb.cdb_tablemetadata
+            SET updated_at = NOW()
+            WHERE tabname = tablename
+            RETURNING *
+        )
+        INSERT INTO cartodb.cdb_tablemetadata (tabname, updated_at)
+            SELECT tablename, NOW()
+            WHERE NOT EXISTS (SELECT * FROM upsert)"
+PL/pgSQL function cdb_tablemetadatatouch(regclass) line 3 at SQL statement
+
+
+FAILED TO EXECUTE QUERY: SELECT CDB_TableMetadataTouch('touch_example');
+> Executing query 'GRANT ALL ON CDB_TableMetadata TO cdb_testmember_1;' as postgres
+GRANT
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_example');' as cdb_testmember_1
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'REVOKE ALL ON CDB_TableMetadata FROM cdb_testmember_1;' as postgres
+REVOKE
+
+> Executing query 'DROP TABLE touch_example;' as postgres
+DROP TABLE
+
+####################################################################
+#
+# Running: test_cdb_tablemetadatatouch_fully_qualifies_names
+#
+####################################################################
+> Executing query 'CREATE TABLE touch_invalidations (table_name text);' as postgres
+CREATE TABLE
+
+> Executing query 'create or replace function cartodb.cdb_invalidate_varnish(table_name text) returns void as $$ begin insert into touch_invalidations select table_name; end; $$ language 'plpgsql';' as postgres
+CREATE FUNCTION
+
+> Executing query 'CREATE TABLE touch_example (a int);'
+CREATE TABLE
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_example');' as postgres
+
+
+> Executing query 'SELECT table_name FROM touch_invalidations' as postgres
+public.touch_example
+
+> Executing query 'TRUNCATE TABLE touch_invalidations' as postgres
+TRUNCATE TABLE
+
+> Executing query 'DROP TABLE touch_example' as postgres
+DROP TABLE
+
+> Executing query 'CREATE SCHEMA test_schema;' as postgres
+CREATE SCHEMA
+
+> Executing query 'CREATE TABLE test_schema.touch_example (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'SELECT CDB_TableMetadataTouch('test_schema.touch_example');' as postgres
+
+
+> Executing query 'SELECT table_name FROM touch_invalidations' as postgres
+test_schema.touch_example
+
+> Executing query 'TRUNCATE TABLE touch_invalidations' as postgres
+TRUNCATE TABLE
+
+> Executing query 'SET search_path=test_schema,public,cartodb; SELECT CDB_TableMetadataTouch('test_schema.touch_example');' as postgres
+
+
+> Executing query 'SELECT table_name FROM touch_invalidations' as postgres
+test_schema.touch_example
+
+> Executing query 'TRUNCATE TABLE touch_invalidations' as postgres
+TRUNCATE TABLE
+
+> Executing query 'DROP TABLE test_schema.touch_example;' as postgres
+DROP TABLE
+
+> Executing query 'DROP SCHEMA test_schema;' as postgres
+DROP SCHEMA
+
+> Executing query 'DROP FUNCTION cartodb.cdb_invalidate_varnish(table_name text);' as postgres
+DROP FUNCTION
+
+> Executing query 'DROP TABLE touch_invalidations' as postgres
+DROP TABLE
+
+####################################################################
+#
+# Running: test_cdb_tablemetadata_text
+#
+####################################################################
+> Executing query 'CREATE TABLE touch_ex_a (id int);' as postgres
+CREATE TABLE
+
+> Executing query 'CREATE TABLE touch_ex_b (id int);' as postgres
+CREATE TABLE
+
+> Executing query 'CREATE TABLE touch_ex_c (id int);' as postgres
+CREATE TABLE
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_ex_a');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_ex_b');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT CDB_TableMetadataTouch('touch_ex_c');' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT COUNT(1) FROM (SELECT 1 FROM cdb_tablemetadata_text GROUP BY tabname HAVING COUNT(1) > 1) s;' as postgres
+0
+
+> Executing query 'SELECT (SELECT updated_at FROM CDB_TableMetadata_Text WHERE tabname='public.touch_ex_a')    < (SELECT updated_at FROM CDB_TableMetadata_Text WHERE tabname='public.touch_ex_b');' as postgres
+t
+
+> Executing query 'SELECT (SELECT updated_at FROM CDB_TableMetadata_Text WHERE tabname='public.touch_ex_b')    < (SELECT updated_at FROM CDB_TableMetadata_Text WHERE tabname='public.touch_ex_c');' as postgres
+t
+
+> Executing query 'DROP TABLE touch_ex_a;' as postgres
+DROP TABLE
+
+> Executing query 'DROP TABLE touch_ex_b;' as postgres
+DROP TABLE
+
+> Executing query 'DROP TABLE touch_ex_c;' as postgres
+DROP TABLE
+
+####################################################################
+#
+# Running: test_cdb_column_names
+#
+####################################################################
+> Executing query 'CREATE TABLE cdb_testmember_1.table_cnames(c int, a int, r int, t int, o int);' as cdb_testmember_1
+CREATE TABLE
+
+> Executing query 'CREATE TABLE cdb_testmember_2.table_cnames(d int, b int);' as cdb_testmember_2
+CREATE TABLE
+
+> Executing query 'SELECT string_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('table_cnames') c) as s' as cdb_testmember_1
+carto
+
+> Executing query 'SELECT string_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('table_cnames') c) as s' as cdb_testmember_2
+db
+
+> Executing query 'SELECT string_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('cdb_testmember_1.table_cnames'::regclass) c) as s' as postgres
+carto
+
+> Executing query 'SELECT string_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('cdb_testmember_2.table_cnames') c) as s' as postgres
+db
+
+> Executing query 'SELECT string_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('cdb_testmember_1.table_cnames') c) as s' as cdb_testmember_1
+carto
+
+> Executing query 'SELECT string_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('cdb_testmember_1.table_cnames') c) as s' as cdb_testmember_2
+ERROR:  permission denied for schema cdb_testmember_1
+LINE 1: ...ng_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('cdb_testm...
+                                                             ^
+
+
+FAILED TO EXECUTE QUERY: SELECT string_agg(c,'') from (SELECT cartodb.CDB_ColumnNames('cdb_testmember_1.table_cnames') c) as s
+> Executing query 'DROP TABLE cdb_testmember_1.table_cnames' as cdb_testmember_1
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_2.table_cnames' as cdb_testmember_2
+DROP TABLE
+
+####################################################################
+#
+# Running: test_cdb_column_type
+#
+####################################################################
+> Executing query 'CREATE TABLE cdb_testmember_1.table_ctype(c int, a int, r int, t int, o int);' as cdb_testmember_1
+CREATE TABLE
+
+> Executing query 'CREATE TABLE cdb_testmember_2.table_ctype(c text, a text, r text, t text, o text);' as cdb_testmember_2
+CREATE TABLE
+
+> Executing query 'SELECT cartodb.CDB_ColumnType('table_ctype', 'c')' as cdb_testmember_1
+integer
+
+> Executing query 'SELECT cartodb.CDB_ColumnType('table_ctype', 'c')' as cdb_testmember_2
+text
+
+> Executing query 'SELECT cartodb.CDB_ColumnType('cdb_testmember_1.table_ctype', 'c')' as postgres
+integer
+
+> Executing query 'SELECT cartodb.CDB_ColumnType('cdb_testmember_2.table_ctype', 'c')' as postgres
+text
+
+> Executing query 'DROP TABLE cdb_testmember_1.table_ctype' as cdb_testmember_1
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_2.table_ctype' as cdb_testmember_2
+DROP TABLE
+
+####################################################################
+#
+# Running: test_cdb_querytables_schema_and_table_names_with_dots
+#
+####################################################################
+> Executing query 'CREATE SCHEMA "foo.bar";' as postgres
+CREATE SCHEMA
+
+> Executing query 'CREATE TABLE "foo.bar"."c.a.r.t.o.d.b" (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'INSERT INTO "foo.bar"."c.a.r.t.o.d.b" values (1);' as postgres
+INSERT 0 1
+
+> Executing query 'SELECT a FROM "foo.bar"."c.a.r.t.o.d.b";' as postgres
+1
+
+> Executing query 'SELECT CDB_QueryTablesText($q$select * from "foo.bar"."c.a.r.t.o.d.b"$q$);' as postgres
+{"\"foo.bar\".\"c.a.r.t.o.d.b\""}
+
+> Executing query 'SELECT CDB_QueryTables($q$select * from "foo.bar"."c.a.r.t.o.d.b"$q$);' as postgres
+{"\"foo.bar\".\"c.a.r.t.o.d.b\""}
+
+> Executing query 'DROP TABLE "foo.bar"."c.a.r.t.o.d.b";' as postgres
+DROP TABLE
+
+> Executing query 'DROP SCHEMA "foo.bar";' as postgres
+DROP SCHEMA
+
+####################################################################
+#
+# Running: test_cdb_querytables_table_name_with_dots
+#
+####################################################################
+> Executing query 'CREATE TABLE "w.a.d.u.s" (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'SELECT CDB_QueryTablesText($q$select * from "w.a.d.u.s"$q$);' as postgres
+{"public.\"w.a.d.u.s\""}
+
+> Executing query 'SELECT CDB_QueryTables($q$select * from "w.a.d.u.s"$q$);' as postgres
+{"public.\"w.a.d.u.s\""}
+
+> Executing query 'DROP TABLE "w.a.d.u.s";' as postgres
+DROP TABLE
+
+####################################################################
+#
+# Running: test_cdb_querytables_happy_cases
+#
+####################################################################
+> Executing query 'CREATE TABLE wadus (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'CREATE TABLE "FOOBAR" (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'CREATE SCHEMA foo;' as postgres
+CREATE SCHEMA
+
+> Executing query 'CREATE TABLE foo.wadus (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'SELECT CDB_QueryTablesText($q$select * from wadus$q$);' as postgres
+{public.wadus}
+
+> Executing query 'SELECT CDB_QueryTablesText($q$select * from foo.wadus$q$);' as postgres
+{foo.wadus}
+
+> Executing query 'SELECT CDB_QueryTables($q$select * from wadus$q$);' as postgres
+{public.wadus}
+
+> Executing query 'SELECT CDB_QueryTables($q$select * from foo.wadus$q$);' as postgres
+{foo.wadus}
+
+> Executing query 'SELECT CDB_QueryTablesText($q$select * from "FOOBAR"$q$);' as postgres
+{"public.\"FOOBAR\""}
+
+> Executing query 'DROP TABLE wadus;' as postgres
+DROP TABLE
+
+> Executing query 'DROP TABLE "FOOBAR";' as postgres
+DROP TABLE
+
+> Executing query 'DROP TABLE foo.wadus;' as postgres
+DROP TABLE
+
+> Executing query 'DROP SCHEMA foo;' as postgres
+DROP SCHEMA
+
+####################################################################
+#
+# Running: test_foreign_tables
+#
+####################################################################
+CREATE DATABASE
+> Executing query 'CREATE EXTENSION postgis;'
+CREATE EXTENSION
+
+> Executing query 'DO
+$$
+BEGIN
+    IF substring(postgis_lib_version() FROM 1 FOR 1) = '3' THEN
+        CREATE EXTENSION postgis_raster;
+    END IF;
+END
+$$;' as postgres
+DO
+
+> Executing query 'CREATE EXTENSION cartodb CASCADE;'
+NOTICE:  installing required extension "plpythonu"
+CREATE EXTENSION
+
+ALTER DATABASE
+> Executing query 'DO
+$$
+BEGIN
+   IF NOT EXISTS (
+      SELECT *
+      FROM   pg_catalog.pg_user
+      WHERE  usename = 'publicuser') THEN
+
+      CREATE ROLE publicuser LOGIN;
+   END IF;
+END
+$$;' as postgres
+DO
+
+> Executing query 'CREATE SCHEMA test_fdw;' as postgres
+CREATE SCHEMA
+
+> Executing query 'CREATE TABLE test_fdw.foo (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'INSERT INTO test_fdw.foo (a) values (42);' as postgres
+INSERT 0 1
+
+> Executing query 'CREATE TABLE test_fdw.foo2 (a int);' as postgres
+CREATE TABLE
+
+> Executing query 'INSERT INTO test_fdw.foo2 (a) values (42);' as postgres
+INSERT 0 1
+
+> Executing query 'CREATE USER fdw_user WITH PASSWORD 'foobarino';' as postgres
+CREATE ROLE
+
+> Executing query 'GRANT USAGE ON SCHEMA test_fdw TO fdw_user;' as postgres
+GRANT
+
+> Executing query 'GRANT SELECT ON TABLE test_fdw.foo TO fdw_user;' as postgres
+GRANT
+
+> Executing query 'GRANT SELECT ON TABLE test_fdw.foo2 TO fdw_user;' as postgres
+GRANT
+
+> Executing query 'GRANT SELECT ON cdb_tablemetadata_text TO fdw_user;' as postgres
+GRANT
+
+> Executing query 'SELECT cdb_tablemetadatatouch('test_fdw.foo'::regclass);' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT cdb_tablemetadatatouch('test_fdw.foo2'::regclass);' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT cartodb.CDB_Conf_SetConf('fdws', '{"test_fdw": {"server": {"host": "localhost", "dbname": "fdw_target"  },
+                                           "users": {"public": {"user": "fdw_user", "password": "foobarino"}}}}')' as postgres
+
+
+> Executing query 'SELECT cartodb._CDB_Setup_FDW('test_fdw')' as postgres
+
+
+> Executing query 'SELECT cartodb.CDB_Add_Remote_Table('test_fdw', 'foo')' as postgres
+
+
+> Executing query 'SELECT * from test_fdw.foo;' as postgres
+42
+
+> Executing query 'SELECT n.nspname,
+  c.relname,
+  s.srvname FROM pg_catalog.pg_foreign_table ft
+  INNER JOIN pg_catalog.pg_class c ON c.oid = ft.ftrelid
+  INNER JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+  INNER JOIN pg_catalog.pg_foreign_server s ON s.oid = ft.ftserver
+ORDER BY 1, 2' as postgres
+test_fdw|cdb_tablemetadata|test_fdw test_fdw|foo|test_fdw
+
+> Executing query 'SELECT cartodb.CDB_Get_Foreign_Updated_At('test_fdw.foo'::regclass) < NOW()' as postgres
+t
+
+> Executing query 'SELECT a from test_fdw.foo LIMIT 1;' as postgres
+42
+
+> Executing query 'CREATE TABLE local (b int);' as postgres
+CREATE TABLE
+
+> Executing query 'INSERT INTO local (b) VALUES (43);' as postgres
+INSERT 0 1
+
+> Executing query 'SELECT cdb_tablemetadatatouch('public.local'::regclass);' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT dbname, schema_name, table_name FROM cartodb.CDB_QueryTables_Updated_At($query$ SELECT * FROM test_fdw.foo, local $query$::text) ORDER BY dbname;' as postgres
+fdw_target|test_fdw|foo test_extension|public|local
+
+> Executing query 'SELECT table_name FROM cartodb.CDB_QueryTables_Updated_At($query$ SELECT * FROM test_fdw.foo, local $query$::text) order by updated_at;' as postgres
+foo local
+
+> Executing query 'SELECT cartodb.CDB_Last_Updated_Time('{test_fdw.foo,public.local}'::text[]) < now()' as postgres
+t
+
+> Executing query 'SELECT cartodb.CDB_Last_Updated_Time('{test_fdw.foo,public.local}'::text[]) > (now() - interval '1 minute')' as postgres
+t
+
+> Executing query 'CREATE TABLE "local-table-with-dashes" (c int)' as postgres
+CREATE TABLE
+
+> Executing query 'INSERT INTO "local-table-with-dashes" (c) VALUES (44)' as postgres
+INSERT 0 1
+
+> Executing query 'SELECT cdb_tablemetadatatouch('public.local-table-with-dashes'::regclass);' as postgres
+WARNING:  Missing cdb_invalidate_varnish()
+
+
+> Executing query 'SELECT dbname, schema_name, table_name FROM cartodb.CDB_QueryTables_Updated_At($query$ SELECT * FROM test_fdw.foo, local, public."local-table-with-dashes" $query$::text) ORDER BY dbname, schema_name, table_name;' as postgres
+fdw_target|test_fdw|foo test_extension|public|local test_extension|public|"local-table-with-dashes"
+
+> Executing query 'SELECT cartodb.CDB_Last_Updated_Time(ARRAY['test_extension.public."local-table-with-dashes"']::text[]) < now()' as postgres
+t
+
+> Executing query 'SELECT cartodb.CDB_Last_Updated_Time(ARRAY['test_extension.public."local-table-with-dashes"']::text[]) > (now() - interval '1 minute')' as postgres
+t
+
+> Executing query 'REVOKE USAGE ON SCHEMA test_fdw FROM fdw_user;' as postgres
+REVOKE
+
+> Executing query 'REVOKE SELECT ON test_fdw.foo FROM fdw_user;' as postgres
+REVOKE
+
+> Executing query 'REVOKE SELECT ON test_fdw.foo2 FROM fdw_user;' as postgres
+REVOKE
+
+> Executing query 'REVOKE SELECT ON cdb_tablemetadata_text FROM fdw_user;' as postgres
+REVOKE
+
+> Executing query 'DROP ROLE fdw_user;' as postgres
+DROP ROLE
+
+> Executing query 'select pg_terminate_backend(pid) from pg_stat_activity where datname='fdw_target';' as postgres
+
+
+DROP DATABASE
+####################################################################
+#
+# Running: test_cdb_catalog_basic_node
+#
+####################################################################
+> Executing query 'INSERT INTO cartodb.cdb_analysis_catalog (node_id, analysis_def) VALUES ('1bbc4c41ea7c9d3a7dc1509727f698b7', '{"type":"buffer","source":"b2db66bc7ac02e135fd20bbfef0fdd81b2d15fad","radio":10000}'::json)' as postgres
+INSERT 0 1
+
+> Executing query 'SELECT status from cartodb.cdb_analysis_catalog where node_id = '1bbc4c41ea7c9d3a7dc1509727f698b7'' as postgres
+pending
+
+> Executing query 'DELETE FROM cartodb.cdb_analysis_catalog' as postgres
+DELETE 1
+
+
+
+
+########################### USER TEAR DOWN ###########################
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2');' as cdb_testmember_1
+
+
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_2', 'bar', 'cdb_testmember_1');' as cdb_testmember_2
+
+
+> Executing query 'DROP TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+DROP TABLE
+
+> Executing query 'DROP TABLE cdb_testmember_2.bar;' as cdb_testmember_2
+DROP TABLE
+
+> Executing query 'DROP SCHEMA cartodb CASCADE'
+NOTICE:  drop cascades to extension cartodb
+DROP SCHEMA
+
+
+
+
+########################### TEAR DOWN ###########################
+> Executing query 'DROP SCHEMA cdb_testmember_1 CASCADE;'
+DROP SCHEMA
+
+> Executing query 'DROP SCHEMA cdb_testmember_2 CASCADE;'
+DROP SCHEMA
+
+> Executing query 'REVOKE CONNECT ON DATABASE "test_extension" FROM cdb_testmember_1;'
+REVOKE
+
+> Executing query 'REVOKE CONNECT ON DATABASE "test_extension" FROM cdb_testmember_2;'
+REVOKE
+
+> Executing query 'DROP ROLE cdb_testmember_1;'
+DROP ROLE
+
+> Executing query 'DROP ROLE cdb_testmember_2;'
+DROP ROLE
+
+DROP DATABASE
+bash test/organization/test.sh
+CREATE DATABASE
+ALTER DATABASE
+> Executing query 'CREATE EXTENSION cartodb CASCADE;'
+> Code Result: 0; Result: CREATE EXTENSION; Error output: NOTICE: installing required extension "plpythonu" NOTICE: installing required extension "postgis"; Code result after warnings: 0
+ALTER DATABASE
+
+
+
+############################# SETUP #############################
+> Executing query 'CREATE ROLE cdb_org_admin LOGIN;'
+> Code Result: 0; Result: CREATE ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'GRANT CONNECT ON DATABASE "test_organizations" TO cdb_org_admin;'
+> Code Result: 0; Result: GRANT; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE SCHEMA cdb_org_admin AUTHORIZATION cdb_org_admin;'
+> Code Result: 0; Result: CREATE SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_Create_Member('cdb_org_admin')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'ALTER ROLE cdb_org_admin SET search_path TO cdb_org_admin,cartodb,public;'
+> Code Result: 0; Result: ALTER ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_AddAdmin('cdb_org_admin');'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE ROLE cdb_testmember_1 LOGIN;'
+> Code Result: 0; Result: CREATE ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'GRANT CONNECT ON DATABASE "test_organizations" TO cdb_testmember_1;'
+> Code Result: 0; Result: GRANT; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE SCHEMA cdb_testmember_1 AUTHORIZATION cdb_testmember_1;'
+> Code Result: 0; Result: CREATE SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_Create_Member('cdb_testmember_1')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'ALTER ROLE cdb_testmember_1 SET search_path TO cdb_testmember_1,cartodb,public;'
+> Code Result: 0; Result: ALTER ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE ROLE cdb_testmember_2 LOGIN;'
+> Code Result: 0; Result: CREATE ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'GRANT CONNECT ON DATABASE "test_organizations" TO cdb_testmember_2;'
+> Code Result: 0; Result: GRANT; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE SCHEMA cdb_testmember_2 AUTHORIZATION cdb_testmember_2;'
+> Code Result: 0; Result: CREATE SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_Create_Member('cdb_testmember_2')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'ALTER ROLE cdb_testmember_2 SET search_path TO cdb_testmember_2,cartodb,public;'
+> Code Result: 0; Result: ALTER ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'DO
+$$
+BEGIN
+   IF NOT EXISTS (
+      SELECT *
+      FROM   pg_catalog.pg_user
+      WHERE  usename = 'publicuser') THEN
+
+      CREATE ROLE publicuser LOGIN;
+   END IF;
+END
+$$;' as postgres
+> Code Result: 0; Result: DO; Error output: ; Code result after warnings: 0
+> Executing query 'GRANT CONNECT ON DATABASE "test_organizations" TO publicuser;'
+> Code Result: 0; Result: GRANT; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE TABLE cdb_testmember_1.foo ( a int );' as cdb_testmember_1
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE TABLE cdb_testmember_2.bar ( a int );' as cdb_testmember_2
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_CreateGroup('group_a_tmp')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_RenameGroup('group_a_tmp', 'group_a')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_AddUsers('group_a', ARRAY['cdb_testmember_1'])'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_CreateGroup('group_b')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_member_2_cannot_read_without_permission
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_1 LINE 1: SELECT count(*) FROM cdb_testmember_1.foo; ^
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_1.foo;
+####################################################################
+#
+# Running: test_member_1_cannot_grant_read_permission_to_other_schema_than_its_one
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_2', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_2 CONTEXT: SQL statement "GRANT USAGE ON SCHEMA "cdb_testmember_2" TO "cdb_testmember_2"" PL/pgSQL function cdb_organization_add_table_read_permission(text,text,text) line 3 at EXECUTE
+FAILED TO EXECUTE QUERY: SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_2', 'foo', 'cdb_testmember_2')
+####################################################################
+#
+# Running: test_member_1_grants_read_permission_and_member_2_can_read
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.bar;' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_2 LINE 1: SELECT count(*) FROM cdb_testmember_2.bar; ^
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_2.bar;
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_member_2_cannot_add_table_to_member_1_schema_after_table_permission_added
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE TABLE cdb_testmember_1.bar ( a int );' as cdb_testmember_2
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_1 LINE 1: CREATE TABLE cdb_testmember_1.bar ( a int ); ^
+FAILED TO EXECUTE QUERY: CREATE TABLE cdb_testmember_1.bar ( a int );
+####################################################################
+#
+# Running: test_grant_read_permission_between_two_members
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_2.bar VALUES (5), (6), (7), (8), (9);' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_2', 'bar', 'cdb_testmember_1')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.bar;' as cdb_testmember_1
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_2.bar;' as cdb_testmember_2
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_2', 'bar', 'cdb_testmember_1')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_member_2_cannot_write_to_member_1_table
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_2
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation foo
+FAILED TO EXECUTE QUERY: INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);
+####################################################################
+#
+# Running: test_member_1_cannot_grant_read_write_permission_to_other_schema_than_its_one
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Write_Permission('cdb_testmember_2', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: WARNING: no privileges were granted for "cdb_testmember_2" ERROR: relation "cdb_testmember_2.foo" does not exist CONTEXT: SQL statement "GRANT SELECT, INSERT, UPDATE, DELETE ON "cdb_testmember_2"."foo" TO "cdb_testmember_2"" PL/pgSQL function cdb_organization_add_table_read_write_permission(text,text,text) line 6 at EXECUTE
+FAILED TO EXECUTE QUERY: SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Write_Permission('cdb_testmember_2', 'foo', 'cdb_testmember_2')
+####################################################################
+#
+# Running: test_member_2_can_write_to_member_1_table_after_write_permission_is_added
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Write_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'DELETE FROM cdb_testmember_1.foo where a = 9;' as cdb_testmember_2
+> Code Result: 0; Result: DELETE 1; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_member_2_can_write_to_member_1_table_and_sequence_after_write_permission_is_added
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'ALTER TABLE cdb_testmember_1.foo ADD cartodb_id SERIAL NOT NULL UNIQUE;' as cdb_testmember_1
+> Code Result: 0; Result: ALTER TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Write_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'DELETE FROM cdb_testmember_1.foo where a = 9;' as cdb_testmember_2
+> Code Result: 0; Result: DELETE 1; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'ALTER TABLE cdb_testmember_1.foo DROP cartodb_id;' as cdb_testmember_1
+> Code Result: 0; Result: ALTER TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_member_2_can_write_to_member_1_table_with_non_sequence_cartodb_id_after_write_permission_is_added
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'ALTER TABLE cdb_testmember_1.foo ADD cartodb_id INTEGER;' as cdb_testmember_1
+> Code Result: 0; Result: ALTER TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Write_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'DELETE FROM cdb_testmember_1.foo where a = 9;' as cdb_testmember_2
+> Code Result: 0; Result: DELETE 1; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'ALTER TABLE cdb_testmember_1.foo DROP cartodb_id;' as cdb_testmember_1
+> Code Result: 0; Result: ALTER TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_member_1_removes_access_and_member_2_can_no_longer_query_the_table
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9), (10);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 6; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 6; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation foo
+FAILED TO EXECUTE QUERY: SELECT * FROM cdb_testmember_1.foo;
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_member_1_removes_access_and_member_2_can_no_longer_write_to_the_table
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Write_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);' as cdb_testmember_2
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation foo
+FAILED TO EXECUTE QUERY: INSERT INTO cdb_testmember_1.foo VALUES (5), (6), (7), (8), (9);
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_giving_permissions_to_two_tables_and_removing_from_first_table_should_not_remove_from_second
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'CREATE TABLE cdb_testmember_1.foo_2 ( a int );' as cdb_testmember_1
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (1), (2), (3), (4);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 4; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo_2 VALUES (1), (2), (3), (4), (5);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cdb_testmember_1.foo_2;' as cdb_testmember_1
+> Code Result: 0; Result: 1 2 3 4 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_1', 'foo_2', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo_2;' as cdb_testmember_2
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation foo
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_1.foo;
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo_2;' as cdb_testmember_2
+> Code Result: 0; Result: 5; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP TABLE cdb_testmember_1.foo_2;' as cdb_testmember_1
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_cdb_org_member_role_allows_reading_to_all_users_without_explicit_permission
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (1), (2), (3), (4);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation foo
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_1.foo;
+> Executing query 'SELECT cartodb.CDB_Organization_Add_Table_Organization_Read_Permission('cdb_testmember_1', 'foo');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_Remove_Organization_Access_Permission('cdb_testmember_1', 'foo');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_user_can_read_when_it_has_permission_after_organization_permission_is_removed
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'CREATE ROLE cdb_testmember_3 LOGIN;'
+> Code Result: 0; Result: CREATE ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'GRANT CONNECT ON DATABASE "test_organizations" TO cdb_testmember_3;'
+> Code Result: 0; Result: GRANT; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE SCHEMA cdb_testmember_3 AUTHORIZATION cdb_testmember_3;'
+> Code Result: 0; Result: CREATE SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_Create_Member('cdb_testmember_3')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'ALTER ROLE cdb_testmember_3 SET search_path TO cdb_testmember_3,cartodb,public;'
+> Code Result: 0; Result: ALTER ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_1.foo VALUES (1), (2), (3), (4);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Add_Table_Read_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_3
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation foo
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_1.foo;
+> Executing query 'SELECT cartodb.CDB_Organization_Add_Table_Organization_Read_Permission('cdb_testmember_1', 'foo');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_3
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_Remove_Organization_Access_Permission('cdb_testmember_1', 'foo');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_2
+> Code Result: 0; Result: 4; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_1.foo;' as cdb_testmember_3
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation foo
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_1.foo;
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2')' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'TRUNCATE TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: TRUNCATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP SCHEMA "cdb_testmember_3";'
+> Code Result: 0; Result: DROP SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'REVOKE CONNECT ON DATABASE "test_organizations" FROM "cdb_testmember_3";'
+> Code Result: 0; Result: REVOKE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP ROLE "cdb_testmember_3";'
+> Code Result: 0; Result: DROP ROLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_cdb_querytables_returns_schema_and_table_name
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'select * from CDB_QueryTables('select * from foo');' as cdb_testmember_1
+> Code Result: 0; Result: {cdb_testmember_1.foo}; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_cdb_querytables_works_with_parentheses
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'select * from CDB_QueryTables('(select * from foo)');' as cdb_testmember_1
+> Code Result: 0; Result: {cdb_testmember_1.foo}; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_cdb_querytables_returns_schema_and_table_name_for_several_schemas
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'select * from CDB_QueryTables('select * from cdb_testmember_1.foo, cdb_testmember_2.bar');' as postgres
+> Code Result: 0; Result: {cdb_testmember_1.foo,cdb_testmember_2.bar}; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_cdb_querytables_does_not_return_functions_as_part_of_the_resultset
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'select * from CDB_QueryTables('select * from cdb_testmember_1.foo, cdb_testmember_2.bar, plainto_tsquery(''foo'')');' as postgres
+> Code Result: 0; Result: {cdb_testmember_1.foo,cdb_testmember_2.bar}; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_cdb_usertables_should_work_with_orgusers
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'CREATE TABLE test_perms_pub (a int)' as cdb_testmember_1
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO test_perms_pub (a) values (1);' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 1; Error output: ; Code result after warnings: 0
+> Executing query 'GRANT SELECT ON TABLE test_perms_pub TO publicuser' as cdb_testmember_1
+> Code Result: 0; Result: GRANT; Error output: ; Code result after warnings: 0
+> Executing query 'CREATE TABLE test_perms_priv (a int)' as cdb_testmember_1
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'grant publicuser to cdb_testmember_1;' as postgres
+> Code Result: 0; Result: GRANT ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'grant publicuser to cdb_testmember_2;' as postgres
+> Code Result: 0; Result: GRANT ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'GRANT USAGE ON SCHEMA cdb_testmember_1 TO publicuser' as postgres
+> Code Result: 0; Result: GRANT; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM CDB_UserTables('all')' as publicuser
+> Code Result: 0; Result: 1; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM CDB_UserTables('public')' as publicuser
+> Code Result: 0; Result: 1; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM CDB_UserTables('private')' as publicuser
+> Code Result: 0; Result: 0; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM CDB_UserTables('all')' as publicuser
+> Code Result: 0; Result: test_perms_pub; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM CDB_UserTables('public')' as publicuser
+> Code Result: 0; Result: test_perms_pub; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM CDB_UserTables('private')' as publicuser
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'select string_agg(t,',') from (select cdb_usertables('all') t order by t) as s' as cdb_testmember_2
+> Code Result: 0; Result: bar,test_perms_pub; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM CDB_UserTables('public')' as cdb_testmember_2
+> Code Result: 0; Result: test_perms_pub; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM CDB_UserTables('private')' as cdb_testmember_2
+> Code Result: 0; Result: bar; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cdb_testmember_1.test_perms_pub' as cdb_testmember_2
+> Code Result: 0; Result: 1; Error output: ; Code result after warnings: 0
+> Executing query 'REVOKE USAGE ON SCHEMA cdb_testmember_1 FROM publicuser;' as postgres
+> Code Result: 0; Result: REVOKE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP TABLE test_perms_pub' as cdb_testmember_1
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP TABLE test_perms_priv' as cdb_testmember_1
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_CDB_Group_Table_GrantRead_should_grant_select_and_RevokeAll_should_remove_it
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'CREATE TABLE cdb_testmember_2.shared_with_group ( a int );' as cdb_testmember_2
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.shared_with_group;' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation shared_with_group
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_2.shared_with_group;
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.shared_with_group;' as cdb_testmember_2
+> Code Result: 0; Result: 0; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.shared_with_group;' as cdb_testmember_1
+> Code Result: 0; Result: 0; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.shared_with_group;' as cdb_testmember_2
+> Code Result: 0; Result: 0; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_RevokeAll('group_a', 'cdb_testmember_2', 'shared_with_group')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.shared_with_group;' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation shared_with_group
+FAILED TO EXECUTE QUERY: SELECT count(*) FROM cdb_testmember_2.shared_with_group;
+> Executing query 'SELECT count(*) FROM cdb_testmember_2.shared_with_group;' as cdb_testmember_2
+> Code Result: 0; Result: 0; Error output: ; Code result after warnings: 0
+> Executing query 'DROP TABLE cdb_testmember_2.shared_with_group;' as cdb_testmember_2
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_CDB_Group_Table_GrantReadWrite_should_grant_insert_and_RevokeAll_should_remove_it
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'CREATE TABLE cdb_testmember_2.shared_with_group ( a int );' as cdb_testmember_2
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation shared_with_group
+FAILED TO EXECUTE QUERY: INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)
+> Executing query 'INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_GrantReadWrite('group_a', 'cdb_testmember_2', 'shared_with_group')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)' as cdb_testmember_1
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_RevokeAll('group_a', 'cdb_testmember_2', 'shared_with_group')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for relation shared_with_group
+FAILED TO EXECUTE QUERY: INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)
+> Executing query 'INSERT INTO cdb_testmember_2.shared_with_group VALUES (1), (2), (3), (4), (5)' as cdb_testmember_2
+> Code Result: 0; Result: INSERT 0 5; Error output: ; Code result after warnings: 0
+> Executing query 'DROP TABLE cdb_testmember_2.shared_with_group;' as cdb_testmember_2
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_group_management_functions_cant_be_used_by_normal_members
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT cartodb.CDB_Group_CreateGroup('group_x_1');' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied to create role CONTEXT: SQL statement "CREATE ROLE f4c278e82a3a93303d1b4eb2c8a89933_g_group_x_1 NOLOGIN;" PL/pgSQL function cdb_group_creategroup(text) line 6 at EXECUTE
+FAILED TO EXECUTE QUERY: SELECT cartodb.CDB_Group_CreateGroup('group_x_1');
+> Executing query 'SELECT cartodb.CDB_Group_RenameGroup('group_a', 'group_x_2');' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: permission denied to rename role CONTEXT: SQL statement "ALTER ROLE f4c278e82a3a93303d1b4eb2c8a89933_g_group_a RENAME TO f4c278e82a3a93303d1b4eb2c8a89933_g_group_x_2" PL/pgSQL function cdb_group_renamegroup(text,text) line 8 at EXECUTE
+FAILED TO EXECUTE QUERY: SELECT cartodb.CDB_Group_RenameGroup('group_a', 'group_x_2');
+> Executing query 'SELECT cartodb.CDB_Group_DropGroup('group_a');' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: WARNING: no privileges could be revoked for "cdb_testmember_2" ERROR: permission denied to drop role CONTEXT: SQL statement "DROP ROLE IF EXISTS f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" PL/pgSQL function cdb_group_dropgroup(text) line 7 at EXECUTE
+FAILED TO EXECUTE QUERY: SELECT cartodb.CDB_Group_DropGroup('group_a');
+> Executing query 'SELECT cartodb.CDB_Group_AddUsers('group_a', ARRAY['cdb_testmember_2']);' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: must have admin option on role "f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" CONTEXT: SQL statement "GRANT f4c278e82a3a93303d1b4eb2c8a89933_g_group_a TO cdb_testmember_2" PL/pgSQL function cdb_group_addusers(text,text[]) line 15 at EXECUTE
+FAILED TO EXECUTE QUERY: SELECT cartodb.CDB_Group_AddUsers('group_a', ARRAY['cdb_testmember_2']);
+> Executing query 'SELECT cartodb.CDB_Group_RemoveUsers('group_a', ARRAY['cdb_testmember_1']);' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: ERROR: must have admin option on role "f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" CONTEXT: SQL statement "REVOKE f4c278e82a3a93303d1b4eb2c8a89933_g_group_a FROM cdb_testmember_1" PL/pgSQL function cdb_group_removeusers(text,text[]) line 11 at EXECUTE
+FAILED TO EXECUTE QUERY: SELECT cartodb.CDB_Group_RemoveUsers('group_a', ARRAY['cdb_testmember_1']);
+####################################################################
+#
+# Running: test_group_permission_functions_cant_be_used_by_normal_members
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'CREATE TABLE cdb_testmember_2.shared_with_group ( a int );' as cdb_testmember_2
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: WARNING: no privileges were granted for "cdb_testmember_2" ERROR: permission denied for relation shared_with_group CONTEXT: SQL statement "GRANT SELECT ON TABLE cdb_testmember_2.shared_with_group TO f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" PL/pgSQL function _cdb_group_table_grantread(text,text,text,boolean) line 7 at EXECUTE SQL statement "SELECT cartodb._CDB_Group_Table_GrantRead(group_name, username, table_name, true)" PL/pgSQL function cdb_group_table_grantread(text,text,text) line 5 at PERFORM
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_GrantReadWrite('group_a', 'cdb_testmember_2', 'shared_with_group');' as cdb_testmember_1
+> Code Result: 1; Result: ; Error output: WARNING: no privileges were granted for "cdb_testmember_2" ERROR: permission denied for relation shared_with_group CONTEXT: SQL statement "GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE cdb_testmember_2.shared_with_group TO f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" PL/pgSQL function _cdb_group_table_grantreadwrite(text,text,text,boolean) line 7 at EXECUTE SQL statement "SELECT cartodb._CDB_Group_Table_GrantReadWrite(group_name, username, table_name, true)" PL/pgSQL function cdb_group_table_grantreadwrite(text,text,text) line 5 at PERFORM
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantReadWrite('group_a', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_GrantReadWrite('group_a', 'cdb_testmember_2', 'shared_with_group')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: WARNING: no privileges were granted for "cdb_testmember_2" WARNING: no privileges were granted for "shared_with_group"FAILED BECAUSE OF PRIVILEGES GRANTING WARNING; Code result after warnings: 1
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_GrantReadWrite('group_b', 'cdb_testmember_2', 'shared_with_group');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: WARNING: no privileges were granted for "cdb_testmember_2" WARNING: no privileges were granted for "shared_with_group"FAILED BECAUSE OF PRIVILEGES GRANTING WARNING; Code result after warnings: 1
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantReadWrite('group_b', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_RevokeAll('group_b', 'cdb_testmember_2', 'shared_with_group');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: WARNING: no privileges could be revoked for "shared_with_group" WARNING: no privileges could be revoked for column "tableoid" of relation "shared_with_group" WARNING: no privileges could be revoked for column "cmax" of relation "shared_with_group" WARNING: no privileges could be revoked for column "xmax" of relation "shared_with_group" WARNING: no privileges could be revoked for column "cmin" of relation "shared_with_group" WARNING: no privileges could be revoked for column "xmin" of relation "shared_with_group" WARNING: no privileges could be revoked for column "ctid" of relation "shared_with_group" WARNING: no privileges could be revoked for column "a" of relation "shared_with_group"FAILED BECAUSE OF PRIVILEGES REVOKING WARNING; Code result after warnings: 1
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_RevokeAll('group_b', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'DROP TABLE cdb_testmember_2.shared_with_group;' as cdb_testmember_2
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_group_management_functions_can_be_used_by_org_admin
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT cartodb.CDB_Group_CreateGroup('group_x_tmp');' as cdb_org_admin
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_RenameGroup('group_x_tmp', 'group_x');' as cdb_org_admin
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_AddUsers('group_x', ARRAY['cdb_testmember_1', 'cdb_testmember_2']);' as cdb_org_admin
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_RemoveUsers('group_x', ARRAY['cdb_testmember_1', 'cdb_testmember_2']);' as cdb_org_admin
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_DropGroup('group_x');'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_org_admin_cant_grant_permissions_on_tables_he_does_not_own
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'CREATE TABLE cdb_testmember_2.shared_with_group ( a int );' as cdb_testmember_2
+> Code Result: 0; Result: CREATE TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');' as cdb_org_admin
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_2 CONTEXT: SQL statement "GRANT USAGE ON SCHEMA cdb_testmember_2 TO f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" PL/pgSQL function _cdb_group_table_grantread(text,text,text,boolean) line 6 at EXECUTE SQL statement "SELECT cartodb._CDB_Group_Table_GrantRead(group_name, username, table_name, true)" PL/pgSQL function cdb_group_table_grantread(text,text,text) line 5 at PERFORM
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_GrantReadWrite('group_a', 'cdb_testmember_2', 'shared_with_group');' as cdb_org_admin
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_2 CONTEXT: SQL statement "GRANT USAGE ON SCHEMA cdb_testmember_2 TO f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" PL/pgSQL function _cdb_group_table_grantreadwrite(text,text,text,boolean) line 6 at EXECUTE SQL statement "SELECT cartodb._CDB_Group_Table_GrantReadWrite(group_name, username, table_name, true)" PL/pgSQL function cdb_group_table_grantreadwrite(text,text,text) line 5 at PERFORM
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantReadWrite('group_a', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_GrantReadWrite('group_a', 'cdb_testmember_2', 'shared_with_group')' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');' as cdb_org_admin
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_2 CONTEXT: SQL statement "GRANT USAGE ON SCHEMA cdb_testmember_2 TO f4c278e82a3a93303d1b4eb2c8a89933_g_group_a" PL/pgSQL function _cdb_group_table_grantread(text,text,text,boolean) line 6 at EXECUTE SQL statement "SELECT cartodb._CDB_Group_Table_GrantRead(group_name, username, table_name, true)" PL/pgSQL function cdb_group_table_grantread(text,text,text) line 5 at PERFORM
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantRead('group_a', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_GrantReadWrite('group_b', 'cdb_testmember_2', 'shared_with_group');' as cdb_org_admin
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_2 CONTEXT: SQL statement "GRANT USAGE ON SCHEMA cdb_testmember_2 TO f4c278e82a3a93303d1b4eb2c8a89933_g_group_b" PL/pgSQL function _cdb_group_table_grantreadwrite(text,text,text,boolean) line 6 at EXECUTE SQL statement "SELECT cartodb._CDB_Group_Table_GrantReadWrite(group_name, username, table_name, true)" PL/pgSQL function cdb_group_table_grantreadwrite(text,text,text) line 5 at PERFORM
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_GrantReadWrite('group_b', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'select cartoDB.CDB_Group_Table_RevokeAll('group_b', 'cdb_testmember_2', 'shared_with_group');' as cdb_org_admin
+> Code Result: 1; Result: ; Error output: ERROR: permission denied for schema cdb_testmember_2 CONTEXT: SQL statement "REVOKE ALL ON TABLE cdb_testmember_2.shared_with_group FROM f4c278e82a3a93303d1b4eb2c8a89933_g_group_b" PL/pgSQL function _cdb_group_table_revokeall(text,text,text,boolean) line 6 at EXECUTE SQL statement "SELECT cartodb._CDB_Group_Table_RevokeAll(group_name, username, table_name, true)" PL/pgSQL function cdb_group_table_revokeall(text,text,text) line 5 at PERFORM
+FAILED TO EXECUTE QUERY: select cartoDB.CDB_Group_Table_RevokeAll('group_b', 'cdb_testmember_2', 'shared_with_group');
+> Executing query 'DROP TABLE cdb_testmember_2.shared_with_group;' as cdb_testmember_2
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_valid_group_names
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'select cartodb._CDB_Group_GroupRole('group_1');' as postgres
+> Code Result: 0; Result: f4c278e82a3a93303d1b4eb2c8a89933_g_group_1; Error output: ; Code result after warnings: 0
+> Executing query 'select cartodb._CDB_Group_GroupRole('GROUP_1');' as postgres
+> Code Result: 0; Result: f4c278e82a3a93303d1b4eb2c8a89933_g_GROUP_1; Error output: ; Code result after warnings: 0
+> Executing query 'select cartodb._CDB_Group_GroupRole('_group_1');' as postgres
+> Code Result: 0; Result: f4c278e82a3a93303d1b4eb2c8a89933_g__group_1; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_administrator_name_generation
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'select cartodb._CDB_Organization_Admin_Role_Name();' as postgres
+> Code Result: 0; Result: test_organizations_a; Error output: ; Code result after warnings: 0
+####################################################################
+#
+# Running: test_conf
+#
+####################################################################
+
+
+
+############################# TESTS #############################
+> Executing query 'SELECT cartodb.CDB_Conf_GetConf('test_conf')' as postgres
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Conf_GetConf('test_conf_2')' as postgres
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Conf_SetConf('test_conf', '{ "a_key": "test_val" }')' as postgres
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Conf_GetConf('test_conf')' as postgres
+> Code Result: 0; Result: { "a_key": "test_val" }; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Conf_GetConf('test_conf_2')' as postgres
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Conf_RemoveConf('test_conf')' as postgres
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Conf_GetConf('test_conf')' as postgres
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Conf_GetConf('test_conf_2')' as postgres
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+
+
+
+########################### USER TEAR DOWN ###########################
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_1', 'foo', 'cdb_testmember_2');' as cdb_testmember_1
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT * FROM cartodb.CDB_Organization_Remove_Access_Permission('cdb_testmember_2', 'bar', 'cdb_testmember_1');' as cdb_testmember_2
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'DROP TABLE cdb_testmember_1.foo;' as cdb_testmember_1
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP TABLE cdb_testmember_2.bar;' as cdb_testmember_2
+> Code Result: 0; Result: DROP TABLE; Error output: ; Code result after warnings: 0
+> Executing query 'select cartodb.CDB_Group_DropGroup('group_b')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Group_RemoveUsers('group_a', ARRAY['cdb_testmember_1'])'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'select cartodb.CDB_Group_DropGroup('group_a')'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'SELECT cartodb.CDB_Organization_RemoveAdmin('cdb_org_admin');'
+> Code Result: 0; Result: ; Error output: ; Code result after warnings: 0
+> Executing query 'DROP SCHEMA cartodb CASCADE'
+> Code Result: 0; Result: DROP SCHEMA; Error output: NOTICE: drop cascades to extension cartodb; Code result after warnings: 0
+
+
+
+########################### TEAR DOWN ###########################
+> Executing query 'DROP SCHEMA cdb_testmember_1;'
+> Code Result: 0; Result: DROP SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'DROP SCHEMA cdb_testmember_2;'
+> Code Result: 0; Result: DROP SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'DROP SCHEMA cdb_org_admin;'
+> Code Result: 0; Result: DROP SCHEMA; Error output: ; Code result after warnings: 0
+> Executing query 'REVOKE CONNECT ON DATABASE "test_organizations" FROM cdb_testmember_1;'
+> Code Result: 0; Result: REVOKE; Error output: ; Code result after warnings: 0
+> Executing query 'REVOKE CONNECT ON DATABASE "test_organizations" FROM cdb_testmember_2;'
+> Code Result: 0; Result: REVOKE; Error output: ; Code result after warnings: 0
+> Executing query 'REVOKE CONNECT ON DATABASE "test_organizations" FROM publicuser;'
+> Code Result: 0; Result: REVOKE; Error output: ; Code result after warnings: 0
+> Executing query 'REVOKE CONNECT ON DATABASE "test_organizations" FROM cdb_org_admin;'
+> Code Result: 0; Result: REVOKE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP ROLE cdb_testmember_1;'
+> Code Result: 0; Result: DROP ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP ROLE cdb_testmember_2;'
+> Code Result: 0; Result: DROP ROLE; Error output: ; Code result after warnings: 0
+> Executing query 'DROP ROLE cdb_org_admin;'
+> Code Result: 0; Result: DROP ROLE; Error output: ; Code result after warnings: 0
+DROP DATABASE
+/usr/lib/postgresql/10/lib/pgxs/src/makefiles/../../src/test/regress/pg_regress --inputdir=./ --bindir='/usr/lib/postgresql/10/bin'    --dbname=contrib_regression test_setup test/CDB_HeadsTailsBinsTest test/CDB_GhostTables test/CDB_QueryStatementsTest test/CDB_RectangleTest test/CDB_QuotaTest test/CDB_StatsTest test/CDB_DateToNumberTest test/CDB_HexagonTest test/CDB_GreatCircle test/CDB_MathTest test/CDB_JenksBinsTest test/CDB_QueryTablesTest test/CDB_OverviewsTest test/CDB_QuantileBinsTest test/CDB_DistinctMeasureTest test/CDB_CartodbfyTableTest test/CDB_EqualIntervalBinsTest test/CDB_Username test/CDB_AnalysisCheckTest test/CDB_XYZ_ExtentTest test/CDB_DistTypeTest test/CDB_HelperTest test/CDB_UserTablesTest test/CDB_DigitSeparatorTest test/CDB_EstimateRowCountTest test/CDB_TransformToWebmercatorTest
+(using postmaster on Unix socket, default port)
+============== dropping database "contrib_regression" ==============
+DROP DATABASE
+============== creating database "contrib_regression" ==============
+CREATE DATABASE
+ALTER DATABASE
+============== running regression test queries        ==============
+test test_setup               ... ok
+test test/CDB_HeadsTailsBinsTest ... ok
+test test/CDB_GhostTables     ... FAILED
+test test/CDB_QueryStatementsTest ... ok
+test test/CDB_RectangleTest   ... ok
+test test/CDB_QuotaTest       ... ok
+test test/CDB_StatsTest       ... ok
+test test/CDB_DateToNumberTest ... ok
+test test/CDB_HexagonTest     ... ok
+test test/CDB_GreatCircle     ... ok
+test test/CDB_MathTest        ... ok
+test test/CDB_JenksBinsTest   ... ok
+test test/CDB_QueryTablesTest ... ok
+test test/CDB_OverviewsTest   ... ok
+test test/CDB_QuantileBinsTest ... ok
+test test/CDB_DistinctMeasureTest ... ok
+test test/CDB_CartodbfyTableTest ... ok
+test test/CDB_EqualIntervalBinsTest ... ok
+test test/CDB_Username        ... ok
+test test/CDB_AnalysisCheckTest ... ok
+test test/CDB_XYZ_ExtentTest  ... ok
+test test/CDB_DistTypeTest    ... ok
+test test/CDB_HelperTest      ... ok
+test test/CDB_UserTablesTest  ... ok
+test test/CDB_DigitSeparatorTest ... ok
+test test/CDB_EstimateRowCountTest ... ok
+test test/CDB_TransformToWebmercatorTest ... ok
+
+=======================
+ 1 of 27 tests failed. 
+=======================
+
+The differences that caused some tests to fail can be viewed in the
+file "/carto/cartodb-postgresql/regression.diffs".  A copy of the test summary that you see
+above is saved in the file "/carto/cartodb-postgresql/regression.out".
+
+/usr/lib/postgresql/10/lib/pgxs/src/makefiles/pgxs.mk:284: recipe for target 'installcheck' failed
+make: *** [installcheck] Error 1

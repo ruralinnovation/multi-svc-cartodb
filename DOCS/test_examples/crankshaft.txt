@@ -1,0 +1,46 @@
+root@77e673eef35d:/carto/crankshaft# make test
+make -C src/py test
+make[1]: Entering directory '/carto/crankshaft/src/py'
+nosetests crankshaft/test/
+............./usr/local/lib/python2.7/dist-packages/crankshaft/regression/gwr/base/gwr.py:236: RuntimeWarning: divide by zero encountered in divide
+  S = S * (1.0/z)
+/usr/local/lib/python2.7/dist-packages/crankshaft/regression/gwr/base/gwr.py:236: RuntimeWarning: invalid value encountered in multiply
+  S = S * (1.0/z)
+........
+----------------------------------------------------------------------
+Ran 21 tests in 1.963s
+
+OK
+make[1]: Leaving directory '/carto/crankshaft/src/py'
+make -C src/pg test
+make[1]: Entering directory '/carto/crankshaft/src/pg'
+/usr/lib/postgresql/10/lib/pgxs/src/makefiles/../../src/test/regress/pg_regress --inputdir=./ --bindir='/usr/lib/postgresql/10/bin'    --inputdir='test' --outputdir='test' --dbname=contrib_regression 01_install_test 02_moran_test 03_overlap_sum_test 04_dot_density_test 05_markov_test 06_segmentation_test 07_gravity_test 08_interpolation_test 09_voronoi_test 11_kmeans_test 13_pia_test 14_densify_test 15_tinmap_test 16_getis_test 18_outliers_test 19_contour_test 21_gwr_test
+(using postmaster on Unix socket, default port)
+============== dropping database "contrib_regression" ==============
+NOTICE:  database "contrib_regression" does not exist, skipping
+DROP DATABASE
+============== creating database "contrib_regression" ==============
+CREATE DATABASE
+ALTER DATABASE
+============== running regression test queries        ==============
+test 01_install_test          ... ok
+test 02_moran_test            ... ok
+test 03_overlap_sum_test      ... ok
+test 04_dot_density_test      ... ok
+test 05_markov_test           ... ok
+test 06_segmentation_test     ... ok
+test 07_gravity_test          ... ok
+test 08_interpolation_test    ... ok
+test 09_voronoi_test          ... ok
+test 11_kmeans_test           ... ok
+test 13_pia_test              ... ok
+test 14_densify_test          ... ok
+test 15_tinmap_test           ... ok
+test 16_getis_test            ... ok
+test 18_outliers_test         ... ok
+test 19_contour_test          ... ok
+test 21_gwr_test              ... ok
+
+======================
+ All 17 tests passed. 
+======================
