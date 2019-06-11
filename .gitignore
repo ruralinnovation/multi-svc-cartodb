@@ -1,24 +1,91 @@
-./redis_data
-./postgis_data
+#### SPECIFIC TO THIS PROJECT ################################################
 
-# Ignore vim tempfiles
-*.swp
-
-# No node_modules in the repos!
-node_modules
-
-# Ignore the .env file, it should be built by setup-local.sh
+# The .env file should be built locally by scripts/setup-local.sh
 .env
 
-# Ignore ssl cert files and directories
-ssl/
-*.crt
-*.key
-
-# Ignore the data directory for data services
+# Ignore the data dumps for the CARTO dataservices extension
 docker/postgis/geocoder_data/*.sql
 
-*.sver.js
-*.official.js
-*sver.yml
-*official.yml
+# Ignore the ssl directories, they should be built locally by 
+# scripts/generate_ssl_certs.sh.
+ssl/
+
+#### DEVELOPMENT AND OS STUFF ################################################
+*.dll
+*.exe
+.DS_Store
+bin/
+modules-dev/
+/pkg/
+*.bak
+.*.swp
+.idea
+*.iml
+*.test
+
+# Allow some VS Code config, in case it's useful
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+# Ignore VS Code history
+.history
+
+# Allow some Vim config, in case it's useful
+!.vimrc
+
+#### TERRAFORM ###############################################################
+# Sourced from:
+#     https://github.com/github/gitignore/blob/master/Terraform.gitignore
+#
+# Local .terraform directories
+**/.terraform
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+# Ignore any .tfvars files that are generated automatically for each TF run.
+# (Most .tfvars files are managed config and should be in version control.)
+#
+# example.tfvars
+
+# Ignore override files as they are usually local overrides and shouldn't be
+# checked into version control.
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Explicitly include override files you do wish to add to version controls:
+#
+# !example_override.tf
+
+# Explicitly include tfplan files to ignore the plan output of the command:
+#   terraform plan -out=tfplan
+#
+# *tfplan*
+
+#### BEST PRACTICES FROM HASHICORP ###########################################
+# Sourced from:
+#     https://github.com/hashicorp/best-practices/blob/master/.gitignore
+# Lines commented out are covered above.
+account.json
+#.terraform
+#*tfstate*
+setup/*
+#crash.log
+dist
+*.zip
+logs
+*.srl
+*.crt
+*.csr
+*.key
+*.pub
+*.pem
+#*.swp
