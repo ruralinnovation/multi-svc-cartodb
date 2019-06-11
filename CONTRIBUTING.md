@@ -55,3 +55,8 @@ TODO: Add style guides for:
 * Dockerfiles
 * Version tagging
 * Documentation
+
+### Style Guide: Terraform Templates
+
+* For resource names, use snake case.
+* TODO: Guidelines on how to split TF templates
