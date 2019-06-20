@@ -14,7 +14,7 @@ CartoDB is itself a multi-service application, made up of the following core pie
 
 For this project, those services are encapsulated in containers named:
 
-* `cartodb`
+* `cartodb` _(presently runs both the Rails app and the resque process)_
 * `postgis`
 * `redis`
 * `sqlapi`
