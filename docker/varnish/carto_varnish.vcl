@@ -10,7 +10,7 @@ backend windshaft {
 
 sub vcl_recv {
   if (server.port == 8181) {
-      set req.backend = tiler;
+      set req.backend = windshaft;
   }
 
   if (server.port == 8080) {
