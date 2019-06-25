@@ -15,7 +15,7 @@ WORKDIR /carto/Windshaft-cartodb
 
 COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
 COPY ./docker-entrypoint.sh /carto/
-COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
 
 RUN update-ca-certificates
 

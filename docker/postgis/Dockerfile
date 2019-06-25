@@ -150,7 +150,7 @@ RUN mkdir -p /docker-entrypoint-initdb.d \
 
 COPY ./initdb.d/*.sh /docker-entrypoint-initdb.d/
 COPY ./initdb.d/*.sql /docker-entrypoint-initdb.d/
-COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
 
 RUN update-ca-certificates
 
