@@ -12,9 +12,7 @@ function display_help() {
 Usage: $SCRIPT_NAME [--force]
 
 Purpose: Creates a directory local to the script, named 'ssl', then generates
-         within that directory the following files. Note that filenames and
-         values are dependent on what you have set in your .env file for
-         the CARTO_CUSTOM_SUBDOMAIN value, which defaults to 'osscarto'.
+         within that directory the following files. 
 
            osscartoCA.key           Cryptographic key that the Certificate
                                     Authority root certificate is based on.
@@ -94,18 +92,9 @@ function echo_if_unquiet() {
     fi
 }
 
-# Value for CARTO_CUSTOM_SUBDOMAIN from .env file
-
-DOT_ENV_FILE="${SCRIPT_DIR}/../.env"
-CUSTOM_SUBDOMAIN=$(grep "CARTO_CUSTOM_SUBDOMAIN" $DOT_ENV_FILE | sed 's/CARTO_CUSTOM_SUBDOMAIN=//')
-
-if [[ -z $CUSTOM_SUBDOMAIN ]]; then
-    echo "No value found for CARTO_CUSTOM_SUBDOMAIN in repo .env file. Try running scripts/setup-local.sh to (re-)generate that file."
-    exit 1
-fi
-
 # SSL certificate info variables
-DOMAIN="${CUSTOM_SUBDOMAIN}.localhost"
+SUBDOMAIN="osscarto"
+DOMAIN="${SUBDOMAIN}.localhost"
 COMMON_NAME="${DOMAIN}"
 COUNTRY="US"
 STATE="Vermont"
@@ -121,7 +110,7 @@ SSL_CSRFILE="${REPO_ROOT}/ssl/${SSL_BASE_NAME}.csr"
 SSL_CERTFILE="${REPO_ROOT}/ssl/${SSL_BASE_NAME}.crt"
 
 # Certificate authority info variables
-CA_BASE_NAME="${CUSTOM_SUBDOMAIN}CA"
+CA_BASE_NAME="${SUBDOMAIN}CA"
 CA_KEYFILE="${REPO_ROOT}/ssl/${CA_BASE_NAME}.key"
 CA_ROOTCERT="${REPO_ROOT}/ssl/${CA_BASE_NAME}.pem"
 
