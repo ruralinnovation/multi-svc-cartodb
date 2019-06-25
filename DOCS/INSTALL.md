@@ -59,10 +59,10 @@ To use this repository, you will need [Docker](https://www.docker.com/) (18.09+)
     ./scripts/generate_ssl_certs.sh
     ```
 
-1. You will also need to add an entry for `cori.localhost` to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
+1. You will also need to add an entry for `osscarto.localhost` to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
 
     ```bash
-    echo "127.0.0.1   cori.localhost" | sudo tee -a /etc/hosts
+    echo "127.0.0.1   osscarto.localhost" | sudo tee -a /etc/hosts
     ```
 
 1. In order to make your local browser consider the `router` container's signed certificate legitimate, you'll need to add the root certificate of the signing CA you created to your local development machine's trusted cert store. On a Linux host that probably means adding it to `/usr/local/share/ca-certificates/`, on a Mac it will mean adding it to your Keychain (for instructions see the Installing Your Root Certificate section [of this article about local HTTPS](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/)). (TODO: Add Windows instructions.)
@@ -78,5 +78,5 @@ To use this repository, you will need [Docker](https://www.docker.com/) (18.09+)
     docker-compose up
     ```
 
-1. The first time you bring the cluster up, Docker will create several data volumes (to persist Redis and PostgreSQL data), and the PostgreSQL data cluster will be initialized. Once the data cluster is created, a number of custom Carto PostgreSQL extensions will be installed. When that's complete, the `cartodb` container will be able to run its own initialization process. When all of those steps are completed, you should be able to load the application at `https://cori.localhost` in a browser.
+1. The first time you bring the cluster up, Docker will create several data volumes (to persist Redis and PostgreSQL data), and the PostgreSQL data cluster will be initialized. Once the data cluster is created, a number of custom Carto PostgreSQL extensions will be installed. When that's complete, the `cartodb` container will be able to run its own initialization process. When all of those steps are completed, you should be able to load the application at `https://osscarto.localhost` in a browser.
 1. You can log into the application using the username and password defined by the `CARTO_DEFAULT_USER` and `CARTO_DEFAULT_PASS` values in your `.env` file, or the ones from `CARTO_ORG_USER` and `CARTO_ORG_PASS`.
