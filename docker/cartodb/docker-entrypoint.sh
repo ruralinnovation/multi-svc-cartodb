@@ -76,6 +76,21 @@ else
     cat config/app_config_no_https.yml > config/app_config.yml
 fi
 
+#### ALLOWING THE /diagnosis ENDPOINT ########################################
+# By default there is a line of code in app/controllers/home_controller.rb
+# that only allows you to view the /diagnosis endpoint if your config has
+# cartodb_com_hosted set to true. We want to remove that line if we need to
+# see the endpoint successfully.
+
+ALLOW_DIAGNOSIS=${CARTO_ALLOW_DIAGNOSIS:-true}
+HOME_CONTROLLER="/carto/cartodb/app/controllers/home_controller.rb"
+LINE_TO_REMOVE="return head(400) if Cartodb.config\[:cartodb_com_hosted\] == false"
+
+if [[ $ALLOW_DIAGNOSIS = 'true' ]]; then
+    echo "Removing the line that causes /diagnosis to return 400"
+    sed -i -e "/${LINE_TO_REMOVE}/d" $HOME_CONTROLLER
+fi
+
 #### CREATING THE DATABASE IF IT DOES NOT EXIST ##############################
 
 cd /carto/cartodb
