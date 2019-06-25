@@ -5,6 +5,7 @@ This document explains how this project decomposes the CartoDB stack into multip
 CartoDB is itself a multi-service application, made up of the following core pieces:
 
 * **CartoDB Builder** - A Ruby on Rails application that provides user and map/data management for organizations on the Carto platform.
+* **CartoDB Resque Task Runner** - An implementation of `resque` to process asynchronous jobs.
 * **PostgreSQL/PostGIS, with Carto extension(s)** - Map and user data are principally stored in a number of PostgreSQL databases, which have been extended with both PostGIS, and the extension functions from Carto's own PostgreSQL extension.
 * **Redis** - Configuration, state, and authentication data are stored in Redis. The Redis instance is hit both by CartoDB Builder and by the SQL-API and Windshaft tile server instances.
 * **Carto SQL API** - A Node.js application responsible for handling passthrough of SQL to the PostgreSQL instance, allowing both public and authenticated requests. Public requests may perform SELECT on a subset of an organization's data, while requests authenticated by a non-public API key may be allowed to actively alter data on the server.
@@ -13,7 +14,7 @@ CartoDB is itself a multi-service application, made up of the following core pie
 
 For this project, those services are encapsulated in containers named:
 
-* `cartodb`
+* `cartodb` _(presently runs both the Rails app and the resque process)_
 * `postgis`
 * `redis`
 * `sqlapi`
