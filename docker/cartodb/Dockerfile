@@ -33,7 +33,7 @@ COPY ./scripts/better_create_dev_user.sh /carto/cartodb/script/
 COPY ./scripts/setup_organization.sh /carto/cartodb/script/
 COPY ./scripts/sync_tables_trigger.sh /carto/cartodb/script/
 COPY ./docker-entrypoint.sh /carto/
-COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
 
 RUN update-ca-certificates
 

@@ -33,7 +33,7 @@ RUN apt-get update \
 
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 COPY ./carto_varnish.vcl /etc/varnish.vcl
-COPY ./ssl/coriCA.pem /usr/local/share/ca-certificates/coriCA.crt
+COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
 
 EXPOSE 6081
 EXPOSE 6082
