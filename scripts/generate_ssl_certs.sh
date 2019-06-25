@@ -12,50 +12,52 @@ function display_help() {
 Usage: $SCRIPT_NAME [--force]
 
 Purpose: Creates a directory local to the script, named 'ssl', then generates
-         within that directory the following files:
+         within that directory the following files. Note that filenames and
+         values are dependent on what you have set in your .env file for
+         the CARTO_CUSTOM_SUBDOMAIN value, which defaults to 'osscarto'.
 
-           coriCA.key              Cryptographic key that the Certificate
+           osscartoCA.key           Cryptographic key that the Certificate
                                     Authority root certificate is based on.
 
-           coriCA.pem              The Certificate Authority root certificate.
+           osscartoCA.pem           The Certificate Authority root certificate.
 
-           coriCA.srl              List of serial numbers already used by the
+           osscartoCA.srl           List of serial numbers already used by the
                                     CA to create unique certificates.
 
-           cori.localhost.key      Cryptographic key that the SSL certificate
+           osscarto.localhost.key   Cryptographic key that the SSL certificate
                                     is based on.
 
-           cori.localhost.csr      Certificate signing request for the SSL
+           osscarto.localhost.csr   Certificate signing request for the SSL
                                     certificate, which allows it to be signed
                                     via the Certificate Authority root cert.
 
-           cori.localhost.crt      SSL certificate generated using the SSL key,
+           osscarto.localhost.crt   SSL certificate generated using the SSL key,
                                     the CA root certificate, and the certificate
                                     signing request.
 
-         Note: If the coriCA.key and coriCA.pem files are found to already exist,
-               they will not be recreated unless you use the --force flag. This 
-               is so that you won't have to reimport the .pem file into your
-               development machine's trusted CA list every time you regenerate
-               the SSL certificates.
+         Note: If the osscartoCA.key and osscartoCA.pem files are found to 
+               already exist, they will not be recreated unless you use the 
+               --force flag. This is so that you won't have to reimport the 
+               .pem file into your development machine's trusted CA list every 
+               time you regenerate the SSL certificates.
 
          Once those files are generated, the following happens:
 
-           1. The cori.localhost.key and cori.localhost.crt files are copied
-              into docker/router/ssl, so that they will be available within
-              the build context of the router container's Dockerfile. The
-              Nginx reverse proxy requires the key and cert files in order to
-              serve content over HTTPS.
-           2. The coriCA.pem CA root certificate file, which is used to
-              verify the integrity of the cori.localhost.crt certificate, is
+           1. The osscarto.localhost.key and osscarto.localhost.crt files are 
+              copied into docker/router/ssl, so that they will be available 
+              within the build context of the router container's Dockerfile. 
+              The Nginx reverse proxy requires the key and cert files in order 
+              to serve content over HTTPS.
+           2. The osscartoCA.pem CA root certificate file, which is used to
+              verify the integrity of the osscarto.localhost.crt certificate, is
               copied into the 'ssl' directories within the build context of
               all the other containers, so that it can be placed into the 
               trusted certificate stores of each container.
 
          If each container has (and trusts) the root certificate that the 
-         cori.localhost.crt file was signed with, then any process on that
+         osscarto.localhost.crt file was signed with, then any process on that
          host which is aware of the system's trusted Certificate Authorities
-         will consider the cori.localhost.crt file to be legitimate.
+         will consider the osscarto.localhost.crt file to be legitimate.
 
 Flags:
         --force     Generates the CA root certificate even if one already exists.
@@ -92,8 +94,18 @@ function echo_if_unquiet() {
     fi
 }
 
+# Value for CARTO_CUSTOM_SUBDOMAIN from .env file
+
+DOT_ENV_FILE="${SCRIPT_DIR}/../.env"
+CUSTOM_SUBDOMAIN=$(grep "CARTO_CUSTOM_SUBDOMAIN" $DOT_ENV_FILE | sed 's/CARTO_CUSTOM_SUBDOMAIN=//')
+
+if [[ -z $CUSTOM_SUBDOMAIN ]]; then
+    echo "No value found for CARTO_CUSTOM_SUBDOMAIN in repo .env file. Try running scripts/setup-local.sh to (re-)generate that file."
+    exit 1
+fi
+
 # SSL certificate info variables
-DOMAIN="cori.localhost"
+DOMAIN="${CUSTOM_SUBDOMAIN}.localhost"
 COMMON_NAME="${DOMAIN}"
 COUNTRY="US"
 STATE="Vermont"
@@ -109,7 +121,7 @@ SSL_CSRFILE="${REPO_ROOT}/ssl/${SSL_BASE_NAME}.csr"
 SSL_CERTFILE="${REPO_ROOT}/ssl/${SSL_BASE_NAME}.crt"
 
 # Certificate authority info variables
-CA_BASE_NAME="coriCA"
+CA_BASE_NAME="${CUSTOM_SUBDOMAIN}CA"
 CA_KEYFILE="${REPO_ROOT}/ssl/${CA_BASE_NAME}.key"
 CA_ROOTCERT="${REPO_ROOT}/ssl/${CA_BASE_NAME}.pem"
 
