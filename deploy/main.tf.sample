@@ -1,0 +1,17 @@
+terraform {
+    backend "remote" {
+        organization = "<YOUR ORGANIZATION HERE>"
+        workspaces {
+            prefix = "osscarto-"
+        }
+    }
+    required_providers {
+        aws = ">= 2.14.0"
+    }
+}
+
+provider "aws" {
+    version = ">= 2.14.0"
+    region = "us-east-1"
+    # TODO: Add an assume_role block here, per https://www.terraform.io/docs/providers/aws/index.html#assume-role
+}

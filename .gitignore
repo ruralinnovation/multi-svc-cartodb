@@ -89,3 +89,11 @@ logs
 *.pub
 *.pem
 #*.swp
+
+#### IGNORE TERRAFORM MAIN FILE ##############################################
+#
+# We don't want anybody to commit their deploy/main.tf, because it contains
+# the terraform settings for backend, which are specific to an individual
+# usage of the project. We include a sample file which each user should update.
+deploy/main.tf
+!deploy/main.tf.sample
