@@ -630,14 +630,14 @@ defaults: &defaults
   # Used in: CartoDB::UserModule::DBService.create_function_invalidate_varnish_invalidation_service
   # Purpose: Set connection parameters for invalidation service
   # File: /app/models/user/db_service.rb
-  invalidation_service:
-    enabled: false
-    host: 'varnish'
-    port: 3142
-    retries: 5
-    critical: false
-    timeout: 5
-    trigger_verbose: true
+#  invalidation_service:
+#    enabled: false
+#    host: 'varnish'
+#    port: 3142
+#    retries: 5
+#    critical: false
+#    timeout: 5
+#    trigger_verbose: true
 
   # Setting: 'geocoder'
   #
