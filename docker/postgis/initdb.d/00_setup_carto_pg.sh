@@ -133,11 +133,11 @@ EOF
 cat <<EOF | psql -U $DB_USER -d $GEOCODER_DB -e
 SELECT cartodb.CDB_Conf_SetConf(
     'mapbox_conf',
-    '{"routing": {"api_keys": "",
+    '{"routing": {"api_keys": "ABCDEF",
                   "monthly_quota": 999999},
-      "geocoder": {"api_keys": "",
+      "geocoder": {"api_keys": "ABCDEF",
                    "monthly_quota": 999999},
-      "matrix": {"api_keys": "",
+      "matrix": {"api_keys": "ABCDEF",
                  "monthly_quota": 1500000}}'
 );
 EOF
