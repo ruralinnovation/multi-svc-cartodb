@@ -36,7 +36,6 @@ COPY ./carto_varnish.vcl /etc/varnish.vcl
 COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
 
 EXPOSE 6081
-EXPOSE 6082
 
 RUN update-ca-certificates
 
