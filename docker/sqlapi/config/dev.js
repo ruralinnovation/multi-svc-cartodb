@@ -31,13 +31,11 @@ var config = {
     db_host:        process.env.SQLAPI_POSTGIS_HOST || 'postgis',
     db_port:        process.env.SQLAPI_POSTGIS_PORT || '5432',
     db_batch_port:  process.env.SQLAPI_POSTGIS_PORT || '5432',
-    db_use_config_object: true,
 
     db_pool_size:               500,
     db_pool_idleTimeout:        30000,
     db_pool_reapInterval:       1000,
     validatePGEntitiesAccess:   false,
-    logQueries:                 true,
 
     redis_host:                 process.env.SQLAPI_REDIS_HOST || 'redis',
     redis_port:                 process.env.SQLAPI_REDIS_PORT || '6379',
@@ -60,8 +58,6 @@ var config = {
     copy_timeout:                   "'5h'",
     copy_from_max_post_size:        2 * 1024 * 1024 * 1024,
     copy_from_max_post_size_pretty: '2 GB',
-    copy_from_minimum_input_speed:  0,
-    copy_from_maximum_slow_input_speed_interval: 15,
 
     batch_max_queued_jobs:              64,
     batch_capacity_strategy:            'fixed',
@@ -71,29 +67,12 @@ var config = {
     //////////////////////////////////////////////////////////////////////////
     // Nested configuration objects                                         //
     //////////////////////////////////////////////////////////////////////////
-    
-    cache: {
-        ttl:         60 * 60 * 24 * 365,
-        fallbackTtl: 60 * 5
-    },
-
-    db_keep_alive: {
-        enabled:      true,
-        initialDelay: 5000
-    },
 
     health: {
         enabled:    true,
         username:   'development',
         query:      'SELECT 1'
     },
-
-//    statsd: {
-//        host: 'localhost',
-//        port: 8125,
-//        prefix: 'dev.:host.',
-//        cacheDns: true
-//    },
 
     ratelimits: {
         rateLimitsEnabled: false,
