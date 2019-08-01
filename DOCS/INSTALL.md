@@ -35,7 +35,7 @@ To use this repository, you will need [Docker](https://www.docker.com/) (18.09+)
     $ cat .env
     CARTO_USE_HTTPS=true
     CARTO_WINDSHAFT_VERSION=7.1.0
-    CARTO_SQLAPI_VERSION=3.0.0
+    SQLAPI_VERSION=3.0.0
     CARTO_CARTODB_VERSION=v4.26.1
     CARTO_PGEXT_VERSION=0.26.1
     CARTO_DATASVCS_API_CLIENT_VERSION=0.26.2-client
