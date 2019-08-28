@@ -79,13 +79,34 @@ eval 'VARS_VARNISH=(${!'"VARNISH_"'@})'
 
 OUTPUT_VARS=( "${VARS_CARTO[@]}" "${VARS_SQLAPI[@]}" "${VARS_WINDSHAFT[@]}" "${VARS_POSTGIS[@]}" "${VARS_REDIS[@]}" "${VARS_ROUTER[@]}" "${VARS_VARNISH[@]}" )
 
-# Truncate the .env file
-true > ${REPO_ROOT}/.env
+DOT_ENV_FILE=${REPO_ROOT}/.env
+PACKER_ENV_FILE=${REPO_ROOT}/packer-env.json
+
+# Truncate the .env and packer-env.json files
+true > $DOT_ENV_FILE
+true > $PACKER_ENV_FILE
 
 # Write KV pairs to .env
 for var in "${OUTPUT_VARS[@]}"; do
     echo "${var}=${!var}" >> ${REPO_ROOT}/.env
 done
+
+function join_by {
+    local IFS=${1}$'\n'
+    shift
+    printf "$*"
+}
+
+# Write KV pairs to packer-env.json
+
+OUTPUT_JSON_KV_PAIRS=()
+for var in "${OUTPUT_VARS[@]}"; do
+    OUTPUT_JSON_KV_PAIRS+=('"'${var}'":"'${!var}'"')
+done
+
+printf "{" > $PACKER_ENV_FILE
+join_by ',' ${OUTPUT_JSON_KV_PAIRS[@]} >> $PACKER_ENV_FILE
+printf "}" >> $PACKER_ENV_FILE
 
 #### HELP FUNCTION ###########################################################
 

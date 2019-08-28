@@ -88,18 +88,9 @@ services:
 
   postgis:
     container_name: postgis
-    build:
-      context: docker/postgis
+    image: osscarto-packer-postgis:latest
     volumes:
       - postgis-data:/var/lib/postgresql/data
       - postgis-extensions:/usr/share/postgresql
     ports:
       - "5432:5432"
-    environment:
-      - CARTO_PGEXT_VERSION=${CARTO_PGEXT_VERSION}
-      - CARTO_DATASVCS_API_CLIENT_VERSION=${CARTO_DATASVCS_API_CLIENT_VERSION}
-      - CARTO_DATASVCS_API_SERVER_VERSION=${CARTO_DATASVCS_API_SERVER_VERSION}
-      - CARTO_DATASVCS_VERSION=${CARTO_DATASVCS_VERSION}
-      - CARTO_ODBC_FDW_VERSION=${CARTO_ODBC_FDW_VERSION}
-      - CARTO_CRANKSHAFT_VERSION=${CARTO_CRANKSHAFT_VERSION}
-      - CARTO_OBSERVATORY_VERSION=${CARTO_OBSERVATORY_VERSION}

@@ -1,0 +1,29 @@
+{
+    "description": "Images for PostgreSQL in the OSSCarto stack",
+
+    "min_packer_version": "1.4.2",
+    
+    "variables": { 
+        "LANG": "en_US.utf8",
+        "PG_MAJOR": "10",
+        "PG_VERSION": "10.9-1.pgdg90+1",
+        "PGDATA": "/var/lib/postgresql/data",
+        "PATH": "${PATH}:/usr/lib/postgresql/${PG_MAJOR}/bin",
+        "CARTO_PGEXT_VERSION": null,
+        "CARTO_DATASVCS_API_CLIENT_VERSION": null,
+        "CARTO_DATASVCS_API_SERVER_VERSION": null,
+        "CARTO_DATASVCS_VERSION": null,
+        "CARTO_ODBC_FDW_VERSION": null,
+        "CARTO_CRANKSHAFT_VERSION": null,
+        "CARTO_OBSERVATORY_VERSION": null
+    },
+    
+    "builders": [ 
+    ],
+
+    "provisioners": [ 
+    ],
+
+    "post-processors": [ 
+    ]
+}

@@ -96,6 +96,14 @@ WORKDIR /carto
 #
 ##############################################################################
 
+ARG CARTO_PGEXT_VERSION="master"
+ARG CARTO_DATASVCS_API_CLIENT_VERSION="master"
+ARG CARTO_DATASVCS_API_SERVER_VERSION="master"
+ARG CARTO_DATASVCS_VERSION="master"
+ARG CARTO_ODBC_FDW_VERSION="master"
+ARG CARTO_CRANKSHAFT_VERSION="master"
+ARG CARTO_OBSERVATORY_VERSION="master"
+
 RUN git clone --recursive ${CARTO_PGEXT_REPO} \
  && cd /carto/cartodb-postgresql \
  && git checkout ${CARTO_PGEXT_VERSION} \

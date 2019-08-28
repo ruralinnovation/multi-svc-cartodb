@@ -1,0 +1,101 @@
+{
+    "description": "Images for PostgreSQL in the OSSCarto stack",
+
+    "min_packer_version": "1.4.2",
+    
+    "variables": { 
+        "LANG": "en_US.utf8",
+        "PG_MAJOR": "10",
+        "PG_VERSION": "10.9-1.pgdg90+1",
+        "PGDATA": "/var/lib/postgresql/data",
+        "PATH": "${PATH}:/usr/lib/postgresql/${PG_MAJOR}/bin",
+        "CARTO_PGEXT_VERSION": null,
+        "CARTO_DATASVCS_API_CLIENT_VERSION": null,
+        "CARTO_DATASVCS_API_SERVER_VERSION": null,
+        "CARTO_DATASVCS_VERSION": null,
+        "CARTO_ODBC_FDW_VERSION": null,
+        "CARTO_CRANKSHAFT_VERSION": null,
+        "CARTO_OBSERVATORY_VERSION": null
+    },
+    
+    "builders": [ 
+        {
+            "type": "docker",
+            "image": "debian:stretch-slim",
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT [\"/usr/local/bin/startup.sh\"]",
+                "CMD [\"postgres\"]",
+                "ENV LANG {{user `LANG`}}",
+                "ENV PG_MAJOR {{user `PG_MAJOR`}}",
+                "ENV PG_VERSION {{user `PG_VERSION`}}",
+                "ENV PGDATA {{user `PGDATA`}}",
+                "ENV PATH {{user `PATH`}}",
+                "ENV CARTO_PGEXT_VERSION {{user `CARTO_PGEXT_VERSION`}}",
+                "ENV CARTO_DATASVCS_API_CLIENT_VERSION {{user `CARTO_DATASVCS_API_CLIENT_VERSION`}}",
+                "ENV CARTO_DATASVCS_API_SERVER_VERSION {{user `CARTO_DATASVCS_API_SERVER_VERSION`}}",
+                "ENV CARTO_DATASVCS_VERSION {{user `CARTO_DATASVCS_VERSION`}}",
+                "ENV CARTO_ODBC_FDW_VERSION {{user `CARTO_ODBC_FDW_VERSION`}}",
+                "ENV CARTO_CRANKSHAFT_VERSION {{user `CARTO_CRANKSHAFT_VERSION`}}",
+                "ENV CARTO_OBSERVATORY_VERSION {{user `CARTO_OBSERVATORY_VERSION`}}"
+            ]
+        }
+    ],
+
+    "provisioners": [ 
+        {
+            "type": "file",
+            "source": "packer/postgis/scripts/startup.sh",
+            "destination": "/usr/local/bin/startup.sh"
+        },
+        {
+            "type": "shell",
+            "inline": "ln -s usr/local/bin/startup.sh / && mkdir -p /pg-initdb.d"
+        },
+        {
+            "type": "file",
+            "source": "packer/postgis/scripts/00_setup_carto_pg.sh",
+            "destination": "/pg-initdb.d/00_setup_carto_pg.sh"
+        },
+        {
+            "type": "shell",
+            "inline": "mkdir -p /usr/local/share/ca-certificates",
+            "only": ["docker"]
+        },  
+        {
+            "type": "file",
+            "source": "packer/postgis/ssl/osscartoCA.pem",
+            "destination": "/usr/local/share/ca-certificates/osscartoCA.crt",
+            "only": ["docker"]
+        },
+        {
+            "type": "shell",
+            "script": "packer/postgis/scripts/provision-pg-and-postgis.sh",
+            "environment_vars": [
+                "PGDATA={{user `PGDATA`}}",
+                "CARTO_PGEXT_VERSION={{user `CARTO_PGEXT_VERSION`}}",
+                "CARTO_DATASVCS_API_CLIENT_VERSION={{user `CARTO_DATASVCS_API_CLIENT_VERSION`}}",
+                "CARTO_DATASVCS_API_SERVER_VERSION={{user `CARTO_DATASVCS_API_SERVER_VERSION`}}",
+                "CARTO_DATASVCS_VERSION={{user `CARTO_DATASVCS_VERSION`}}",
+                "CARTO_ODBC_FDW_VERSION={{user `CARTO_ODBC_FDW_VERSION`}}",
+                "CARTO_CRANKSHAFT_VERSION={{user `CARTO_CRANKSHAFT_VERSION`}}",
+                "CARTO_OBSERVATORY_VERSION={{user `CARTO_OBSERVATORY_VERSION`}}"
+            ]
+        },
+        {
+            "type": "shell",
+            "inline": ["update-ca-certificates"],
+            "only": ["docker"]
+        }
+    ],
+
+    "post-processors": [ 
+        [
+            {
+                "type": "docker-tag",
+                "repository": "osscarto-packer-postgis",
+                "tag": "latest"
+            }
+        ]
+    ]
+}
