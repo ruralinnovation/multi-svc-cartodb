@@ -2,27 +2,33 @@ FROM cartobuilder:latest
 
 WORKDIR /carto
 
-ENV CARTO_WINDSHAFT_REPO https://github.com/CartoDB/Windshaft-cartodb.git
+ENV WINDSHAFT_REPO https://github.com/CartoDB/Windshaft-cartodb.git
 
-RUN git clone --recursive ${CARTO_WINDSHAFT_REPO} \
+ARG WINDSHAFT_VERSION
+
+RUN git config --global advice.detachedHead false \
+ && git clone --recursive ${WINDSHAFT_REPO} \
  && cd /carto/Windshaft-cartodb \
- && git checkout ${CARTO_WINDSHAFT_VERSION} \
+ && git checkout ${WINDSHAFT_VERSION} \
  && git submodule update --recursive \
  && npm install --unsafe-perm \
  && mkdir -p /carto/Windshaft-cartodb/logs
 
-WORKDIR /carto/Windshaft-cartodb
+WORKDIR /carto/Windshaft-cartodb/config/environments
 
-COPY ./config/*.js /carto/Windshaft-cartodb/config/environments/
-COPY ./docker-entrypoint.sh /carto/
-COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
+COPY ./config/windshaft-config.js ./development.js
+COPY ./config/windshaft-config.js ./staging.js
+COPY ./config/windshaft-config.js ./test.js
+COPY ./config/windshaft-config.js ./production.js
+COPY ./entrypoint.sh /carto/
+COPY ./ssl/osscarto-multiCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
+
+WORKDIR /carto/Windshaft-cartodb
 
 RUN update-ca-certificates
 
 EXPOSE 8181
 
-ENV CURLOPT_SSL_VERIFYPEER 0
-
-ENTRYPOINT ["/carto/docker-entrypoint.sh"]
+ENTRYPOINT ["/carto/entrypoint.sh"]
 
 CMD []

@@ -1,5 +1,7 @@
 # Operations Guide
 
+**NOTE (2019-09-05): This should still largely be accurate, but I haven't had time to go over it since reconfiguring the build process, so take with a grain of salt until updated.**
+
 This document provides information about how the application stack is built, and how it is operated.
 
 ## Application Initialization

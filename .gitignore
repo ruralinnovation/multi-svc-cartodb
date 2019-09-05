@@ -1,24 +1,39 @@
-./redis_data
-./postgis_data
-
 # Ignore vim tempfiles
 *.swp
 
-# No node_modules in the repos!
-node_modules
+# Ignore ssl cert files and directories, except READMEs
+local-ssl/*
+!local-ssl/README.md
 
-# Ignore the .env file, it should be built by setup-local.sh
-.env
+# Ignore copies of SSL certs in docker contexts
+docker/cartodb/ssl/*
+!docker/cartodb/ssl/README.md
+docker/sqlapi/ssl/*
+!docker/sqlapi/ssl/README.md
+docker/redis/ssl/*
+!docker/redis/ssl/README.md
+docker/varnish/ssl/*
+!docker/varnish/ssl/README.md
+docker/windshaft/ssl/*
+!docker/windshaft/ssl/README.md
+docker/nginx/ssl/*
+!docker/nginx/ssl/README.md
 
-# Ignore ssl cert files and directories
-ssl/
-*.crt
-*.key
+# Ignore generated config files in docker contexts
+docker/cartodb/config/*
+!docker/cartodb/config/README.md
+docker/sqlapi/config/*
+!docker/sqlapi/config/README.md
+docker/varnish/config/*
+!docker/varnish/config/README.md
+docker/windshaft/config/*
+!docker/windshaft/config/README.md
+docker/nginx/config/*
+!docker/nginx/config/README.md
 
-# Ignore the data directory for data services
-docker/postgis/geocoder_data/*.sql
+# Ignore build output
+builds/*
 
-*.sver.js
-*.official.js
-*sver.yml
-*official.yml
+# Ignore build configs outside the default
+build-configurations/*.json
+!build-configurations/DEFAULT.json

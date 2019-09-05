@@ -1,0 +1,81 @@
+{
+    "description": "Builds an image running PostGIS and OSS Carto PG extensions",
+
+    "min_packer_version": "1.4.2",
+
+    "variables": {
+        "PGEXT_VERSION": "master",
+        "CRANKSHAFT_VERSION": "master",
+        "DATASERVICES_VERSION": "master",
+        "DATASERVICES_API_SERVER_VERSION": "master",
+        "DATASERVICES_API_CLIENT_VERSION": "master",
+        "OBSERVATORY_VERSION": "master",
+        "ODBC_FDW_VERSION": "master"
+    },
+
+    "builders": [
+        {
+            "type": "docker",
+            "image": "debian:stretch-slim",
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT [\"/usr/local/bin/startup.sh\"]",
+                "CMD [\"postgres\"]",
+                "ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/10/bin"
+            ]
+        }
+    ],
+
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": "cp -r /etc/profile /root/.profile"
+        },
+        {
+            "type": "file",
+            "source": "packer/postgis/scripts/startup.sh",
+            "destination": "/usr/local/bin/startup.sh"
+        },
+        {
+            "type": "shell",
+            "inline": "ln -s usr/local/bin/startup.sh / && mkdir -p /pg-initdb.d"
+        },
+        {
+            "type": "file",
+            "source": "packer/postgis/scripts/00_setup_carto_pg.sh",
+            "destination": "/pg-initdb.d/00_setup_carto_pg.sh"
+        },
+        {
+            "type": "shell",
+            "script": "packer/postgis/provisioners/provision-pg-10.sh",
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} bash -l {{ .Path }}"
+        },
+        {
+            "type": "shell",
+            "script": "packer/postgis/provisioners/provision-postgis-2.5.sh",
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} bash -l {{ .Path }}"
+        },
+        {
+            "type": "shell",
+            "script": "packer/postgis/provisioners/provision-carto-extensions.sh",
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} bash -l {{ .Path }}",
+            "environment_vars": [
+                "PGEXT_VERSION={{user `PGEXT_VERSION`}}",
+                "CRANKSHAFT_VERSION={{user `CRANKSHAFT_VERSION`}}",
+                "DATASERVICES_VERSION={{user `DATASERVICES_VERSION`}}",
+                "DATASERVICES_API_SERVER_VERSION={{user `DATASERVICES_API_SERVER_VERSION`}}",
+                "DATASERVICES_API_CLIENT_VERSION={{user `DATASERVICES_API_CLIENT_VERSION`}}",
+                "OBSERVATORY_VERSION={{user `OBSERVATORY_VERSION`}}",
+                "ODBC_FDW_VERSION={{user `ODBC_FDW_VERSION`}}"
+            ]
+        }
+    ],
+
+    "post-processors": [
+        {
+            "type": "docker-tag",
+            "repository": "osscarto-multi-postgis",
+            "tag": "latest"
+        }
+    ]
+}
