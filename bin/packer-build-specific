@@ -7,7 +7,7 @@ function display_help() {
     local help_text=""
     IFS='' read -r -d '' help_text <<EOF
 
-Usage: $SCRIPT_NAME [--buildconf <CONF_NAME>] <COMPOSE_COMMAND>
+Usage: $SCRIPT_NAME [--buildconf <CONF_NAME>] <PACKER_COMMAND>
 
 Purpose: Wraps the packer command to use env vars from a build env file.
 
@@ -17,6 +17,7 @@ EOF
 }
 
 BUILD_CONF=DEFAULT
+PACKER_CMD=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -24,17 +25,22 @@ while [[ $# -gt 0 ]]; do
             display_help
             exit 0
             ;;
-        build|console|fix|inspect|validate|version)
-            break
-            ;;
         --buildconf)
             shift; BUILD_CONF="$1"; shift
+            ;;
+        build|console|fix|inspect|validate|version)
+            PACKER_CMD=$@; break
             ;;
         *)
             break
             ;;
     esac
 done
+
+if [[ -z $PACKER_CMD ]]; then
+    echo "No packer command supplied, defaulting to 'validate'"
+    PACKER_CMD="validate"
+fi
 
 ENV_FILE=${REPO_ROOT}/builds/$BUILD_CONF/packer-env-${BUILD_CONF}.json
 
@@ -44,4 +50,4 @@ if [[ ! -f $ENV_FILE ]]; then
 fi
 
 
-packer -var-file=${ENV_FILE} $@ packer/postgis/osscarto-multi-postgis.json
+packer $PACKER_CMD -var-file=${ENV_FILE} packer/postgis/osscarto-multi-postgis.json
