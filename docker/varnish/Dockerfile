@@ -29,15 +29,18 @@ RUN apt-get update \
  && cd /opt \
  && rm -rf varnish-3.0.7 varnish-3.0.7.tgz \
  && rm -rf /var/lib/apt/lists/* \
- && apt-get remove -y make automake autoconf wget
+ && apt-get purge -y make automake autoconf wget
 
-COPY ./docker-entrypoint.sh /docker-entrypoint.sh
-COPY ./carto_varnish.vcl /etc/varnish.vcl
-COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
+ARG VARNISH_HTTP_PORT="6081"
+ENV VARNISH_HTTP_PORT=$VARNISH_HTTP_PORT
 
-EXPOSE 6081
+COPY ./entrypoint.sh /entrypoint.sh
+COPY ./config/varnish.vcl /etc/varnish.vcl
+COPY ./ssl/osscarto-multiCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
+
+EXPOSE $VARNISH_HTTP_PORT
 
 RUN update-ca-certificates
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD []
