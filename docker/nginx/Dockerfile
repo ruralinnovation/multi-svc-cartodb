@@ -3,7 +3,7 @@ FROM nginx:1.15-alpine AS base
 EXPOSE 80
 EXPOSE 443
 
-COPY cartodb.nginx.proxy.conf /etc/nginx/nginx.conf
+COPY ./config/nginx.conf /etc/nginx/nginx.conf
 COPY ./ssl/*.localhost.* /etc/ssl/
 COPY ./ssl/*CA.pem /usr/local/share/ca-certificates/osscartoCA.crt
 
