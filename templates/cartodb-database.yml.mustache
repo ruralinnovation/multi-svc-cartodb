@@ -1,0 +1,30 @@
+# vim: set syntax=yaml:
+
+defaults: &defaults
+  adapter: postgresql
+  encoding: unicode
+  host: {{{postgis_host}}}
+  port: {{{postgis_listen_port}}}
+  direct_port: {{{postgis_listen_port}}}
+  username: {{{postgis_admin_user}}}
+  password: 
+  conn_validator_timeout: 900
+  prepared_statements: false
+
+production:
+  <<: *defaults
+  database: carto_db_production
+
+staging:
+  <<: *defaults
+  database: carto_db_staging
+
+development:
+  <<: *defaults
+  database: carto_db_development
+  pool: 50
+
+test:
+  <<: *defaults
+  database: carto_db_test
+  conn_validator_timeout: -1

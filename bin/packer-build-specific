@@ -1,0 +1,47 @@
+#!/bin/bash
+SCRIPT_NAME=$0
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(dirname ${SCRIPT_DIR})"
+
+function display_help() {
+    local help_text=""
+    IFS='' read -r -d '' help_text <<EOF
+
+Usage: $SCRIPT_NAME [--buildconf <CONF_NAME>] <COMPOSE_COMMAND>
+
+Purpose: Wraps the packer command to use env vars from a build env file.
+
+EOF
+
+    printf "$help_text"
+}
+
+BUILD_CONF=DEFAULT
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --help|-h)
+            display_help
+            exit 0
+            ;;
+        build|console|fix|inspect|validate|version)
+            break
+            ;;
+        --buildconf)
+            shift; BUILD_CONF="$1"; shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+ENV_FILE=${REPO_ROOT}/builds/$BUILD_CONF/packer-env-${BUILD_CONF}.json
+
+if [[ ! -f $ENV_FILE ]]; then
+    echo "CRITICAL: No file found at $ENV_FILE"
+    exit 1
+fi
+
+
+packer -var-file=${ENV_FILE} $@ packer/postgis/osscarto-multi-postgis.json

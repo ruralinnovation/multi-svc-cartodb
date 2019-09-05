@@ -1,0 +1,75 @@
+// vim: set ft=javascript:
+
+var config = {
+    //////////////////////////////////////////////////////////////////////////
+    // Environment-specific configuration parameters
+    //////////////////////////////////////////////////////////////////////////
+
+    environment:     '{{{carto_env}}}',                 // MUSTACHE. Was 'development'
+    node_port:       '{{{sqlapi_listen_port}}}',        // MUSTACHE. Was 8080
+    db_base_name:    '{{{user_db_basename}}}_<%= user_id %>_db', // MUSTACHE. Was 'cartodb_dev_user_<%= user_id %>_db'
+    db_user:         '{{{db_user_basename}}}_<%= user_id %>',    // MUSTACHE. Was 'development_cartodb_user_<%= user_id %>'
+    db_pubuser:      '{{{publicuser_role_name}}}',      // MUSTACHE. Was 'publicuser'
+    db_pubuser_pass: '{{{publicuser_role_password}}}',  // MUSTACHE. Was 'public'
+    db_host:         '{{{postgis_host}}}',              // MUSTACHE. Was 'localhost'
+    db_port:         '{{{postgis_listen_port}}}',       // MUSTACHE. Was '5432'
+    db_batch_port:   '{{{postgis_batch_port}}}',        // MUSTACHE. Was '5432'
+    redis_host:      '{{{redis_host}}}',                // MUSTACHE. Was '127.0.0.1'
+    redis_port:      '{{{redis_listen_port}}}',         // MUSTACHE. Was 6379
+
+    //////////////////////////////////////////////////////////////////////////
+    // Non-environment sourced parameters
+    //////////////////////////////////////////////////////////////////////////
+    db_user_pass: '<%= user_password %>', 
+    user_from_host: '^([^\\.]+)\\.',
+    base_url:   '(?:/api/:version|/user/:user/api/:version)',
+    useProfiler:    true,
+    log_format: '[:date] :remote-addr :method :req[Host]:url :status :response-time ms -> :res[Content-Type] (:res[X-SQLAPI-Profiler])',
+    log_filename: 'logs/cartodb-sql-api.log',
+    user_from_host: '^([^\\.]+)\\.',
+    node_host:  '0.0.0.0',
+    node_socket_timeout: 600000,
+    finished_jobs_ttl_in_seconds: 2 * 3600, // 2 hours
+    batch_query_timeout: 12 * 3600 * 1000, // 12 hours in milliseconds
+    batch_log_filename: 'logs/batch-queries.log',
+    batch_max_queued_jobs: 64,
+    batch_capacity_strategy: 'fixed',
+    batch_capacity_fixed_amount: 4,
+    batch_capacity_http_url_template: 'http://<%= dbhost %>:9999/load',
+    db_pool_size: 500,
+    db_pool_idleTimeout: 30000,
+    db_pool_reapInterval: 1000,
+    redisPool: 50,
+    redisIdleTimeoutMillis: 100,
+    redisReapIntervalMillis: 10,
+    redisLog: false,
+    tableCacheMax: 8192,
+    tableCacheMaxAge: 1000*60*10,
+    tmpDir: '/tmp',
+    ogr2ogrCommand: 'ogr2ogr',
+    statsd: {
+        host: 'localhost',
+        port: 8125,
+        prefix: 'dev.:host.',
+        cacheDns: true
+    },
+    health: {
+        enabled: true,
+        username: 'development',
+        query: 'select 1'
+    },
+    disabled_file: 'pids/disabled',
+
+    ratelimits: {
+        rateLimitsEnabled: false,
+        endpoints: {
+            query: false,
+            query_format: false,
+            job_create: false,
+            job_get: false,
+            job_delete: false
+        }
+    }
+};
+
+module.exports = config;

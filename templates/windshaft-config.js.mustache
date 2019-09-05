@@ -1,0 +1,157 @@
+// vim: set ft=javascript:
+
+var config = {
+    //////////////////////////////////////////////////////////////////////////
+    // Environment-specific configuration parameters
+    //////////////////////////////////////////////////////////////////////////
+
+    // Scalar parameters
+    environment:        '{{{carto_env}}}',              // MUSTACHE. Was 'development'
+    port:               '{{{windshaft_listen_port}}}',  // MUSTACHE. Was 8181
+    postgres_auth_user: '{{{db_user_basename}}}_<%= user_id %>', // MUSTACHE. Was 'development_cartodb_user_<%= user_id %>'
+
+    //
+
+{{! change mustache delimiters to support double braces }}
+{{=<% %>=}}
+    resources_url_templates: {
+        http: 'http://<% stack_fqdn %>/user/{{=it.user}}/api/v1/map',  // MUSTACHE. Was 'http://cartodb.localhost/user/{{=it.user}}/api/v1/map'
+        https: 'https://<% stack_fqdn %>/user/{{=it.user}}/api/v1/map'  // MUSTACHE. Was 'http://cartodb.localhost/user/{{=it.user}}/api/v1/map'
+    },
+<%={{ }}=%> {{! revert mustache delimiters }}
+
+    postgres: {
+        type:     "postgis",
+        user:     "{{{publicuser_role_name}}}",     // MUSTACHE. Was "publicuser"
+        password: "{{{publicuser_role_password}}}", // MUSTACHE. Was "public"
+        host:     '{{{postgis_host}}}',             // MUSTACHE. Was '127.0.0.1'
+        port:     '{{{postgis_listen_port}}}',      // MUSTACHE. Was 5432
+        extent:   "-20037508.3,-20037508.3,20037508.3,20037508.3",
+        row_limit: 65535,
+        simplify_geometries: true,
+        use_overviews: true, // use overviews to retrieve raster
+        persist_connection: false,
+        max_size: 500
+    },
+
+    analysis: {
+        batch: {
+            inlineExecution: false,
+            endpoint: '{{{stack_scheme}}}://{{{stack_fqdn}}}/api/v2/sql/job', // MUSTACHE. Was 'http://127.0.0.1:8080/api/v2/sql/job'
+            hostHeaderTemplate: '{{{stack_fqdn}}}'    // MUSTACHE. 
+        },
+        logger: {
+            filename: '/tmp/analysis.log'
+        },
+        limits: {
+            moran: { timeout: 120000, maxNumberOfRows: 1e5 },
+            cpu2x: { timeout: 60000 }
+        }
+    },
+
+    redis: {
+        host: '{{{redis_host}}}',           // MUSTACHE. Was '127.0.0.1'
+        port: '{{{redis_listen_port}}}',    // MUSTACHE. Was 6379
+
+        max: 50,
+        returnToHead: true,
+        idleTimeoutMillis: 1,
+        reapIntervalMillis: 1,
+        slowQueries: { log: true, elapsedThreshold: 200 },
+        slowPool: { log: true, elapsedThreshold: 25 },
+        emitter: { statusInterval: 5000 },
+        unwatchOnRelease: false,
+        noReadyCheck: true
+    },
+    varnish: {
+        host:       '{{{varnish_host}}}',        // MUSTACHE. Was 'localhost'
+        port:       '{{{varnish_telnet_port}}}', // MUSTACHE. Was 6082
+        http_port:  '{{{varnish_http_port}}}',   // MUSTACHE. Was 6081
+        purge_enabled: false,
+        ttl: 86400,
+        layergroupTtl: 86400
+    },
+
+    //////////////////////////////////////////////////////////////////////////
+    // Non-environment sourced parameters
+    //////////////////////////////////////////////////////////////////////////
+    host: '0.0.0.0',
+    uv_threadpool_size: undefined,
+    user_from_host: '^([^\\.]+)\\.',
+    base_url_templated: '(?:/api/v1/map/named|/user/:user/api/v1/map/named|/tiles/template)',
+    base_url_detached: '(?:/api/v1/map|/user/:user/api/v1/map|/tiles/layergroup)',
+
+    maxConnections:128,
+    maxUserTemplates:1024,
+    mapConfigTTL: 7200,
+    socket_timeout: 600000,
+    enable_cors: true,
+    cache_enabled: false,
+    log_format: ':req[X-Real-IP] :method :req[Host]:url :status :response-time ms -> :res[Content-Type] (:res[X-Tiler-Profiler])',
+    log_filename: 'logs/windshaft.log',
+    postgres_auth_pass: '<%= user_password %>',
+    mapnik_version: undefined,
+    mapnik_tile_format: 'png8:m=h',
+
+    statsd: {
+        host: 'localhost',
+        port: 8125,
+        prefix: 'dev.',
+        cacheDns: true
+    },
+
+    renderer: {
+        cache_ttl: 60000,
+        statsInterval: 5000,
+        mapnik: {
+            poolSize: 8,
+            useCartocssWorkers: false,
+            metatile: 2,
+            metatileCache: { ttl: 0, deleteOnHit: false },
+            formatMetatile: { png: 2, 'grid.json': 1 },
+            bufferSize: 64,
+            snapToGrid: false,
+            clipByBox2d: false,
+            limits: { render: 0, cacheOnTimeout: true },
+            geojson: {
+                dbPoolParams: { size: 16, idleTimeout: 3000, reapInterval: 1000 },
+                clipByBox2d: false,
+                removeRepeatedPoints: false
+            }
+        },
+        http: {
+            timeout: 2000,
+            proxy: undefined,
+            whitelist: [ '.*' ],
+            fallbackImage: {
+                type: 'fs',
+                src: __dirname + '/../../assets/default-placeholder.png'
+            }
+        },
+        torque: {
+            dbPoolParams: { size: 16, idleTimeout: 3000, reapInterval: 1000 }
+        }
+    },
+
+    millstone: { cache_basedir: '/tmp/cdb-tiler-dev/millstone-dev' },
+
+    httpAgent: {
+        keepAlive: true,
+        keepAliveMsecs: 1000,
+        maxSockets: 25,
+        maxFreeSockets: 256
+    },
+    
+    fastly: { enabled: false, apiKey: 'wadus_api_key', serviceId: 'wadus_service_id' },
+
+    useProfiler: true,
+    health: { enabled: false, username: 'localhost', z: 0, x: 0, y: 0 },
+    disabled_file: 'pids/disabled',
+
+    enabledFeatures: {
+        onTileErrorStrategy: true,
+        cdbQueryTablesFromPostgres: true,
+        layerMetadata: true
+    }
+};
+module.exports = config;
