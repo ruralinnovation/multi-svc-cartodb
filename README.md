@@ -1,4 +1,4 @@
-**Project Status (2019-07-17):** Local images build, containers run, application is usable over HTTPS but with critical bugs.
+**Project Status (2019-09-05):** Local images build, containers run, application is usable over HTTPS. Known issues include not being able to add analyses to maps, because the geocoder is not correctly configured.
 
 ![Banner image, slice of world elevation map](./assets/multi-svc-cartodb-banner.jpg)
 
