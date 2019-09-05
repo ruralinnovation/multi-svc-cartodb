@@ -6,7 +6,13 @@ For information about deploying the containers to a cloud environment, please se
 
 ## Pre-requisites
 
-To use this repository, you will need [Docker](https://www.docker.com/) (18.09+), `git` (2.21+), and access to a `bash` shell.
+To use this repository, you will need:
+
+* [Docker](https://www.docker.com/) (18.09+)
+* [Packer](https://www.packer.io) (1.4.2+)
+* `git` (2.21+)
+* `make`
+* Access to a `bash` shell.
 
 ## Step by step instructions
 
@@ -17,66 +23,28 @@ To use this repository, you will need [Docker](https://www.docker.com/) (18.09+)
     cd multi-svc-cartodb
     ```
 
-1. Build the `cartobuilder:latest` Docker image, which has all of the dependencies for CartoDB, SQL-API, and Windshaft. Those images will be built off of that common base. This build process will take some time to complete (probably fifteen minutes to half an hour).
+1. Look at the values in `build-configurations/DEFAULT.json`, and change those that seem appropriate, particularly the usernames, passwords, and email addresses. Be aware that changing other settings may impact your ability to build a running cluster, so only change values for things like version numbers, hostnames, etc. if you are confident of your choices. Note that if you change the passwords they will have to pass the Carto password test, which is that they are not included in [Carto's list of common passwords.](https://github.com/CartoDB/cartodb/blob/master/lib/carto/common_passwords.rb) Additionally, the organization name must be all one word, lowercase letters only.
+1. You will also need to add an entry for `osscarto-multi.localhost` (or your chosen hostname if you changed the default) to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
 
     ```bash
-    docker build --tag cartobuilder:latest docker/BUILDER
+    echo "127.0.0.1   osscarto-multi.localhost" | sudo tee -a /etc/hosts
     ```
 
-1. You will build (and run) the rest of the containers using the `docker-compose` command. During the build process Compose will need some environment values that it can merge into the containers, for version strings, default user info, etc. We consolidate those values in a `.env` file in the root of the repo, which `docker-compose` will source automatically. To create that file, you can run the `scripts/setup-local.sh` script:
+1. Generate the SSL certificates by running `make generate-ssl` and following the prompts. You should only need to do this once, though you can regenerate the certificates at any time.
+1. In order to make your local browser consider the `nginx` container's signed certificate legitimate, you'll need to add the root certificate of the signing CA you created to your local development machine's trusted cert store. On a Linux host that probably means adding it to `/usr/local/share/ca-certificates/`, on a Mac it will mean adding it to your Keychain (for instructions see the Installing Your Root Certificate section [of this article about local HTTPS](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/)). (TODO: Add Windows instructions.) The file you'll be targeting is `local-ssl/osscarto-multiCA.pem` (assuming the default hostname).
+1. Now you should be able to run the following (which can take quite a while, possibly up to an hour):
 
     ```bash
-    ./scripts/setup-local.sh
+    make install
     ```
 
-1. You can view the file contents, which should look something like the following. If you would like to set custom values for any of the environment variables, you can: a) edit the `.env` file directly (note that it will be overwritten in any subsequent call to `setup-local.sh`); b) set a value for that variable for a single run of `setup-local.sh` by prepending it to the call (as in `CARTO_USE_HTTPS=false ./scripts/setup-local.sh`); or c) export a value for that variable in your `~/.bash_profile` file, which will be set in the environment of any new terminal window from which you might call `setup-local.sh`. Using option c will ensure that your new value is used for every new generation of the `.env` file.
 
-    ```
-    $ cat .env
-    CARTO_USE_HTTPS=true
-    CARTO_WINDSHAFT_VERSION=7.1.0
-    CARTO_SQLAPI_VERSION=3.0.0
-    CARTO_CARTODB_VERSION=v4.26.1
-    CARTO_PGEXT_VERSION=0.26.1
-    CARTO_DATASVCS_API_CLIENT_VERSION=0.26.2-client
-    CARTO_DATASVCS_API_SERVER_VERSION=0.35.1-server
-    CARTO_DATASVCS_VERSION=0.0.2
-    CARTO_ODBC_FDW_VERSION=0.3.0
-    CARTO_CRANKSHAFT_VERSION=0.8.2
-    CARTO_OBSERVATORY_VERSION=1.9.0
-    CARTO_DEFAULT_USER=developer
-    CARTO_DEFAULT_PASS=abc123def
-    CARTO_DEFAULT_EMAIL=username@example.com
-    CARTO_ORG_NAME=dev-org
-    CARTO_ORG_USER=dev-org-admin
-    CARTO_ORG_EMAIL=dev-org-admin@example.com
-    CARTO_ORG_PASS=abc123def
-    ```
+Running that meta task is the equivalent of running:
 
-1. In order to support HTTPS (and to build the `router` container), you will need to generate a number of SSL related files (primarily a root certificate for a local certificate authority, and .crt and .key files for a signed SSL certificate). You can do this by using the `generate_ssl_certs.sh` script:
+* `make docker-build-cartobase` - builds the base image that the `cartodb`, `sqlapi`, and `windshaft` containers are built on top of
+* `make generate-build` - creates configuration and environment files based on `build-configurations/DEFAULT.json` and places them in `builds/DEFAULT`
+* `make use-build` - copies build-specific config files to the appropriate docker contexts, and copies SSL certs to contexts as well
+* `make packer-build-postgis` - builds the Docker image that the `postgis` container will be created from
+* `make compose-build` - using the environment variables in `builds/DEFAULT/docker-compose-DEFAULT.env`, runs `docker-compose build` against the `docker-compose.yml` file in the repo root, to build the Docker images for the `nginx`, `redis`, `cartodb`, `sqlapi`, `windshaft`, and `varnish` containers to run from
 
-    ```bash
-    ./scripts/generate_ssl_certs.sh
-    ```
-
-1. You will also need to add an entry for `osscarto.localhost` to your `/etc/hosts` file, to make sure you get local DNS translation for your hostname and subdomain:
-
-    ```bash
-    echo "127.0.0.1   osscarto.localhost" | sudo tee -a /etc/hosts
-    ```
-
-1. In order to make your local browser consider the `router` container's signed certificate legitimate, you'll need to add the root certificate of the signing CA you created to your local development machine's trusted cert store. On a Linux host that probably means adding it to `/usr/local/share/ca-certificates/`, on a Mac it will mean adding it to your Keychain (for instructions see the Installing Your Root Certificate section [of this article about local HTTPS](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/)). (TODO: Add Windows instructions.)
-1. Now that you have a `.env` file and SSL certificate files, you can build the container images for `postgis`, `redis`, `sqlapi`, `windshaft`, `varnish`, `cartodb`, and `router`. This may take some time.
-
-    ```bash
-    docker-compose build
-    ```
-
-1. Start the cluster. For the first startup, the database and user will be initialized, so expect a lot of output. If you would like to detach the terminal from the output you can use [the `-d` flag](https://docs.docker.com/compose/reference/up/) to `docker-compose`.
-
-    ```bash
-    docker-compose up
-    ```
-
-1. The first time you bring the cluster up, Docker will create several data volumes (to persist Redis and PostgreSQL data), and the PostgreSQL data cluster will be initialized. Once the data cluster is created, a number of custom Carto PostgreSQL extensions will be installed. When that's complete, the `cartodb` container will be able to run its own initialization process. When all of those steps are completed, you should be able to load the application at `https://osscarto.localhost` in a browser.
-1. You can log into the application using the username and password defined by the `CARTO_DEFAULT_USER` and `CARTO_DEFAULT_PASS` values in your `.env` file, or the ones from `CARTO_ORG_USER` and `CARTO_ORG_PASS`.
+Once that is complete, you should be able to start your cluster with `make compose-up`, and (once it finishes initializing), view it in a browser at `https://osscarto-multi.localhost`.

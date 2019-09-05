@@ -9,7 +9,6 @@ help:
 	@echo "Repo and build-configuration commands:"
 	@echo ""
 	@echo "    install                  - Meta-command, runs the following:"
-	@echo "                                 generate-ssl"
 	@echo "                                 docker-build-cartobase"
 	@echo "                                 generate-build"
 	@echo "                                 use-build"
@@ -76,7 +75,7 @@ generate-ssl:
 	@printf "\nGenerating SSL certificates into local-ssl directory\n\n"
 	bin/generate-ssl-certs.sh -i
 
-install: generate-ssl docker-build-cartobase generate-build use-build packer-build-postgis compose-build
+install: docker-build-cartobase generate-build use-build packer-build-postgis compose-build
 	@echo ""
 	@echo "*********************************************************************"
 	@echo "*                                                                   *"

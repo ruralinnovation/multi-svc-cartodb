@@ -21,6 +21,4 @@ For this project, those services are encapsulated in containers named:
 * `windshaft`
 * `varnish`
 
-Additionally this repo adds a seventh container, `router`, which runs an Nginx reverse proxy in front of the other containers. That consolidates the requests to the various services so that they can all go through the same port on localhost, and allows us to use SSL when loading the application.
-
-Note that the image names, as created by `docker-compose`, will have the name of the root directory (where `docker-compose.yml` is located) prepended to them. They will show up via `docker image ls` as things like `multi-svc-cartodb_postgis`. If you would like to use a custom value for the prepended name, you can alter the directory name, or set a value for the [`COMPOSE_PROJECT_NAME` environment variable](https://docs.docker.com/compose/reference/envvars/) on your development machine. 
+Additionally this repo adds a seventh container, `nginx`, which runs an Nginx reverse proxy in front of the other containers. That consolidates the requests to the various services so that they can all go through the same port on localhost, and allows us to use SSL when loading the application.
