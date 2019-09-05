@@ -9,7 +9,7 @@ FROM redis:5.0.3-alpine AS base
 # using `docker-compose`, or attach the volume explicitly via `--mount`
 # flag to `docker run`.
 
-COPY ./ssl/osscartoCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
+COPY ./ssl/osscarto-multiCA.pem /usr/local/share/ca-certificates/osscartoCA.crt
 
 RUN apk update \
  && apk add ca-certificates \
