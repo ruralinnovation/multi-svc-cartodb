@@ -131,8 +131,11 @@ RUN apt-get -qq update \
     sqlite3 \
  && rm -rf /var/lib/apt/lists/*
 
- RUN git config --global user.email you@example.com \
-  && git config --global user.name "Your Name" \
+ARG GIT_USER_EMAIL="you@example.com"
+ARG GIT_USER_NAME="Your Name"
+
+RUN git config --global user.email $GIT_USER_EMAIL \
+  && git config --global user.name $GIT_USER_NAME \
   && curl https://nodejs.org/dist/v10.15.3/node-v10.15.3-linux-x64.tar.xz |tar -Jxf - --strip-components=1 -C /usr \
   && npm install -g grunt-cli \
   && npm install -g npm@6 \
