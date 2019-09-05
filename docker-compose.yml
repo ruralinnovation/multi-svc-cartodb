@@ -1,98 +1,101 @@
 version: '3.7'
 
 volumes:
-  redis-data:
-  postgis-data:
-  postgis-extensions:
+    osscarto-multi-redis-data:
+    osscarto-multi-postgis-data:
+    osscarto-multi-postgis-extensions:
 
 services:
-  router:
-    container_name: router
-    build:
-      context: docker/router
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - cartodb
-      - windshaft
-      - sqlapi
-      - postgis
-      - redis
-      - varnish
+    nginx:
+        container_name: nginx
+        build:
+            context: docker/nginx
+        ports:
+            - "443:443"
+        depends_on:
+            - cartodb
+            - windshaft
+            - sqlapi
+            - varnish
+            - redis
+            - postgis
 
-  cartodb: 
-    container_name: cartodb
-    build:
-      context: docker/cartodb
-    depends_on:
-      - redis
-      - postgis
-      - sqlapi
-      - windshaft
-    environment:
-      - CARTO_USE_HTTPS=${CARTO_USE_HTTPS:-true}
-      - CARTO_CARTODB_VERSION=${CARTO_CARTODB_VERSION}
-      - CARTO_DEFAULT_USER=${CARTO_DEFAULT_USER}
-      - CARTO_DEFAULT_PASS=${CARTO_DEFAULT_PASS}
-      - CARTO_DEFAULT_EMAIL=${CARTO_DEFAULT_EMAIL}
-      - CARTO_ORG_NAME=${CARTO_ORG_NAME}
-      - CARTO_ORG_USER=${CARTO_ORG_USER}
-      - CARTO_ORG_EMAIL=${CARTO_ORG_EMAIL}
-      - CARTO_ORG_PASS=${CARTO_ORG_PASS}
+    cartodb:
+        container_name: cartodb
+        build:
+            context: docker/cartodb
+            args:
+                - CARTODB_VERSION
+                - CARTODB_LISTEN_PORT
+                - STACK_SCHEME
+                - USER_ACCOUNT_USER_NAME
+                - USER_ACCOUNT_PASSWORD
+                - USER_ADMIN_PASSWORD
+                - USER_ACCOUNT_EMAIL
+                - GEOCODER_DB_NAME
+                - ORG_ACCOUNT_ORG_NAME
+                - ORG_ACCOUNT_USER_NAME
+                - ORG_ACCOUNT_EMAIL
+                - ORG_ACCOUNT_PASSWORD
+                - REDIS_HOST
+                - REDIS_LISTEN_PORT
+                - POSTGIS_HOST
+                - POSTGIS_LISTEN_PORT
+        depends_on:
+            - redis
+            - postgis
+            - sqlapi
+            - windshaft
+        environment:
+            - CARTO_ENV=${CARTO_ENV}
 
-  varnish:
-    container_name: varnish
-    build:
-      context: docker/varnish
-    depends_on:
-      - sqlapi
-      - postgis
-      - redis
-    tty: true
+    sqlapi:
+        container_name: sqlapi
+        build:
+            context: docker/sqlapi
+            args:
+                - SQLAPI_VERSION
+        depends_on:
+            - redis
+            - postgis
+        environment:
+            - CARTO_ENV=${CARTO_ENV}
 
-  windshaft:
-    container_name: windshaft
-    build:
-      context: docker/windshaft
-    depends_on:
-      - redis
-      - postgis
-      - sqlapi
-    environment:
-      - CARTO_WINDSHAFT_VERSION=${CARTO_WINDSHAFT_VERSION}
+    windshaft:
+        container_name: windshaft
+        build:
+            context: docker/windshaft
+            args:
+                - WINDSHAFT_VERSION
+        depends_on:
+            - redis
+            - postgis
+            - sqlapi
+        environment:
+            - CARTO_ENV=${CARTO_ENV}
 
-  sqlapi:
-    container_name: sqlapi
-    build:
-      context: docker/sqlapi
-    depends_on:
-      - redis
-      - postgis
-    environment:
-      - CARTO_SQLAPI_VERSION=${CARTO_SQLAPI_VERSION}
+    varnish:
+        container_name: varnish
+        build:
+            context: docker/varnish
+        environment:
+            - VARNISH_HTTP_PORT=${VARNISH_HTTP_PORT}
+        depends_on:
+            - sqlapi
+            - windshaft
 
-  redis:
-    container_name: redis
-    build:
-      context: docker/redis
-    volumes:
-      - redis-data:/data
+    redis:
+        container_name: redis
+        build:
+            context: docker/redis
+        volumes:
+            - osscarto-multi-redis-data:/data
 
-  postgis:
-    container_name: postgis
-    build:
-      context: docker/postgis
-    volumes:
-      - postgis-data:/var/lib/postgresql/data
-      - postgis-extensions:/usr/share/postgresql
-    ports:
-      - "5432:5432"
-    environment:
-      - CARTO_PGEXT_VERSION=${CARTO_PGEXT_VERSION}
-      - CARTO_DATASVCS_API_CLIENT_VERSION=${CARTO_DATASVCS_API_CLIENT_VERSION}
-      - CARTO_DATASVCS_API_SERVER_VERSION=${CARTO_DATASVCS_API_SERVER_VERSION}
-      - CARTO_DATASVCS_VERSION=${CARTO_DATASVCS_VERSION}
-      - CARTO_ODBC_FDW_VERSION=${CARTO_ODBC_FDW_VERSION}
-      - CARTO_CRANKSHAFT_VERSION=${CARTO_CRANKSHAFT_VERSION}
-      - CARTO_OBSERVATORY_VERSION=${CARTO_OBSERVATORY_VERSION}
+    postgis:
+        container_name: postgis
+        image: osscarto-multi-postgis:latest
+        volumes:
+            - osscarto-multi-postgis-data:/var/lib/postgresql/data
+            - osscarto-multi-postgis-extensions:/usr/share/postgresql
+        ports:
+            - "5432:5432"
