@@ -1,0 +1,75 @@
+{
+    "carto_env": "development",
+
+    "stack_scheme": "https",
+    "stack_fqdn": "osscarto-multi.localhost",
+    "stack_domain": "localhost",
+    "stack_listen_port": "443",
+
+    "user_db_basename": "cartodb_dev_user",
+    "db_user_basename": "development_cartodb_user",
+    "publicuser_role_name": "publicuser",
+    "publicuser_role_password": "public",
+
+    "sqlapi_host": "sqlapi",
+    "sqlapi_listen_port": "8080",
+
+    "postgis_host": "postgis",
+    "postgis_listen_port": "5432",
+    "postgis_batch_port": "5432",
+    "postgis_admin_user": "postgres",
+
+    "geocoder_db_name": "dataservices_db",
+    "geocoder_pg_role_name": "geocoder_api",
+
+    "redis_host": "redis",
+    "redis_listen_port": "6379",
+
+    "cartodb_scheme": "http",
+    "cartodb_host": "cartodb",
+    "cartodb_listen_port": "3000",
+    "cartodb_secret_token": "d53d09d73dbe4b878f311d4cd89d0728",
+    "cartodb_common_data_scheme": "https",
+    "cartodb_common_data_username": "common-data",
+    "cartodb_common_data_baseurl": "https://common-data.carto.com",
+    "cartodb_common_data_regen_time": "86400",
+
+    "varnish_purge_hosts": [
+        { "host": "localhost" },
+        { "host": "127.0.0.1" },
+        { "host": "postgis" },
+        { "host": "redis" },
+        { "host": "sqlapi" },
+        { "host": "windshaft" },
+        { "host": "cartodb" }
+    ],
+    "varnish_scheme": "http",
+    "varnish_host": "varnish",
+    "varnish_http_port": "6081",
+    "varnish_telnet_port": "6082",
+
+    "windshaft_scheme": "http",
+    "windshaft_listen_port": "8181",
+    "windshaft_host": "windshaft",
+
+    "pgext_version": "0.28.1",
+    "crankshaft_version": "0.8.2",                                              
+    "sqlapi_version": "3.0.0",                                                  
+    "windshaft_version": "7.1.0",                                               
+    "cartodb_version": "v4.29.0",                                               
+    "dataservices_version": "0.0.2",                                            
+    "dataservices_api_server_version": "0.35.1-server",                         
+    "dataservices_api_client_version": "0.26.2-client",                         
+    "observatory_version": "1.9.0",
+    "odbc_fdw_version": "0.3.0",
+
+    "user_account_user_name": "dev",
+    "user_account_password": "pass1234",
+    "user_admin_password": "pass1234",
+    "user_account_email": "cartouser@example.com",
+
+    "org_account_org_name": "dev-org",
+    "org_account_user_name": "admin4example",
+    "org_account_email": "cartoorguser@example.com",
+    "org_account_password": "pass1234"
+}
