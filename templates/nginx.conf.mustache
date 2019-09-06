@@ -76,6 +76,11 @@ http {
         proxy_pass {{{cartodb_scheme}}}://{{{cartodb_host}}}:{{{cartodb_listen_port}}}; # MUSTACHE
       }
 
+      # Part of fixing CORS problems for fonts on a CDN
+      location ~* \.(eot|otf|ttf|woff|woff2)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
       error_log /var/log/nginx/cartodb_error.log;
       access_log /var/log/nginx/cartodb_access.log main;
     }
