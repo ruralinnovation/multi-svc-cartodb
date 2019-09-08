@@ -114,14 +114,23 @@ if [[ -z $org_user_exists ]]; then
         ORGANIZATION_NAME="${ORG_ACCOUNT_ORG_NAME}" \
         USERNAME="${ORG_ACCOUNT_USER_NAME}" \
         ORGANIZATION_SEATS=100 \
-        ORGANIZATION_QUOTA=102400 \
+        ORGANIZATION_QUOTA=107374182400 \
         ORGANIZATION_DISPLAY_NAME="${ORG_ACCOUNT_ORG_NAME}"
+
+    echo "--- Setting viewer seats '${ORG_ACCOUNT_ORG_NAME}'..."
+    bundle exec rake cartodb:db:set_organization_viewer_seats[$ORG_ACCOUNT_ORG_NAME,20]
 
     echo "--- Setting organization quota for org '${ORG_ACCOUNT_ORG_NAME}'..."
     bundle exec rake cartodb:db:set_organization_quota[${ORG_ACCOUNT_ORG_NAME},5000]
 
     echo "--- Setting up geocoder for org '${ORG_ACCOUNT_ORG_NAME}'..."
     bundle exec rake cartodb:db:configure_geocoder_extension_for_organizations[${ORG_ACCOUNT_ORG_NAME}]
+
+    echo "--- Setting custom limits for user '${ORG_ACCOUNT_USER_NAME}'..."
+    bundle exec rake cartodb:set_custom_limits_for_user[$USERNAME,"10737418240","5000000","50"]
+    
+    echo "--- Setting max layers for '${ORG_ACCOUNT_USER_NAME}'..."
+    bundle exec rake user:change:max_layers[$ORG_ACCOUNT_USER_NAME,30]
 
     cat <<EOF | psql $PG_CONN -d $PG_METADATA_DB
 UPDATE users SET sync_tables_enabled=true WHERE username='${ORG_ACCOUNT_USER_NAME}';
