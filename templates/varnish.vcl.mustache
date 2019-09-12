@@ -47,3 +47,10 @@ sub vcl_miss {
         error 200 "Purged.";
     }
 }
+
+sub vcl_recv {
+   if (req.request == "GET" && req.url == "/varnish-status") {
+       error 200 "OK";
+   }
+}
+
