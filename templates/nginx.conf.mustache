@@ -25,6 +25,13 @@ http {
     gzip on;
 
     server {
+        listen 80;
+        server_name {{{stack_fqdn}}};
+
+        return 301 https://{{{stack_fqdn}}}$request_uri;
+    }
+
+    server {
       listen {{{stack_listen_port}}} ssl http2;
       server_name   {{{stack_fqdn}}};       # MUSTACHE
 
