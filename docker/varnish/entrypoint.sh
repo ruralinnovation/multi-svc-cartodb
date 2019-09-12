@@ -24,4 +24,8 @@ echo "Starting varnishd (foregrounded) as container entrypoint."
 /opt/varnish/sbin/varnishd -F \
     -a :${VARNISH_HTTP_PORT} \
     -s malloc,256m \
-    -f /etc/varnish.vcl
+    -f /etc/varnish.vcl \
+    -p http_req_hdr_len=32768 \
+    -p http_req_size=65536 \
+    -p http_resp_hdr_len=32768 \
+    -p http_resp_size=65536
