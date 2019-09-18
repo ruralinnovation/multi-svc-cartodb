@@ -15,28 +15,30 @@ Usage: $SCRIPT_NAME [<OPTIONS>]
 
 Purpose: Generates certificates for configuring the stack to use HTTPS locally.
 
-         The script generates the following files, in 'docker/ssl', based on
-         the values given for SUBDOMAIN and DOMAIN. Assuming the defaults of
-         'osscarto-multi' and 'localhost', those files would be:
+         The script generates the following files, in 'local-ssl', based on
+         the values given for SUBDOMAIN and DOMAIN. The filenames are always
+         based on 'osscarto-multi' and 'localhost', but the values you give
+         for SUBDOMAIN and DOMAIN will be what are used to generate the
+         certificate files.
 
-           osscarto-multiCA.key    Cryptographic key that the Certificate
+           osscarto-multiCA.key     Cryptographic key that the Certificate
                                     Authority root certificate is based on.
 
-           osscarto-multiCA.pem    The Certificate Authority root certificate.
+           osscarto-multiCA.pem     The Certificate Authority root certificate.
 
-           osscarto-multiCA.srl    List of serial numbers already used by the
+           osscarto-multiCA.srl     List of serial numbers already used by the
                                     CA to create unique certificates.
 
-           osscarto-multi.localhost.key   Cryptographic key that the SSL certificate
+           osscarto-multi.localhost.key    Cryptographic key that the SSL certificate
                                            is based on.
 
-           osscarto-multi.localhost.csr   Certificate signing request for the SSL
+           osscarto-multi.localhost.csr    Certificate signing request for the SSL
                                            certificate, which allows it to be signed
                                            via the Certificate Authority root cert.
 
            osscarto-multi.localhost.crt    SSL certificate generated using the SSL key,
-                                            the CA root certificate, and the certificate
-                                            signing request.
+                                           the CA root certificate, and the certificate
+                                           signing request.
 
          Note: If the osscarto-multiCA.key and osscarto-multiCA.pem files are found to
                already exist, they will not be recreated unless you use the
@@ -47,7 +49,7 @@ Purpose: Generates certificates for configuring the stack to use HTTPS locally.
 Options:    -h|--help         Display this message and exit.
 
             -f|--force        (Re-)generate the CA root certificate, even if one
-                              already exists in docker/ssl. If you do this, it
+                              already exists in local-ssl. If you do this, it
                               will be necessary to re-add the root cert .pem file
                               to your local trusted certificate store in order to
                               have the site certificate trusted by browsers.
@@ -207,13 +209,13 @@ PASSWORD="abc123def"
 SSL_DIRECTORY="${REPO_ROOT}/local-ssl"
 mkdir -p $SSL_DIRECTORY
 
-SSL_BASE_NAME="${FQDN}"
+SSL_BASE_NAME="osscarto-multi.localhost"
 SSL_KEYFILE="${SSL_DIRECTORY}/${SSL_BASE_NAME}.key"
 SSL_CSRFILE="${SSL_DIRECTORY}/${SSL_BASE_NAME}.csr"
 SSL_CERTFILE="${SSL_DIRECTORY}/${SSL_BASE_NAME}.crt"
 
 # Certificate authority info variables
-CA_BASE_NAME="${SUBDOMAIN}CA"
+CA_BASE_NAME="osscarto-multiCA"
 CA_KEYFILE="${SSL_DIRECTORY}/${CA_BASE_NAME}.key"
 CA_ROOTCERT="${SSL_DIRECTORY}/${CA_BASE_NAME}.pem"
 
@@ -266,7 +268,7 @@ echo "*                    $FQDN                                             "
 echo "*                                                                      "
 echo "* In order to use them, you must take the following manual steps:      "
 echo "*                                                                      "
-echo "*    1) Add the file docker/ssl/${SUBDOMAIN}CA.pem to your machine's   "
+echo "*    1) Add the file local-ssl/osscarto-multiCA.pem to your machine's  "
 echo "*       trusted certificate store, so that your browser can use it to  "
 echo "*       authenticate the certificate which Nginx uses for signing.     "
 echo "*    2) Add the following line to your /etc/hosts file:                "
