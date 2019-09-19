@@ -69,7 +69,7 @@ compose-up:
 compose-down:
 	@bin/compose-build-specific --buildconf $(buildconf) down
 
-compose-purge-volumes:
+compose-purge-volumes: compose-down
 	@docker volume ls -f name=osscarto-multi --format '{{.Name}}' | xargs docker volume rm
 
 generate-ssl:
