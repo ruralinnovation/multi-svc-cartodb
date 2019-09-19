@@ -33,6 +33,7 @@ docker/nginx/config/*
 
 # Ignore build output
 builds/*
+!builds/README.md
 
 # Ignore build configs outside the default
 build-configurations/*.json

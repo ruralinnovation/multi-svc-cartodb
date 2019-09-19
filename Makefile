@@ -1,4 +1,4 @@
-.PHONY: help compose-config compose-build compose-up compose-down generate-ssl install generate-build use-build docker-build-cartobase packer-build-postgis compose-purge-volumes
+.PHONY: help compose-config compose-build compose-up compose-down generate-ssl install generate-build use-build docker-build-cartobase packer-build-postgis compose-purge-volumes clean clean-all
 .DEFAULT_GOAL := help
 
 buildconf?=DEFAULT
@@ -14,26 +14,27 @@ help:
 	@echo "                                 use-build"
 	@echo "                                 packer-build-postgis"
 	@echo "                                 compose-build"
-	@echo ""
+	@echo "    clean                    - Removes all build artifacts from builds"
+	@echo "                               directory and docker contexts, including"
+	@echo "                               removing SSL files from docker contexts."
+	@echo "                               Does not remove contents of local-ssl."
+	@echo "    clean-all                - Runs make clean, also removes contents"
+	@echo "                               of local-ssl directory."
 	@echo "    generate-ssl             - Runs the script bin/generate-ssl-certs.sh"
 	@echo "                               in interactive mode, which will prompt"
 	@echo "                               for values to use when creating SSL certs."
-	@echo ""
 	@echo "    docker-build-cartobase   - Runs 'docker build' to create the base"
 	@echo "                               image ('cartobase:latest') that the"
 	@echo "                               cartodb, windshaft, and sqlapi images"
 	@echo "                               use as a starting point."
-	@echo ""
 	@echo "    generate-build           - For the supplied buildconf (DEFAULT by"
 	@echo "                               default), generates config and env files"
 	@echo "                               in a matching directory in builds/."
-	@echo ""
 	@echo "    use-build                - For the specified buildconf, copies the"
 	@echo "                               built config files to the appropriate"
 	@echo "                               docker contexts. Also copies the SSL"
 	@echo "                               certificates from local-ssl to the"
 	@echo "                               docker contexts that use them."
-	@echo ""
 	@echo "    packer-build-postgis     - Runs the 'packer build' command to"
 	@echo "                               create the 'osscarto-multi-postgis:latest"
 	@echo "                               image that Docker Compose includes as the"
@@ -87,6 +88,36 @@ install: docker-build-cartobase generate-build use-build packer-build-postgis co
 	@echo "*                                                                   *"
 	@echo "*********************************************************************"
 	@echo ""
+
+clean:
+	rm -rf builds/*
+	@git checkout --quiet master builds/README.md
+	rm -rf docker/cartodb/config/*
+	@git checkout --quiet master docker/cartodb/config/README.md
+	rm -rf docker/cartodb/ssl/*
+	@git checkout --quiet master docker/cartodb/ssl/README.md
+	rm -rf docker/nginx/config/*
+	@git checkout --quiet master docker/nginx/config/README.md
+	rm -rf docker/nginx/ssl/*
+	@git checkout --quiet master docker/nginx/ssl/README.md
+	rm -rf docker/redis/ssl/*
+	@git checkout --quiet master docker/redis/ssl/README.md
+	rm -rf docker/sqlapi/config/*
+	@git checkout --quiet master docker/sqlapi/config/README.md
+	rm -rf docker/sqlapi/ssl/*
+	@git checkout --quiet master docker/sqlapi/ssl/README.md
+	rm -rf docker/varnish/config/*
+	@git checkout --quiet master docker/varnish/config/README.md
+	rm -rf docker/varnish/ssl/*
+	@git checkout --quiet master docker/varnish/ssl/README.md
+	rm -rf docker/windshaft/config/*
+	@git checkout --quiet master docker/windshaft/config/README.md
+	rm -rf docker/windshaft/ssl/*
+	@git checkout --quiet master docker/windshaft/ssl/README.md
+
+clean-all: clean
+	rm -rf local-ssl/*
+	@git checkout --quiet master local-ssl/README.md
 
 generate-build:
 	@bin/build-named-stack-config.sh --buildconf $(buildconf)
