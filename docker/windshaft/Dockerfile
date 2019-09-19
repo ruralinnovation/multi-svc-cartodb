@@ -1,4 +1,4 @@
-FROM cartobuilder:latest
+FROM cartobase:latest
 
 WORKDIR /carto
 
@@ -11,6 +11,7 @@ RUN git config --global advice.detachedHead false \
  && cd /carto/Windshaft-cartodb \
  && git checkout ${WINDSHAFT_VERSION} \
  && git submodule update --recursive \
+ && npm install --unsafe-perm \
  && npm install --unsafe-perm \
  && mkdir -p /carto/Windshaft-cartodb/logs
 

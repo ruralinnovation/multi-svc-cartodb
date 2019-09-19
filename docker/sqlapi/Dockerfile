@@ -1,4 +1,4 @@
-FROM cartobuilder:latest
+FROM cartobase:latest
 
 WORKDIR /carto
 
