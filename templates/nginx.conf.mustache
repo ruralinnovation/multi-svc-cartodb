@@ -35,9 +35,9 @@ http {
       listen {{{stack_listen_port}}} ssl http2;
       server_name   {{{stack_fqdn}}};       # MUSTACHE
 
-      ssl_certificate       /etc/ssl/{{{stack_fqdn}}}.crt;                  
-      ssl_certificate_key   /etc/ssl/{{{stack_fqdn}}}.key;                  
-      ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;                            
+      ssl_certificate       /etc/ssl/osscarto-multi.localhost.crt;
+      ssl_certificate_key   /etc/ssl/osscarto-multi.localhost.key;
+      ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
       ssl_prefer_server_ciphers   on;
       ssl_ciphers           ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DH+3DES:!ADH:!AECDH:!MD5;
 
@@ -90,6 +90,11 @@ http {
       # Part of fixing CORS problems for fonts on a CDN
       location ~* \.(eot|otf|ttf|woff|woff2)$ {
         add_header Access-Control-Allow-Origin *;
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_pass {{{cartodb_scheme}}}://{{{cartodb_host}}}:{{{cartodb_listen_port}}}; # MUSTACHE
       }
 
       error_log /var/log/nginx/cartodb_error.log;
