@@ -12,6 +12,7 @@ To use this repository, you will need:
 * [Packer](https://www.packer.io) (1.4.2+)
 * `git` (2.21+)
 * `make`
+* `node`
 * Access to a `bash` shell.
 
 ## Step by step instructions
