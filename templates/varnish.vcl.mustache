@@ -22,6 +22,8 @@ sub vcl_recv {
         }
         return (lookup);
     }
+    
+    unset req.http.cookie;
 
     # Routing request to backend based on X-Carto-Service header from nginx
     if (req.http.X-Carto-Service == "sqlapi") {
